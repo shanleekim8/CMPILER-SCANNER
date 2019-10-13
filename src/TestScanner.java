@@ -1,4 +1,3 @@
-
 import java.io.File;
 import java.io.FileInputStream;
 
@@ -13,20 +12,19 @@ public class TestScanner {
             FileInputStream fis = new FileInputStream(new File("./src/testInput.txt"));
             Scanner lexer = new Scanner(CharStreams.fromStream(fis));
             lexer.removeErrorListeners();
-            lexer.addErrorListener(new ThrowingErrorListener());
 
             Token token = lexer.nextToken();
             while (token.getType() != Scanner.EOF){
                 if(token.getType() != Scanner.WS){
                     System.out.println(token.getText() + "\t\t" + getTokenType(token.getType()));
                 }
+
                 token = lexer.nextToken();
+
             }
 
         }catch(Exception e){
-
             System.out.println("UNKNOWN TOKEN CLASS " + e.getMessage().split("recognition error at: ")[1]);
-
         }
 
     }
@@ -53,22 +51,18 @@ public class TestScanner {
                 return "STRING_LITERAL";
             case Scanner.NULL_LITERAL:
                 return "NULL_LITERAL";
-            case Scanner.WS:
-                return "WS";
-            case Scanner.COMMENT:
-                return "COMMENT";
             default:
                 return "";
         }
     }
 
-    static class ThrowingErrorListener extends BaseErrorListener {
+    static class ThrowingErrorListener extends ConsoleErrorListener {
 
         @Override
         public void syntaxError(Recognizer<?, ?> recognizer, Object offendingSymbol, int line, int charPositionInLine, String msg, RecognitionException e)
                 throws ParseCancellationException {
 
-            throw new ParseCancellationException("line " + line + ":" + charPositionInLine + " " + msg);
+            return;
         }
 
     }
