@@ -1,8 +1,8 @@
 import java.io.File;
 import java.io.FileInputStream;
-
 import org.antlr.v4.runtime.*;
 import org.antlr.v4.runtime.misc.ParseCancellationException;
+
 
 public class TestScanner {
 

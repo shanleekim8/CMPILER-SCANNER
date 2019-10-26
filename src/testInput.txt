@@ -1,3 +1,7 @@
 outputf "Hello World";
-// im a comment
-outputf  'Hello';
+// im a comment;
+free 232
+inputf 'a'
+inputf '1'
+fantasy final;
+techies x = 3;
