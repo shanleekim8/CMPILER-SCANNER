@@ -1,8 +1,10 @@
-import java.io.File;
-import java.io.FileInputStream;
 import org.antlr.v4.runtime.*;
 import org.antlr.v4.runtime.misc.ParseCancellationException;
+import org.antlr.v4.gui.TreeViewer;
 
+import java.io.File;
+import java.io.FileInputStream;
+import java.util.Arrays;
 
 public class TestScanner {
 
@@ -10,13 +12,21 @@ public class TestScanner {
 
         try{
             FileInputStream fis = new FileInputStream(new File("./src/testInput.txt"));
-            Scanner lexer = new Scanner(CharStreams.fromStream(fis));
+            JSFMLexer lexer = new JSFMLexer(CharStreams.fromStream(fis));
             lexer.removeErrorListeners();
+            TokenStream stream = new CommonTokenStream(lexer);
+            JSFMParser parser = new JSFMParser(stream);
+            org.antlr.v4.runtime.tree.ParseTree pTree = parser.compilationUnit();
 
+            TreeViewer viewer = new TreeViewer(Arrays.asList(
+                    parser.getRuleNames()),pTree);
+
+            viewer.open();
             Token token = lexer.nextToken();
-            while (token.getType() != Scanner.EOF){
-                if(token.getType() != Scanner.WS){
-                    System.out.println(token.getText() + "\t\t" + getTokenType(token.getType()));
+
+            while (token.getType() != JSFMLexer.EOF){
+                if(token.getType() != JSFMLexer.WS){
+                    //System.out.println(token.getText() + "\t\t" + getTokenType(token.getType()));
                 }
 
                 token = lexer.nextToken();
@@ -29,32 +39,36 @@ public class TestScanner {
 
     }
 
-    private static String getTokenType(int tokenType) {
-        switch (tokenType) {
-            case Scanner.KEYWORD:
-                return "KEYWORD";
-            case Scanner.IDENTIFIER:
-                return "IDENTIFIER";
-            case Scanner.SEPARATOR:
-                return "SEPARATOR";
-            case Scanner.OPERATOR:
-                return "OPERATOR";
-            case Scanner.DECIMAL_LITERAL:
-                return "DECIMAL_LITERAL";
-            case Scanner.FLOAT_LITERAL:
-                return "FLOAT_LITERAL";
-            case Scanner.BOOL_LITERAL:
-                return "BOOL_LITERAL";
-            case Scanner.CHAR_LITERAL:
-                return "CHAR_LITERAL";
-            case Scanner.STRING_LITERAL:
-                return "STRING_LITERAL";
-            case Scanner.NULL_LITERAL:
-                return "NULL_LITERAL";
-            default:
-                return "";
-        }
-    }
+//    private static String getTokenType(int tokenType) {
+//        switch (tokenType) {
+//            case JSFMLexer.KEYWORD:
+//                return "KEYWORD";
+//            case JSFMLexer.IDENTIFIER:
+//                return "IDENTIFIER";
+//            case JSFMLexer.SEPARATOR:
+//                return "SEPARATOR";
+//            case JSFMLexer.OPERATOR:
+//                return "OPERATOR";
+//            case JSFMLexer.DECIMAL_LITERAL:
+//                return "DECIMAL_LITERAL";
+//            case JSFMLexer.FLOAT_LITERAL:
+//                return "FLOAT_LITERAL";
+//            case JSFMLexer.BOOL_LITERAL:
+//                return "BOOL_LITERAL";
+//            case JSFMLexer.CHAR_LITERAL:
+//                return "CHAR_LITERAL";
+//            case JSFMLexer.STRING_LITERAL:
+//                return "STRING_LITERAL";
+//            case JSFMLexer.NULL_LITERAL:
+//                return "NULL_LITERAL";
+//            case JSFMLexer.WS:
+//                return "WS";
+//            case JSFMLexer.COMMENT:
+//                return "COMMENT";
+//            default:
+//                return "";
+//        }
+//    }
 
     static class ThrowingErrorListener extends ConsoleErrorListener {
 

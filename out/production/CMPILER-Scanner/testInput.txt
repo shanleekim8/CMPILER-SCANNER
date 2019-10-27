@@ -1,3 +1,4 @@
-outputf "Hello World";
-// im a comment
-outputf  'Hello';
+main{
+techies x = 0;
+ultimate coke c = 2.23;
+}

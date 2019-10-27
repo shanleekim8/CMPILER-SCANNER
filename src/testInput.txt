@@ -1,7 +1,4 @@
-outputf "Hello World";
-// im a comment;
-free 232
-inputf 'a'
-inputf '1'
-fantasy final;
-techies x = 3;
+main{
+techies x = 0;
+ultimate coke c = 2.23;
+}

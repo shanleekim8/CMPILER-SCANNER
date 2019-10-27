@@ -2,7 +2,7 @@
 <project version="4">
   <component name="ProjectModuleManager">
     <modules>
-      <module fileurl="file://$PROJECT_DIR$/.idea/CMPILER-SCANNER.iml" filepath="$PROJECT_DIR$/.idea/CMPILER-SCANNER.iml" />
+      <module fileurl="file://$PROJECT_DIR$/CMPILER-Scanner.iml" filepath="$PROJECT_DIR$/CMPILER-Scanner.iml" />
     </modules>
   </component>
 </project>
