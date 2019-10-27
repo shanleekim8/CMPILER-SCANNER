@@ -26,7 +26,7 @@ public class TestScanner {
             TreeViewer viewer = new TreeViewer(Arrays.asList(
                     parser.getRuleNames()),pTree);
 
-            viewer.open();
+            // viewer.open();
             Token token = lexer.nextToken();
 
             while (token.getType() != JSFMLexer.EOF){
@@ -74,14 +74,18 @@ public class TestScanner {
 //        }
 //    }
 
-//    static class ThrowingErrorListener extends ConsoleErrorListener {
-      static class ThrowingErrorListener extends ConsoleErrorListener {
+    //    static class ThrowingErrorListener extends ConsoleErrorListener {
+    static class ThrowingErrorListener extends ConsoleErrorListener {
 
         @Override
         public void syntaxError(Recognizer<?, ?> recognizer, Object offendingSymbol, int line, int charPositionInLine, String msg, RecognitionException e)
                 throws ParseCancellationException {
-            System.err.println("You got yeeted in line " + line + ": unexpected " + offendingSymbol);
-//          throw new ParseCancellationException("Error in line " + line + ": " + msg);
+            String error = msg.split("'")[1];
+            if(msg.contains("extraneous input"))
+                System.err.println("ERROR - LINE " + line + ": extra character - " + error);
+            else if(msg.contains("mismatched input")) //another error
+                System.err.println("ERROR - LINE " + line + ": unexpected " + msg);
+            //          throw new ParseCancellationException("Error in line " + line + ": " + msg);
 //          throw new ParseCancellationException("line " + line + ":" + charPositionInLine + " " + msg);
 //          return;
         }
