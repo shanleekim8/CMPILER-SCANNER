@@ -14,8 +14,13 @@ public class TestScanner {
             FileInputStream fis = new FileInputStream(new File("./src/testInput.txt"));
             JSFMLexer lexer = new JSFMLexer(CharStreams.fromStream(fis));
             lexer.removeErrorListeners();
+            lexer.addErrorListener(new ThrowingErrorListener());
+
             TokenStream stream = new CommonTokenStream(lexer);
             JSFMParser parser = new JSFMParser(stream);
+            parser.removeErrorListeners();
+            parser.addErrorListener(new ThrowingErrorListener());
+
             org.antlr.v4.runtime.tree.ParseTree pTree = parser.compilationUnit();
 
             TreeViewer viewer = new TreeViewer(Arrays.asList(
@@ -30,7 +35,6 @@ public class TestScanner {
                 }
 
                 token = lexer.nextToken();
-
             }
 
         }catch(Exception e){
@@ -70,13 +74,16 @@ public class TestScanner {
 //        }
 //    }
 
-    static class ThrowingErrorListener extends ConsoleErrorListener {
+//    static class ThrowingErrorListener extends ConsoleErrorListener {
+      static class ThrowingErrorListener extends ConsoleErrorListener {
 
         @Override
         public void syntaxError(Recognizer<?, ?> recognizer, Object offendingSymbol, int line, int charPositionInLine, String msg, RecognitionException e)
                 throws ParseCancellationException {
-
-            return;
+            System.err.println("You got yeeted in line " + line + ": unexpected " + offendingSymbol);
+//          throw new ParseCancellationException("Error in line " + line + ": " + msg);
+//          throw new ParseCancellationException("line " + line + ":" + charPositionInLine + " " + msg);
+//          return;
         }
 
     }
