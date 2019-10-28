@@ -27,6 +27,18 @@ public class JSFMParserBaseListener implements JSFMParserListener {
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
+	@Override public void enterMainStatement(JSFMParser.MainStatementContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void exitMainStatement(JSFMParser.MainStatementContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
 	@Override public void enterVariableModifier(JSFMParser.VariableModifierContext ctx) { }
 	/**
 	 * {@inheritDoc}

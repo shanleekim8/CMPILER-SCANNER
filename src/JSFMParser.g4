@@ -2,7 +2,9 @@ parser grammar JSFMParser;
 
 options { tokenVocab=JSFMLexer; }
 
-compilationUnit :  MAIN block EOF;
+compilationUnit :  mainStatement EOF;
+
+mainStatement : (memberDeclaration)* MAIN block (memberDeclaration)*;
 
 variableModifier : FINAL;
 
@@ -155,10 +157,10 @@ primary
     | typeTypeOrVoid '.' CLASS
     ;
 
-inputStatement  : INPUT LPAREN (expression | LetterOrDigit*)
-                ((ADD) (expression | LetterOrDigit*))* RPAREN;
+inputStatement  : INPUT LPAREN (expression | QUOTE LetterOrDigit* QUOTE)
+                COMMA IDENTIFIER RPAREN SEMI;
 
-outputStatement : OUTPUT LPAREN (expression | LetterOrDigit)
-                ((ADD) (expression | LetterOrDigit))* RPAREN;
+outputStatement : OUTPUT LPAREN (expression | QUOTE LetterOrDigit* QUOTE)
+                ((ADD) (expression | QUOTE LetterOrDigit* QUOTE))* RPAREN SEMI;
 
 primitiveType : BOOLEAN | CHAR | INT | FLOAT;

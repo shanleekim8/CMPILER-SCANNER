@@ -26,7 +26,7 @@ public class TestScanner {
             TreeViewer viewer = new TreeViewer(Arrays.asList(
                     parser.getRuleNames()),pTree);
 
-            // viewer.open();
+            viewer.open();
             Token token = lexer.nextToken();
 
             while (token.getType() != JSFMLexer.EOF){
@@ -82,9 +82,17 @@ public class TestScanner {
                 throws ParseCancellationException {
             String error = msg.split("'")[1];
             if(msg.contains("extraneous input"))
-                System.err.println("ERROR - LINE " + line + ": extra character - " + error);
+                System.err.println("ERROR - LINE " + line + ": extra character '" + error + "'");
             else if(msg.contains("mismatched input")) //another error
-                System.err.println("ERROR - LINE " + line + ": unexpected " + msg);
+                System.err.println("ERROR - LINE " + line + ": unexpected '" + error + "'");
+            else if(msg.contains("missing"))
+                System.err.println("ERROR - LINE " + line + ": missing '" + error + "'");
+            else if(msg.contains("no viable alternative"))
+                System.err.println("ERROR - LINE " + line + ": does not match any syntax '" + error + "'");
+            else if(msg.contains("token recognition error"))
+                System.err.println("ERROR - LINE " + line + ": unknown token type of '" + error + "'");
+            else
+                System.err.println(msg);
             //          throw new ParseCancellationException("Error in line " + line + ": " + msg);
 //          throw new ParseCancellationException("line " + line + ":" + charPositionInLine + " " + msg);
 //          return;

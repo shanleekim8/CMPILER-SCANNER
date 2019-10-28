@@ -16,6 +16,12 @@ public interface JSFMParserVisitor<T> extends ParseTreeVisitor<T> {
 	 */
 	T visitCompilationUnit(JSFMParser.CompilationUnitContext ctx);
 	/**
+	 * Visit a parse tree produced by {@link JSFMParser#mainStatement}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitMainStatement(JSFMParser.MainStatementContext ctx);
+	/**
 	 * Visit a parse tree produced by {@link JSFMParser#variableModifier}.
 	 * @param ctx the parse tree
 	 * @return the visitor result

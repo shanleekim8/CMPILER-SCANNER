@@ -17,6 +17,16 @@ public interface JSFMParserListener extends ParseTreeListener {
 	 */
 	void exitCompilationUnit(JSFMParser.CompilationUnitContext ctx);
 	/**
+	 * Enter a parse tree produced by {@link JSFMParser#mainStatement}.
+	 * @param ctx the parse tree
+	 */
+	void enterMainStatement(JSFMParser.MainStatementContext ctx);
+	/**
+	 * Exit a parse tree produced by {@link JSFMParser#mainStatement}.
+	 * @param ctx the parse tree
+	 */
+	void exitMainStatement(JSFMParser.MainStatementContext ctx);
+	/**
 	 * Enter a parse tree produced by {@link JSFMParser#variableModifier}.
 	 * @param ctx the parse tree
 	 */
