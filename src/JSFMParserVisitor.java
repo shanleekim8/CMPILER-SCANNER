@@ -184,6 +184,18 @@ public interface JSFMParserVisitor<T> extends ParseTreeVisitor<T> {
 	 */
 	T visitLocalVariableDeclaration(JSFMParser.LocalVariableDeclarationContext ctx);
 	/**
+	 * Visit a parse tree produced by {@link JSFMParser#returnStatement}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitReturnStatement(JSFMParser.ReturnStatementContext ctx);
+	/**
+	 * Visit a parse tree produced by {@link JSFMParser#returnExpression}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitReturnExpression(JSFMParser.ReturnExpressionContext ctx);
+	/**
 	 * Visit a parse tree produced by {@link JSFMParser#statement}.
 	 * @param ctx the parse tree
 	 * @return the visitor result
@@ -237,6 +249,12 @@ public interface JSFMParserVisitor<T> extends ParseTreeVisitor<T> {
 	 * @return the visitor result
 	 */
 	T visitMethodCall(JSFMParser.MethodCallContext ctx);
+	/**
+	 * Visit a parse tree produced by {@link JSFMParser#prepostFix}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitPrepostFix(JSFMParser.PrepostFixContext ctx);
 	/**
 	 * Visit a parse tree produced by {@link JSFMParser#expression}.
 	 * @param ctx the parse tree

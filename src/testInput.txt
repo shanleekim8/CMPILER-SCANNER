@@ -1,38 +1,4 @@
-faceless testOne(){
-    techies x = 0;
-    inputf("Hello. I need your number: ", x);
-    repeat(techies i=0; i< 10; i++)
-        outputf("Yes" + x +);
-
-        x = 5x;
-}
-
-faceless testTwo(coke x) {
-	upon(x = 4)
-	{
-		outputf("x is a very huge number");
-	}
-}
-
-faceless testThree(techies x, techies y) {
-	techies i = 0;
-	perform {
-		i++;
-	} during(i == x);
-}
-
-faceless testFour(techies x, techies y, z)
-{
-  techies sum = x + y + z;
-}
-
-testFive()
-{
- outputf("Hello");
-}
-
 main{
-techies x = 0;
-ultimate coke c = 2.23;
-x = 4;
+thread s = "ugh";
+outputf("Hello" + " Hi " + "Nice to meet you!" + "\n");
 }

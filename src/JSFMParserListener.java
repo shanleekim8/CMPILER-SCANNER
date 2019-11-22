@@ -297,6 +297,26 @@ public interface JSFMParserListener extends ParseTreeListener {
 	 */
 	void exitLocalVariableDeclaration(JSFMParser.LocalVariableDeclarationContext ctx);
 	/**
+	 * Enter a parse tree produced by {@link JSFMParser#returnStatement}.
+	 * @param ctx the parse tree
+	 */
+	void enterReturnStatement(JSFMParser.ReturnStatementContext ctx);
+	/**
+	 * Exit a parse tree produced by {@link JSFMParser#returnStatement}.
+	 * @param ctx the parse tree
+	 */
+	void exitReturnStatement(JSFMParser.ReturnStatementContext ctx);
+	/**
+	 * Enter a parse tree produced by {@link JSFMParser#returnExpression}.
+	 * @param ctx the parse tree
+	 */
+	void enterReturnExpression(JSFMParser.ReturnExpressionContext ctx);
+	/**
+	 * Exit a parse tree produced by {@link JSFMParser#returnExpression}.
+	 * @param ctx the parse tree
+	 */
+	void exitReturnExpression(JSFMParser.ReturnExpressionContext ctx);
+	/**
 	 * Enter a parse tree produced by {@link JSFMParser#statement}.
 	 * @param ctx the parse tree
 	 */
@@ -386,6 +406,16 @@ public interface JSFMParserListener extends ParseTreeListener {
 	 * @param ctx the parse tree
 	 */
 	void exitMethodCall(JSFMParser.MethodCallContext ctx);
+	/**
+	 * Enter a parse tree produced by {@link JSFMParser#prepostFix}.
+	 * @param ctx the parse tree
+	 */
+	void enterPrepostFix(JSFMParser.PrepostFixContext ctx);
+	/**
+	 * Exit a parse tree produced by {@link JSFMParser#prepostFix}.
+	 * @param ctx the parse tree
+	 */
+	void exitPrepostFix(JSFMParser.PrepostFixContext ctx);
 	/**
 	 * Enter a parse tree produced by {@link JSFMParser#expression}.
 	 * @param ctx the parse tree
