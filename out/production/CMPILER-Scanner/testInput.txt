@@ -1,7 +1,10 @@
 main{
-techies x = 3;
-techies test[][] = {{1,2,3,4}, {5,6,7}};
-coke test2[] = {1.1,2,3.4};
-thread sample[] = {"Volvo", "BMW", "Ford", "Mazda"};
-kachow charot[][] = {{'a','b','c','d','e'}, {'x','y','z'}};
+techies x = 3,y,z;
+kachow charot = 'a';
+outputf(charot + "\n");
+charot = 'z';
+outputf(charot + "\n");
+techies j = 5, k = 10;
+x = 5;
+outputf(x);
 }

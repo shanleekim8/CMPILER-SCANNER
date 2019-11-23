@@ -47,45 +47,45 @@ public class JSFMListener implements JSFMParserListener {
      * <p>The default implementation does nothing.</p>
      */
     @Override public void exitCompilationUnit(JSFMParser.CompilationUnitContext ctx) {
-        Enumeration e = symbolTable.keys();
-        JSFMValues value;
-
-        while(e.hasMoreElements()){
-            Object el = e.nextElement();
-            System.out.println("Key : " + el);
-            value = symbolTable.get(el);
-            System.out.println("Type : " + value.getObjectType());
-            switch(value.getObjectType()){
-                case "techies":
-                    if(value.isArray()){
-                        System.out.println("Value : " + value.getArrayValues());
-                    }else{
-                        System.out.println("Value : " + value.getIntValue());
-                    }
-                    break;
-                case "coke":
-                    if(value.isArray()){
-                        System.out.println("Value : " + value.getArrayValues());
-                    }else{
-                        System.out.println("Value : " + value.getFloatValue());
-                    }
-                    break;
-                case "thread":
-                    if(value.isArray()){
-                        System.out.println("Value : " + value.getArrayValues());
-                    }else{
-                        System.out.println("Value : " + value.getStringValue());
-                    }
-                    break;
-                case "kachow":
-                    if(value.isArray()){
-                        System.out.println("Value : " + value.getArrayValues());
-                    }else{
-                        System.out.println("Value : " + value.getCharValue());
-                    }
-                    break;
-            }
-        }
+//        Enumeration e = symbolTable.keys();
+//        JSFMValues value;
+//
+//        while(e.hasMoreElements()){
+//            Object el = e.nextElement();
+//            System.out.println("Key : " + el);
+//            value = symbolTable.get(el);
+//            System.out.println("Type : " + value.getObjectType());
+//            switch(value.getObjectType()){
+//                case "techies":
+//                    if(value.isArray()){
+//                        System.out.println("Value : " + value.getArrayValues());
+//                    }else{
+//                        System.out.println("Value : " + value.getIntValue());
+//                    }
+//                    break;
+//                case "coke":
+//                    if(value.isArray()){
+//                        System.out.println("Value : " + value.getArrayValues());
+//                    }else{
+//                        System.out.println("Value : " + value.getFloatValue());
+//                    }
+//                    break;
+//                case "thread":
+//                    if(value.isArray()){
+//                        System.out.println("Value : " + value.getArrayValues());
+//                    }else{
+//                        System.out.println("Value : " + value.getStringValue());
+//                    }
+//                    break;
+//                case "kachow":
+//                    if(value.isArray()){
+//                        System.out.println("Value : " + value.getArrayValues());
+//                    }else{
+//                        System.out.println("Value : " + value.getCharValue());
+//                    }
+//                    break;
+//            }
+//        }
     }
     /**
      * {@inheritDoc}
@@ -362,41 +362,50 @@ public class JSFMListener implements JSFMParserListener {
         }
 
         if(!isArray){
-            String temp = ctx.variableInitializer().getText();
-            if(type.equals("techies") || type.equals("coke")){
-                tempLexer = new JSFMLexer(CharStreams.fromString(temp));
-                float value = parse();
+            if(ctx.ASSIGN() != null){
+                String temp = ctx.variableInitializer().getText();
+                if(type.equals("techies") || type.equals("coke")){
+                    tempLexer = new JSFMLexer(CharStreams.fromString(temp));
+                    float value = parse();
 
-                if(!symbolTable.containsKey(vName)){
-                    if(type.equals("techies")){
-                        symbolTable.put(vName, new JSFMValues(type, (int) value));
-                        //   System.out.println(symbolTable.get(vName).getIntValue());
-                    }else if(type.equals("coke")){
-                        symbolTable.put(vName, new JSFMValues(type, value));
-                        //   System.out.println(symbolTable.get(vName).getFloatValue());
+                    if(!symbolTable.containsKey(vName)){
+                        if(type.equals("techies")){
+                            symbolTable.put(vName, new JSFMValues(type, (int) value));
+                            //   System.out.println(symbolTable.get(vName).getIntValue());
+                        }else if(type.equals("coke")){
+                            symbolTable.put(vName, new JSFMValues(type, value));
+                            //   System.out.println(symbolTable.get(vName).getFloatValue());
+                        }
+                    }else{
+                        System.out.println("ERROR - Variable '" + vName + "' already exists. Recheck your variable delcarations or try removing the type declaration.");
                     }
-                }else{
-                    System.out.println("ERROR - Variable '" + vName + "' already exists. Recheck your variable delcarations or try removing the type declaration.");
-                }
-            }else if(type.equals("thread")){
-                tempLexer = new JSFMLexer(CharStreams.fromString(temp));
-                String value = parseStr();
+                }else if(type.equals("thread")){
+                    tempLexer = new JSFMLexer(CharStreams.fromString(temp));
+                    String value = parseStr();
 
-                if(!symbolTable.containsKey(vName)){
-                    symbolTable.put(vName, new JSFMValues(type, value));
-                }else{
-                    System.out.println("ERROR - Variable '" + vName + "' already exists. Recheck your variable delcarations or try removing the type declaration.");
-                }
-            }else if(type.equals("kachow")){
-                tempLexer = new JSFMLexer(CharStreams.fromString(temp));
-                char ch = parseChar();
+                    if(!symbolTable.containsKey(vName)){
+                        symbolTable.put(vName, new JSFMValues(type, value));
+                    }else{
+                        System.out.println("ERROR - Variable '" + vName + "' already exists. Recheck your variable delcarations or try removing the type declaration.");
+                    }
+                }else if(type.equals("kachow")){
+                    tempLexer = new JSFMLexer(CharStreams.fromString(temp));
+                    char ch = parseChar();
 
+                    if(!symbolTable.containsKey(vName)){
+                        symbolTable.put(vName, new JSFMValues(type, ch));
+                    }else{
+                        System.out.println("ERROR - Variable '" + vName + "' already exists. Recheck your variable delcarations or try removing the type declaration.");
+                    }
+                }
+            }else{
                 if(!symbolTable.containsKey(vName)){
-                    symbolTable.put(vName, new JSFMValues(type, ch));
+                    symbolTable.put(vName, new JSFMValues(type));
                 }else{
                     System.out.println("ERROR - Variable '" + vName + "' already exists. Recheck your variable delcarations or try removing the type declaration.");
                 }
             }
+
         }else if(isArray){
             String values = "{";
             if(type.equals("techies") || type.equals("coke") || type.equals("thread") || type.equals("kachow")){
@@ -480,39 +489,6 @@ public class JSFMListener implements JSFMParserListener {
                     System.out.println("ERROR - Variable '" + vName + "' already exists. Recheck your variable delcarations or try removing the type declaration.");
                 }
             }
-//            else if(type.equals("thread")){
-//                tempLexer = new JSFMLexer(CharStreams.fromString(temp));
-//                String value = parseStr();
-//
-//                if(!symbolTable.containsKey(vName)){
-//                    symbolTable.put(vName, new JSFMValues(type, value));
-//                }else{
-//                    System.out.println("ERROR - Variable '" + vName + "' already exists. Try removing the type declaration.");
-//                }
-//            }else if(type.equals("kachow")){
-//                tempLexer = new JSFMLexer(CharStreams.fromString(temp));
-//
-//                token = tempLexer.nextToken();
-//                if(token.getType() == JSFMLexer.CHAR_LITERAL){
-//
-//                    if(!symbolTable.containsKey(vName)){
-//                        symbolTable.put(vName, new JSFMValues(type, token.getText().substring(1, 2).charAt(0)));
-//                    }else{
-//                        System.out.println("ERROR - Variable '" + vName + "' already exists. Try removing the type declaration.");
-//                    }
-//
-//                    token = tempLexer.nextToken();
-//                    if(token.getType() != JSFMLexer.EOF){
-//                        System.out.print("ERROR - kachow variables can only have one kachow value in them. Please remove \" " + token.getText());
-//                        token = tempLexer.nextToken();
-//                        while(token.getType() != JSFMLexer.EOF){
-//                            System.out.print(token.getText());
-//                            token = tempLexer.nextToken();
-//                        }
-//                        System.out.print(" \"\n");
-//                    }
-//                }
-//            }
         }
 
     }
@@ -639,7 +615,88 @@ public class JSFMListener implements JSFMParserListener {
      *
      * <p>The default implementation does nothing.</p>
      */
-    @Override public void exitStatement(JSFMParser.StatementContext ctx) { }
+    @Override public void exitStatement(JSFMParser.StatementContext ctx) {
+        if(ctx.expression() != null){
+            String vName = ctx.start.getText();
+            float value = 0;
+            JSFMParser.ExpressionContext temp = ctx.expression().expression(1);
+            JSFMValues tempVal;
+            String operator = "";
+            String tempType = symbolTable.get(vName).getObjectType();
+
+            if(symbolTable.containsKey(vName)){
+
+
+                    if(temp.primary() == null){
+
+                    }else{
+                       // System.out.println(temp);
+//                        System.out.println(temp.expression(0).getText());
+                        tempLexer = new JSFMLexer(CharStreams.fromString(temp.getText()));
+                        tempVal = symbolTable.get(vName);
+                        token = tempLexer.nextToken();
+                        tokenType = token.getType();
+
+                        switch(tokenType){
+                            case JSFMLexer.DECIMAL_LITERAL:
+                                if(tempType.equals("techies")){
+                                    tempVal.setIntValue(Integer.parseInt(token.getText()));
+                                    symbolTable.put(vName, tempVal);
+                                }else if(tempType.equals("coke")){
+                                    tempVal.setFloatValue((float) Integer.parseInt(token.getText()));
+                                    symbolTable.put(vName, tempVal);
+                                }else{
+                                    System.out.println("ERROR - Mismatched types. " + vName + " is " + tempType + " while "
+                                            + token.getText() + " is a digit.");
+                                }
+                                break;
+                            case JSFMLexer.FLOAT_LITERAL:
+                                if(tempType.equals("techies")){
+                                    tempVal.setIntValue((int) Float.parseFloat(token.getText()));
+                                    System.out.println("WARNING - Variable type (" + tempType + ") does not match with the type of "
+                                            + token.getText() + " (coke). Value may be inaccurate due to loss in conversion.");
+                                    symbolTable.put(vName, tempVal);
+                                }else if(tempType.equals("coke")){
+                                    tempVal.setFloatValue(Float.parseFloat(token.getText()));
+                                    symbolTable.put(vName, tempVal);
+                                }else{
+                                    System.out.println("ERROR - Mismatched types. " + vName + " is " + tempType + " while "
+                                            + token.getText() + " is a digit.");
+                                }
+                                break;
+                            case JSFMLexer.CHAR_LITERAL:
+                                if(tempType.equals("kachow")){
+                                    tempVal.setCharValue(token.getText().charAt(1));
+                                    symbolTable.put(vName, tempVal);
+                                }else{
+                                    System.out.println("ERROR - Mismatched types. " + vName + " is " + tempType + " while "
+                                            + token.getText() + " is a kachow.");
+                                }
+                                break;
+                            case JSFMLexer.STRING_LITERAL:
+                                if(tempType.equals("thread")){
+                                    tempVal.setStringValue(token.getText());
+                                    symbolTable.put(vName, tempVal);
+                                }else{
+                                    System.out.println("ERROR - Mismatched types. " + vName + " is " + tempType + " while "
+                                            + token.getText() + " is a thread.");
+                                }
+                                break;
+                        }
+
+                    }
+                    temp = temp.expression(0);
+//                switch(ctx.expression().bop.getText()){
+//                    case "=":
+//                }
+
+            }
+
+//
+//            System.out.println(ctx.expression().bop.getText());
+        }
+
+    }
     /**
      * {@inheritDoc}
      *
@@ -755,6 +812,7 @@ public class JSFMListener implements JSFMParserListener {
      */
     @Override public void enterExpression(JSFMParser.ExpressionContext ctx) {
         //System.out.println("EXPRESSION - " + ctx.start.getText());
+
     }
     /**
      * {@inheritDoc}
@@ -763,6 +821,7 @@ public class JSFMListener implements JSFMParserListener {
      */
     @Override public void exitExpression(JSFMParser.ExpressionContext ctx) {
         //System.out.println("EXIT EXPRESSION - " + ctx.getText());
+
     }
     /**
      * {@inheritDoc}
@@ -794,42 +853,6 @@ public class JSFMListener implements JSFMParserListener {
      * <p>The default implementation does nothing.</p>
      */
     @Override public void enterOutputStatement(JSFMParser.OutputStatementContext ctx) {
-
-//        print = "";
-//        System.out.println("ENTERING OUTPUT");
-//        token = lexer.nextToken();
-//        System.out.println(token.getText());
-//
-//
-//        if(token.getType() == JSFMLexer.LPAREN){
-//            token = lexer.nextToken();
-//            do{
-//                if(token.getType() == JSFMLexer.ADD){
-//                    token = lexer.nextToken();
-//                    skipWS();
-//                }
-//                switch(token.getType()){
-//                    case JSFMLexer.STRING_LITERAL:
-//                        print = print + token.getText().substring(1, token.getText().length()-1);
-//                        token = lexer.nextToken();
-//                        skipWS();
-//                        break;
-//                    case JSFMLexer.IDENTIFIER:
-//                        skipWS();
-//                        break;
-//                    default: System.out.println("ERROR - Expecting a string. Not " + token.getText());
-//                }
-//            }while(token.getType() == JSFMLexer.ADD);
-//
-//            if(token.getType() == JSFMLexer.RPAREN){
-//                //pass
-//            }else{
-//                System.out.println("ERROR - Expecting ')' instead of '" + token.getText() + "'");
-//            }
-//
-//        }else{
-//            System.out.println("ERROR - Missing '(' after 'outputf'");
-//        }
 
     }
     /**
@@ -891,72 +914,6 @@ public class JSFMListener implements JSFMParserListener {
         }
     }
 
-//    private String printStr(){
-//        String value = "";
-//
-//        token = tempLexer.nextToken();
-//        tokenType = token.getType();
-//
-//        do{
-//            if(tokenType == JSFMLexer.ADD){
-//                token = tempLexer.nextToken();
-//                tokenType = token.getType();
-//                skipWS();
-//            }
-//            switch(token.getType()){
-//                case JSFMLexer.STRING_LITERAL:
-//                    value = value + token.getText().substring(1, token.getText().length()-1);
-//                    token = tempLexer.nextToken();
-//                    tokenType = token.getType();
-//                    skipWS();
-//                    break;
-//                case JSFMLexer.CHAR_LITERAL:
-//                    value = value + token.getText();
-//                    token = tempLexer.nextToken();
-//                    tokenType = token.getType();
-//                    skipWS();
-//                    break;
-//                case JSFMLexer.DECIMAL_LITERAL:
-//                case JSFMLexer.FLOAT_LITERAL:
-//                    value = value + token.getText();
-//                    token = tempLexer.nextToken();
-//                    tokenType = token.getType();
-//                    skipWS();
-//                    break;
-//                case JSFMLexer.IDENTIFIER:
-//                    JSFMValues temp;
-//
-//                    if(symbolTable.containsKey(token.getText())){
-//                        temp = symbolTable.get(token.getText());
-//                        switch(temp.getObjectType()){
-//                            case "techies":
-//                                value = value + temp.getIntValue();
-//                                break;
-//                            case "coke":
-//                                value = value + temp.getFloatValue();
-//                                break;
-//                            case "thread":
-//                                value = value + temp.getStringValue();
-//                                break;
-//                            case "kachow":
-//                                value = value + temp.getCharValue();
-//                                break;
-//                        }
-//
-//                    }else{
-//                        System.out.println("ERROR - Variable name '" + token.getText() + "' is not defined." );
-//                    }
-//
-//                    token = tempLexer.nextToken();
-//                    tokenType = token.getType();
-//                    skipWS();
-//                    break;
-//                default: System.out.println("ERROR - Expecting a string. Not " + token.getText() + " " + token.getType());
-//            }
-//        }while(tokenType == JSFMLexer.ADD);
-//
-//        return value;
-//    }
 
     private char parseChar(){
         char ch = ' ';
@@ -1112,9 +1069,9 @@ public class JSFMListener implements JSFMParserListener {
                 tokenType = token.getType();
                 value = EXPR();
                 if (tokenType != JSFMLexer.RPAREN) {
-                    System.out.println("ERROR");
+                    System.out.println("ERROR - Uneven parentheses. Remove ')'.");
                 }
-                token = tempLexer.nextToken();  // flush ")"
+                token = tempLexer.nextToken();
                 tokenType = token.getType();
                 break;
             case JSFMLexer.SUB:
@@ -1131,11 +1088,11 @@ public class JSFMListener implements JSFMParserListener {
                     token = tempLexer.nextToken();
                     tokenType = token.getType();
                 }else{
-                    System.out.println("ERROR");
+                    System.out.println("ERROR - Expecting a number or '(' instead of '" + token.getText() + "' after '-'.");
                 }
                 break;
             default:
-                System.out.println("ERROR -xd");
+                System.out.println("ERROR - Expecting a number or '(' instead of '" + token.getText() + "'.");
         }
         return value;
     }
