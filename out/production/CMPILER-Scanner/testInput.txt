@@ -1,6 +1,8 @@
 main{
 techies x = 8%3, y = 4, z = 5;
-thread hi = "yeet";
+coke j = 2.99;
+kachow c = 'a';
+thread hi = "yeet" + c + 4 + 5;
 outputf("Hello" + " Hi " + "Nice to meet you!" + "\n");
-outputf(hi + "\n" + "Bye!" + "\n");
+outputf(hi + "\n" + "Bye!" + c + "\n");
 }

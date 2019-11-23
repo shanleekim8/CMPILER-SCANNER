@@ -44,6 +44,7 @@ public class TestScanner {
 
         }catch(Exception e){
             System.out.println("exception caught " + e.getMessage());
+            e.printStackTrace();
         }
 
     }

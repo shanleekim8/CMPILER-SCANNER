@@ -355,21 +355,38 @@ public class JSFMListener implements JSFMParserListener {
             }else{
                 System.out.println("ERROR - Variable '" + vName + "' already exists. Try removing the type declaration.");
             }
-        }else if(type.equals("thread") || type.equals("kachow")){
+        }else if(type.equals("thread")){
             tempLexer = new JSFMLexer(CharStreams.fromString(temp));
             String value = parseStr();
 
             if(!symbolTable.containsKey(vName)){
-                if(type.equals("thread")){
-                    symbolTable.put(vName, new JSFMValues(type, value));
-                }else if(type.equals("kachow")){
-                    symbolTable.put(vName, new JSFMValues(type, value.charAt(0)));
-                }
+                symbolTable.put(vName, new JSFMValues(type, value));
             }else{
                 System.out.println("ERROR - Variable '" + vName + "' already exists. Try removing the type declaration.");
             }
-        }else{
+        }else if(type.equals("kachow")){
+            tempLexer = new JSFMLexer(CharStreams.fromString(temp));
 
+            token = tempLexer.nextToken();
+            if(token.getType() == JSFMLexer.CHAR_LITERAL){
+
+                if(!symbolTable.containsKey(vName)){
+                    symbolTable.put(vName, new JSFMValues(type, token.getText().substring(1, 2).charAt(0)));
+                }else{
+                    System.out.println("ERROR - Variable '" + vName + "' already exists. Try removing the type declaration.");
+                }
+
+                token = tempLexer.nextToken();
+                if(token.getType() != JSFMLexer.EOF){
+                    System.out.print("ERROR - kachow variables can only have one kachow value in them. Please remove \" " + token.getText());
+                    token = tempLexer.nextToken();
+                    while(token.getType() != JSFMLexer.EOF){
+                        System.out.print(token.getText());
+                        token = tempLexer.nextToken();
+                    }
+                    System.out.print(" \"\n");
+                }
+            }
         }
     }
     /**
@@ -444,7 +461,12 @@ public class JSFMListener implements JSFMParserListener {
      */
     @Override public void enterLocalVariableDeclaration(JSFMParser.LocalVariableDeclarationContext ctx) {
        // System.out.println(ctx.start.getText());
-        type = ctx.start.getText();
+        String temp = ctx.start.getText();
+        if(temp.equals("techies") || temp.equals("coke") || temp.equals("thread") || temp.equals("kachow")){
+            type = ctx.start.getText();
+        }else{
+            System.out.println("ERROR - Invalid type. Expecting one of the following: techies, coke, thread, kachow.");
+        }
     }
     /**
      * {@inheritDoc}
@@ -692,37 +714,11 @@ public class JSFMListener implements JSFMParserListener {
         print = "";
         String temp = ctx.getText().substring(8, ctx.getText().length()-2);
         tempLexer = new JSFMLexer(CharStreams.fromString(temp));
-        //System.out.println("EXIT - " + ctx.getText().substring(8, ctx.getText().length()-2));
-
         print = parseStr();
 
-//        if(ctx.STRING_LITERAL().size() > 0){
-//            for(int i =0; i< ctx.STRING_LITERAL().size(); i++){
-//                print = print + ctx.STRING_LITERAL(i).getText().substring(1, ctx.STRING_LITERAL(i).getText().length()-1);
-//            }
-//        }
-//
-//        if(ctx.IDENTIFIER().size() > 0){
-//            JSFMValues temp;
-//            String vName = "";
-//            for(int i=0; i< ctx.IDENTIFIER().size(); i++){
-//                vName = ctx.IDENTIFIER(i).getText();
-//                if(symbolTable.containsKey(vName)){
-//                    temp = symbolTable.get(vName);
-//                    if(temp.getObjectType().equals("thread")){
-//                        print = print + temp.getStringValue();
-//                    }else{
-//                        System.out.println("ERROR - '" + vName + "' is not of type thread. Outputf only accepts thread values.");
-//                    }
-//                }else{
-//                    System.out.println("ERROR - Variable name '" + vName + "' is not defined." );
-//                }
-//            }
-//        }
 
         System.out.print(print.replace("\\n", System.lineSeparator()));
 
-      //  System.out.println("EXITING OUTPUT");
     }
     /**
      * {@inheritDoc}
@@ -768,6 +764,73 @@ public class JSFMListener implements JSFMParserListener {
         }
     }
 
+//    private String printStr(){
+//        String value = "";
+//
+//        token = tempLexer.nextToken();
+//        tokenType = token.getType();
+//
+//        do{
+//            if(tokenType == JSFMLexer.ADD){
+//                token = tempLexer.nextToken();
+//                tokenType = token.getType();
+//                skipWS();
+//            }
+//            switch(token.getType()){
+//                case JSFMLexer.STRING_LITERAL:
+//                    value = value + token.getText().substring(1, token.getText().length()-1);
+//                    token = tempLexer.nextToken();
+//                    tokenType = token.getType();
+//                    skipWS();
+//                    break;
+//                case JSFMLexer.CHAR_LITERAL:
+//                    value = value + token.getText();
+//                    token = tempLexer.nextToken();
+//                    tokenType = token.getType();
+//                    skipWS();
+//                    break;
+//                case JSFMLexer.DECIMAL_LITERAL:
+//                case JSFMLexer.FLOAT_LITERAL:
+//                    value = value + token.getText();
+//                    token = tempLexer.nextToken();
+//                    tokenType = token.getType();
+//                    skipWS();
+//                    break;
+//                case JSFMLexer.IDENTIFIER:
+//                    JSFMValues temp;
+//
+//                    if(symbolTable.containsKey(token.getText())){
+//                        temp = symbolTable.get(token.getText());
+//                        switch(temp.getObjectType()){
+//                            case "techies":
+//                                value = value + temp.getIntValue();
+//                                break;
+//                            case "coke":
+//                                value = value + temp.getFloatValue();
+//                                break;
+//                            case "thread":
+//                                value = value + temp.getStringValue();
+//                                break;
+//                            case "kachow":
+//                                value = value + temp.getCharValue();
+//                                break;
+//                        }
+//
+//                    }else{
+//                        System.out.println("ERROR - Variable name '" + token.getText() + "' is not defined." );
+//                    }
+//
+//                    token = tempLexer.nextToken();
+//                    tokenType = token.getType();
+//                    skipWS();
+//                    break;
+//                default: System.out.println("ERROR - Expecting a string. Not " + token.getText() + " " + token.getType());
+//            }
+//        }while(tokenType == JSFMLexer.ADD);
+//
+//        return value;
+//    }
+
     private String parseStr(){
         String value = "";
 
@@ -781,7 +844,15 @@ public class JSFMListener implements JSFMParserListener {
                     skipWS();
             }
             switch(token.getType()){
+                case JSFMLexer.FLOAT_LITERAL:
+                case JSFMLexer.DECIMAL_LITERAL:
+                    value = value + token.getText();
+                    token = tempLexer.nextToken();
+                    tokenType = token.getType();
+                    skipWS();
+                    break;
                 case JSFMLexer.STRING_LITERAL:
+                case JSFMLexer.CHAR_LITERAL:
                     value = value + token.getText().substring(1, token.getText().length()-1);
                     token = tempLexer.nextToken();
                     tokenType = token.getType();
@@ -792,7 +863,20 @@ public class JSFMListener implements JSFMParserListener {
 
                     if(symbolTable.containsKey(token.getText())){
                         temp = symbolTable.get(token.getText());
-                        value = value + temp.getStringValue();
+                        switch (temp.getObjectType()){
+                            case "techies":
+                                value = value + temp.getIntValue();
+                                break;
+                            case "coke":
+                                value = value + temp.getFloatValue();
+                                break;
+                            case "thread":
+                                value = value + temp.getStringValue();
+                                break;
+                            case "kachow":
+                                value = value + temp.getCharValue();
+                                break;
+                        }
                     }else{
                         System.out.println("ERROR - Variable name '" + token.getText() + "' is not defined." );
                     }
@@ -811,13 +895,6 @@ public class JSFMListener implements JSFMParserListener {
     private float parse() {
         token = tempLexer.nextToken();
         tokenType = token.getType();
-        //int value = EXPR();
-//        if(tokenType != JSFMLexer.EOF){
-//            System.out.println("ERROR");
-//        }
-//        token = lexer.nextToken();  // flush ";"
-//        tokenType = token.getType();
-
         return EXPR();
     }
 
