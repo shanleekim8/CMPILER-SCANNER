@@ -3,7 +3,10 @@ public class JSFMValues {
     private float floatValue;
     private String stringValue;
     private char charValue;
+    private boolean boolValue;
     private String objectType;
+    private String arrayValues;
+    private boolean isArray = false;
 
     public JSFMValues(String type, int value){
         objectType = type;
@@ -21,9 +24,20 @@ public class JSFMValues {
         charValue = value;
     }
 
+    public JSFMValues(String type, boolean value){
+        objectType = type;
+        boolValue = value;
+    }
+
     public JSFMValues(String type, String value){
         objectType = type;
         stringValue = value;
+    }
+
+    public JSFMValues(String type, boolean array, String values){
+        objectType = type;
+        isArray = array;
+        arrayValues = values;
     }
 
     public void setCharValue(char charValue) {
@@ -41,6 +55,15 @@ public class JSFMValues {
 
     public void setStringValue(String stringValue) {
         this.stringValue = stringValue;
+    }
+
+    public void setBoolValue(boolean boolValue){
+        this.boolValue = boolValue;
+    }
+
+
+    public void setIsArray(boolean array) {
+        isArray = array;
     }
 
     public void setObjectType(String objectType) {
@@ -64,7 +87,21 @@ public class JSFMValues {
         return stringValue;
     }
 
+    public boolean getBoolValue() {
+        return boolValue;
+    }
+
+    public String getArrayValues() {
+        return arrayValues;
+    }
+
+    public boolean isArray() {
+        return isArray;
+    }
+
     public String getObjectType() {
         return objectType;
     }
+
+
 }

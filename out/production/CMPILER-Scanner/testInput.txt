@@ -1,8 +1,7 @@
 main{
-techies x = 8%3, y = 4, z = 5;
-coke j = 2.99;
-kachow c = 'a';
-thread hi = "yeet" + c + 4 + 5;
-outputf("Hello" + " Hi " + "Nice to meet you!" + "\n");
-outputf(hi + "\n" + "Bye!" + c + "\n");
+techies x = 3;
+techies test[][] = {{1,2,3,4}, {5,6,7}};
+coke test2[] = {1.1,2,3.4};
+thread sample[] = {"Volvo", "BMW", "Ford", "Mazda"};
+kachow charot[][] = {{'a','b','c','d','e'}, {'x','y','z'}};
 }
