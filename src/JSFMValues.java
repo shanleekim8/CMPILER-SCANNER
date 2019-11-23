@@ -1,7 +1,6 @@
 public class JSFMValues {
     private int intValue;
     private float floatValue;
-    private double doubleValue;
     private String stringValue;
     private char charValue;
     private String objectType;
@@ -16,10 +15,6 @@ public class JSFMValues {
         floatValue = value;
     }
 
-    public JSFMValues(String type, double value){
-        objectType = type;
-        doubleValue = value;
-    }
 
     public JSFMValues(String type, char value){
         objectType = type;
@@ -43,9 +38,6 @@ public class JSFMValues {
         this.floatValue = floatValue;
     }
 
-    public void setDoubleValue(double doubleValue) {
-        this.doubleValue = doubleValue;
-    }
 
     public void setStringValue(String stringValue) {
         this.stringValue = stringValue;
@@ -59,9 +51,6 @@ public class JSFMValues {
         return charValue;
     }
 
-    public double getDoubleValue() {
-        return doubleValue;
-    }
 
     public float getFloatValue() {
         return floatValue;

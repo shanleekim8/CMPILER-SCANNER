@@ -1,4 +1,6 @@
 main{
-thread s = "ugh";
+techies x = 8%3, y = 4, z = 5;
+thread hi = "yeet";
 outputf("Hello" + " Hi " + "Nice to meet you!" + "\n");
+outputf(hi + "\n" + "Bye!" + "\n");
 }
