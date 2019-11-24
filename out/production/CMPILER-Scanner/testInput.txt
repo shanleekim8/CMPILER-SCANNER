@@ -1,10 +1,10 @@
 main{
-techies x = 3,y,z;
-kachow charot = 'a';
-outputf(charot + "\n");
-charot = 'z';
-outputf(charot + "\n");
-techies j = 5, k = 10;
-x = 5;
-outputf(x);
+thread str = "Hello";
+kachow chr = 'q';
+boolin boo = false;
+outputf(true + boo + "\n");
+outputf(str + " " + chr + "\n");
+str += " :p";
+chr -= 'B';
+outputf(str + " " + chr + "\n");
 }

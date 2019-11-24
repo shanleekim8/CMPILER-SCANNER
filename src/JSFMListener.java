@@ -40,7 +40,36 @@ public class JSFMListener implements JSFMParserListener {
      *
      * <p>The default implementation does nothing.</p>
      */
-    @Override public void enterCompilationUnit(JSFMParser.CompilationUnitContext ctx) { }
+    @Override public void enterCompilationUnit(JSFMParser.CompilationUnitContext ctx) {
+        JSFMValues temp = new JSFMValues("keyword");
+
+        symbolTable.put("boolin", temp);
+        symbolTable.put("cease", temp);
+        symbolTable.put("option", temp);
+        symbolTable.put("kachow", temp);
+        symbolTable.put("fiber", temp);
+        symbolTable.put("megaman", temp);
+        symbolTable.put("basic", temp);
+        symbolTable.put("perform", temp);
+        symbolTable.put("otherwise", temp);
+        symbolTable.put("ultimate", temp);
+        symbolTable.put("coke", temp);
+        symbolTable.put("repeat", temp);
+        symbolTable.put("upon", temp);
+        symbolTable.put("techies", temp);
+        symbolTable.put("main", temp);
+        symbolTable.put("respond", temp);
+        symbolTable.put("thread", temp);
+        symbolTable.put("choices", temp);
+        symbolTable.put("faceless", temp);
+        symbolTable.put("during", temp);
+        symbolTable.put("outputf", temp);
+        symbolTable.put("inputf", temp);
+        symbolTable.put("true", temp);
+        symbolTable.put("false", temp);
+        symbolTable.put("null", temp);
+
+    }
     /**
      * {@inheritDoc}
      *
@@ -397,6 +426,15 @@ public class JSFMListener implements JSFMParserListener {
                     }else{
                         System.out.println("ERROR - Variable '" + vName + "' already exists. Recheck your variable delcarations or try removing the type declaration.");
                     }
+                }else if(type.equals("boolin")){
+                    tempLexer = new JSFMLexer(CharStreams.fromString(temp));
+                    boolean boo = parseBool();
+
+                    if(!symbolTable.containsKey(vName)){
+                        symbolTable.put(vName, new JSFMValues(type, boo));
+                    }else{
+                        System.out.println("ERROR - Variable '" + vName + "' already exists. Recheck your variable delcarations or try removing the type declaration.");
+                    }
                 }
             }else{
                 if(!symbolTable.containsKey(vName)){
@@ -408,7 +446,7 @@ public class JSFMListener implements JSFMParserListener {
 
         }else if(isArray){
             String values = "{";
-            if(type.equals("techies") || type.equals("coke") || type.equals("thread") || type.equals("kachow")){
+            if(type.equals("techies") || type.equals("coke") || type.equals("thread") || type.equals("kachow") || type.equals("boolin")){
                 if(ctx.variableDeclaratorId().LBRACK().size() == ctx.variableDeclaratorId().RBRACK().size()){
                     if(ctx.variableInitializer().arrayInitializer()!= null){
                         String temp = ctx.variableInitializer().getText();
@@ -428,6 +466,8 @@ public class JSFMListener implements JSFMParserListener {
                                         values = values + parseStr() + ",";
                                     }else if(type.equals("kachow")){
                                         values = values + parseChar() + ",";
+                                    }else if(type.equals("boolin")){
+                                        values = values + parseBool() + ",";
                                     }
                                 }
 
@@ -457,6 +497,8 @@ public class JSFMListener implements JSFMParserListener {
                                                 values = values + parseStr() + ",";
                                             }else if(type.equals("kachow")){
                                                 values = values + parseChar() + ",";
+                                            }else if(type.equals("boolin")){
+                                                values = values + parseBool() + ",";
                                             }
                                         }
                                         values = values.substring(0,values.length()-1) + "}";
@@ -565,10 +607,10 @@ public class JSFMListener implements JSFMParserListener {
     @Override public void enterLocalVariableDeclaration(JSFMParser.LocalVariableDeclarationContext ctx) {
        // System.out.println(ctx.start.getText());
         String temp = ctx.start.getText();
-        if(temp.equals("techies") || temp.equals("coke") || temp.equals("thread") || temp.equals("kachow")){
+        if(temp.equals("techies") || temp.equals("coke") || temp.equals("thread") || temp.equals("kachow") || temp.equals("boolin")){
             type = ctx.start.getText();
         }else{
-            System.out.println("ERROR - Invalid type. Expecting one of the following: techies, coke, thread, kachow.");
+            System.out.println("ERROR - Invalid type. Expecting one of the following: techies, coke, thread, kachow, boolin.");
         }
     }
     /**
@@ -621,74 +663,122 @@ public class JSFMListener implements JSFMParserListener {
             float value = 0;
             JSFMParser.ExpressionContext temp = ctx.expression().expression(1);
             JSFMValues tempVal;
-            String operator = "";
-            String tempType = symbolTable.get(vName).getObjectType();
+            String operator = ctx.expression().bop.getText();
+            type = symbolTable.get(vName).getObjectType();
 
             if(symbolTable.containsKey(vName)){
-
-
-                    if(temp.primary() == null){
-
-                    }else{
-                       // System.out.println(temp);
-//                        System.out.println(temp.expression(0).getText());
+                tempLexer = new JSFMLexer(CharStreams.fromString(operator));
+                token = tempLexer.nextToken();
+                tokenType = token.getType();
+                tempVal = symbolTable.get(vName);
+                switch(tokenType){
+                    case JSFMLexer.ASSIGN:
                         tempLexer = new JSFMLexer(CharStreams.fromString(temp.getText()));
-                        tempVal = symbolTable.get(vName);
-                        token = tempLexer.nextToken();
-                        tokenType = token.getType();
 
-                        switch(tokenType){
-                            case JSFMLexer.DECIMAL_LITERAL:
-                                if(tempType.equals("techies")){
-                                    tempVal.setIntValue(Integer.parseInt(token.getText()));
-                                    symbolTable.put(vName, tempVal);
-                                }else if(tempType.equals("coke")){
-                                    tempVal.setFloatValue((float) Integer.parseInt(token.getText()));
-                                    symbolTable.put(vName, tempVal);
-                                }else{
-                                    System.out.println("ERROR - Mismatched types. " + vName + " is " + tempType + " while "
-                                            + token.getText() + " is a digit.");
-                                }
-                                break;
-                            case JSFMLexer.FLOAT_LITERAL:
-                                if(tempType.equals("techies")){
-                                    tempVal.setIntValue((int) Float.parseFloat(token.getText()));
-                                    System.out.println("WARNING - Variable type (" + tempType + ") does not match with the type of "
-                                            + token.getText() + " (coke). Value may be inaccurate due to loss in conversion.");
-                                    symbolTable.put(vName, tempVal);
-                                }else if(tempType.equals("coke")){
-                                    tempVal.setFloatValue(Float.parseFloat(token.getText()));
-                                    symbolTable.put(vName, tempVal);
-                                }else{
-                                    System.out.println("ERROR - Mismatched types. " + vName + " is " + tempType + " while "
-                                            + token.getText() + " is a digit.");
-                                }
-                                break;
-                            case JSFMLexer.CHAR_LITERAL:
-                                if(tempType.equals("kachow")){
-                                    tempVal.setCharValue(token.getText().charAt(1));
-                                    symbolTable.put(vName, tempVal);
-                                }else{
-                                    System.out.println("ERROR - Mismatched types. " + vName + " is " + tempType + " while "
-                                            + token.getText() + " is a kachow.");
-                                }
-                                break;
-                            case JSFMLexer.STRING_LITERAL:
-                                if(tempType.equals("thread")){
-                                    tempVal.setStringValue(token.getText());
-                                    symbolTable.put(vName, tempVal);
-                                }else{
-                                    System.out.println("ERROR - Mismatched types. " + vName + " is " + tempType + " while "
-                                            + token.getText() + " is a thread.");
-                                }
-                                break;
+                        if(type.equals("techies")){
+                            tempVal.setIntValue((int) parse());
+                        }else if(type.equals("coke")){
+                            tempVal.setFloatValue(parse());
+                        }else if(type.equals("kachow")){
+                            tempVal.setCharValue(parseChar());
+                        }else if(type.equals("thread")){
+                            tempVal.setStringValue(parseStr());
+                        }else if(type.equals("boolin")){
+                            tempVal.setBoolValue(parseBool());
                         }
 
-                    }
-                    temp = temp.expression(0);
-//                switch(ctx.expression().bop.getText()){
-//                    case "=":
-//                }
+                        break;
+                    case JSFMLexer.ADD_ASSIGN:
+                        tempLexer = new JSFMLexer(CharStreams.fromString(temp.getText()));
+
+                        if(type.equals("techies")){
+                            tempVal.setIntValue(tempVal.getIntValue() + (int) parse());
+                        }else if(type.equals("coke")){
+                            tempVal.setFloatValue(tempVal.getFloatValue() + parse());
+                        }else if(type.equals("kachow")){
+                            tempVal.setCharValue((char) (tempVal.getCharValue() + parseChar()));
+                        }else if(type.equals("thread")){
+                            tempVal.setStringValue(tempVal.getStringValue() + parseStr());
+                        }else if(type.equals("boolin")){
+                            System.out.println("ERROR - Cannot use addition for a boolin variable.");
+                        }
+
+                        break;
+                    case JSFMLexer.SUB_ASSIGN:
+                        tempLexer = new JSFMLexer(CharStreams.fromString(temp.getText()));
+
+                        if(type.equals("techies")){
+                            tempVal.setIntValue(tempVal.getIntValue() - (int) parse());
+                        }else if(type.equals("coke")){
+                            tempVal.setFloatValue(tempVal.getFloatValue() - parse());
+                        }else if(type.equals("kachow")){
+                            tempVal.setCharValue((char) (tempVal.getCharValue() - parseChar()));
+                        }else if(type.equals("thread")){
+                            System.out.println("ERROR - Cannot use subtraction for a thread variable.");
+                        }else if(type.equals("boolin")){
+                            System.out.println("ERROR - Cannot use subtraction for a boolin variable.");
+                        }
+
+                        break;
+                    case JSFMLexer.MUL_ASSIGN:
+                        tempLexer = new JSFMLexer(CharStreams.fromString(temp.getText()));
+
+                        if(type.equals("techies")){
+                            tempVal.setIntValue(tempVal.getIntValue() * (int) parse());
+                        }else if(type.equals("coke")){
+                            tempVal.setFloatValue(tempVal.getFloatValue() * parse());
+                        }else if(type.equals("kachow")){
+                            tempVal.setCharValue((char) (tempVal.getCharValue() * parseChar()));
+                        }else if(type.equals("thread")){
+                            System.out.println("ERROR - Cannot use multiplication for a thread variable.");
+                        }else if(type.equals("boolin")){
+                            System.out.println("ERROR - Cannot use multiplication for a boolin variable.");
+                        }
+
+                        break;
+                    case JSFMLexer.DIV_ASSIGN:
+                        tempLexer = new JSFMLexer(CharStreams.fromString(temp.getText()));
+
+                        if(type.equals("techies")){
+                            tempVal.setIntValue(tempVal.getIntValue() / (int) parse());
+                        }else if(type.equals("coke")){
+                            tempVal.setFloatValue(tempVal.getFloatValue() / parse());
+                        }else if(type.equals("kachow")){
+                            tempVal.setCharValue((char) (tempVal.getCharValue() / parseChar()));
+                        }else if(type.equals("thread")){
+                            System.out.println("ERROR - Cannot use division for a thread variable.");
+                        }else if(type.equals("boolin")){
+                            System.out.println("ERROR - Cannot use division for a boolin variable.");
+                        }
+
+                        break;
+                }
+
+
+                symbolTable.put(vName, tempVal);
+
+//                    if(temp.primary() != null){ //single assignment expression
+//                        String s = "Hello World! ";
+//                        s = s + 4;
+//                        System.out.println(s);
+//
+//                    }else{ //multiple expressions
+//                        tempLexer = new JSFMLexer(CharStreams.fromString(temp.getText()));
+//                        tempVal = symbolTable.get(vName);
+//
+//
+//                        if(type.equals("techies")){
+//                            tempVal.setIntValue((int) parse());
+//                        }else if(type.equals("coke")){
+//                            tempVal.setFloatValue(parse());
+//                        }else if(type.equals("kachow")){
+//                            tempVal.setCharValue(parseChar());
+//                        }else if(type.equals("thread")){
+//                            tempVal.setStringValue(parseStr());
+//                        }
+//
+//                        symbolTable.put(vName, tempVal);
+//                    }
 
             }
 
@@ -696,6 +786,7 @@ public class JSFMListener implements JSFMParserListener {
 //            System.out.println(ctx.expression().bop.getText());
         }
 
+        type = "";
     }
     /**
      * {@inheritDoc}
@@ -914,6 +1005,31 @@ public class JSFMListener implements JSFMParserListener {
         }
     }
 
+    private boolean parseBool(){
+        boolean boo = false;
+        token = tempLexer.nextToken();
+        if(token.getType() == JSFMLexer.BOOL_LITERAL){
+            if(token.getText().equals("true")){
+                boo = true;
+            }
+            token = tempLexer.nextToken();
+            if(token.getType() != JSFMLexer.EOF){
+                System.out.print("ERROR - boolin variables can only have one boolin value in them. Please remove \" " + token.getText());
+                token = tempLexer.nextToken();
+                while(token.getType() != JSFMLexer.EOF){
+                    System.out.print(token.getText());
+                    token = tempLexer.nextToken();
+                }
+                System.out.print(" \"\n");
+            }
+        }else{
+            System.out.println("ERROR - Variable type (" + type + ") does not match with the variable type of " + token.getText()
+                    + " (" + token.getType() + ")");
+        }
+
+        return boo;
+    }
+
 
     private char parseChar(){
         char ch = ' ';
@@ -931,7 +1047,7 @@ public class JSFMListener implements JSFMParserListener {
                 System.out.print(" \"\n");
             }
         }else{
-            System.out.println("ERROR - Variable type (" + type + ") do not match with the variable type of " + token.getText()
+            System.out.println("ERROR - Variable type (" + type + ") does not match with the variable type of " + token.getText()
                     + " (" + token.getType() + ")");
         }
 
@@ -951,6 +1067,7 @@ public class JSFMListener implements JSFMParserListener {
                     skipWS();
             }
             switch(token.getType()){
+                case JSFMLexer.BOOL_LITERAL:
                 case JSFMLexer.FLOAT_LITERAL:
                 case JSFMLexer.DECIMAL_LITERAL:
                     value = value + token.getText();
@@ -982,6 +1099,9 @@ public class JSFMListener implements JSFMParserListener {
                                 break;
                             case "kachow":
                                 value = value + temp.getCharValue();
+                                break;
+                            case "boolin":
+                                value = value + temp.getBoolValue();
                                 break;
                         }
                     }else{
@@ -1063,6 +1183,39 @@ public class JSFMListener implements JSFMParserListener {
                 }
                 token = tempLexer.nextToken();
                 tokenType = token.getType();
+                break;
+            case JSFMLexer.IDENTIFIER:
+                JSFMValues temp;
+                temp = symbolTable.get(token.getText());
+                if(temp.getObjectType().equals("techies")){
+                    if(type.equals("techies")){
+                        value = temp.getIntValue();
+                        token = tempLexer.nextToken();
+                        tokenType = token.getType();
+                    }else if(type.equals("coke")){
+                        value = temp.getIntValue();
+                        token = tempLexer.nextToken();
+                        tokenType = token.getType();
+                    }else{
+                        System.out.println("ERROR - Expecting mismatched data types (" + type + ") cannot have a techies value." );
+                    }
+                }else if(temp.getObjectType().equals("coke")){
+                    if(type.equals("techies")){
+                        System.out.println("WARNING - Variable type (" + type + ") does not match with the type of "
+                                + token.getText() + ". Value may be inaccurate due to loss in conversion.");
+                        value = (int) temp.getFloatValue();
+                        token = tempLexer.nextToken();
+                        tokenType = token.getType();
+                    }else if(type.equals("coke")){
+                        value = temp.getFloatValue();
+                        token = tempLexer.nextToken();
+                        tokenType = token.getType();
+                    }else{
+                        System.out.println("ERROR - Expecting mismatched data types (" + type + ") cannot have a float value." );
+                    }
+                }else{
+                    System.out.println("ERROR- Expecting a number or '(' instead of '" + temp.getObjectType() + "'.");
+                }
                 break;
             case JSFMLexer.LPAREN:
                 token = tempLexer.nextToken();

@@ -48,6 +48,10 @@ INPUT: 'inputf';
 
 OUTPUT: 'outputf';
 
+BOOL_LITERAL : 'true' | 'false';
+
+NULL_LITERAL : 'null';
+
 IDENTIFIER: Letter LetterOrDigit*;
 
 //SEPARATOR : '(' | ')' | '{' | '}' | '[' | ']' | ';' | ',' | '.';
@@ -128,13 +132,10 @@ DECIMAL_LITERAL : ('0' | [1-9] (Digits? | '_'+ Digits)) [lL]?;
 FLOAT_LITERAL:    (Digits '.' Digits? | '.' Digits) ExponentPart? [fFdD]?
         | Digits (ExponentPart [fFdD]? | [fFdD]);
 
-BOOL_LITERAL : 'true' | 'false';
 
 CHAR_LITERAL : '\'' (~['\\\r\n] | EscapeSequence) '\'';
 
 STRING_LITERAL : '"' (~["\\\r\n] | EscapeSequence)* '"';
-
-NULL_LITERAL : 'null';
 
 fragment EscapeSequence : '\\' [btnfr"'\\] | '\\' ([0-3]? [0-7])? [0-7];
 
