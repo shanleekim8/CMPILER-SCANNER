@@ -17,7 +17,7 @@ import java.util.Hashtable;
  * of the available methods.
  */
 public class JSFMListener implements JSFMParserListener {
-    private TestScanner gui;
+//    private TestScanner gui;
     static Hashtable<String, JSFMValues> symbolTable = new Hashtable<String, JSFMValues>();
     static Token token;
     static int tokenType;
@@ -35,7 +35,7 @@ public class JSFMListener implements JSFMParserListener {
 
     public JSFMListener(JSFMLexer l, TestScanner t){
         lexer = l;
-        gui = t;
+//        gui = t;
     }
     /**
      * {@inheritDoc}
@@ -999,7 +999,7 @@ public class JSFMListener implements JSFMParserListener {
 
 
 //        System.out.print(print.replace("\\n", System.lineSeparator()));
-        gui.outputTextArea.setText(print.replace("\\n", System.lineSeparator()));
+        TestScanner.outputTextArea.setText(print.replace("\\n", System.lineSeparator()));
     }
     /**
      * {@inheritDoc}
