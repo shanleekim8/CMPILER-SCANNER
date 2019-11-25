@@ -23,7 +23,7 @@ public class TestScanner {
     static JPanel inputPanel = new JPanel();
     static JPanel outputPanel = new JPanel();
     static JTextArea inputTextArea =  new JTextArea(15, 83);
-    static JTextArea outputTextArea =  new JTextArea(8, 100);
+    static JTextArea outputTextArea =  new JTextArea(8, 70);
     static JScrollPane inputScroll = new JScrollPane(inputTextArea);
     static JScrollPane outputScroll = new JScrollPane(outputTextArea);
 
