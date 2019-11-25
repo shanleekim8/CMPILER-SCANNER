@@ -1,10 +1,10 @@
 main{
 thread str = "Hello";
-kachow chr = 'q';
-boolin boo = false;
-outputf(true + boo + "\n");
-outputf(str + " " + chr + "\n");
-str += " :p";
-chr -= 'B';
-outputf(str + " " + chr + "\n");
+ultimate thread ree = "Byebye!";
+outputf(str + "\n");
+outputf(ree + "\n");
+str = "hi";
+ree = "goodbye";
+outputf(str + "\n");
+outputf(ree + "\n");
 }
