@@ -476,16 +476,17 @@ public class JSFMListener implements JSFMParserListener {
             }else if(isArray){
                 String values = "{";
                 if(type.equals("techies") || type.equals("coke") || type.equals("thread") || type.equals("kachow") || type.equals("boolin")){
-                    if(ctx.variableDeclaratorId().LBRACK().size() == ctx.variableDeclaratorId().RBRACK().size()){
+                    if(ctx.variableDeclaratorId().LBRACK().size() == ctx.variableDeclaratorId().RBRACK().size()){ //equal brackets
                         if(ctx.variableInitializer().arrayInitializer()!= null){
                             String temp = ctx.variableInitializer().getText();
                             int arrayAmt = ctx.variableInitializer().arrayInitializer().variableInitializer().size();
                             int arraySize;
-                            if(ctx.variableDeclaratorId().LBRACK().size() == 1){
-                                if(arrayAmt-1 == ctx.variableInitializer().arrayInitializer().COMMA().size()){
+                            if(ctx.variableDeclaratorId().LBRACK().size() == 1){ //1D array
+                                if(arrayAmt-1 == ctx.variableInitializer().arrayInitializer().COMMA().size()){ //Check if amt of items-1 is equal to amt of commas
                                     temp = ctx.variableInitializer().arrayInitializer().getText()
                                             .substring(1, ctx.variableInitializer().arrayInitializer().getText().length()-1);
                                     for(int i=0; i<arrayAmt; i++){
+                                        System.out.println(temp.split(",")[i]);
                                         tempLexer = new JSFMLexer(CharStreams.fromString(temp.split(",")[i]));
                                         if(type.equals("techies")){
                                             values = values + (int) parse() + ",";
@@ -504,8 +505,15 @@ public class JSFMListener implements JSFMParserListener {
                                 }
 
 
-                            }else{
-                                if(ctx.variableDeclaratorId().LBRACK().size() == arrayAmt){
+                            }else if(ctx.variableDeclaratorId().LBRACK().size() == 2){ //2D array
+                                boolean is2D = true;
+                                for(int i=0; i< arrayAmt; i++){
+                                    if(ctx.variableInitializer().arrayInitializer().variableInitializer(i).arrayInitializer() == null){
+                                        //not a 2D array
+                                        is2D = false;
+                                    }
+                                }
+                                if(is2D){
                                     for(int i=0; i<arrayAmt; i++){
                                         arraySize = ctx.variableInitializer().arrayInitializer().variableInitializer(i).arrayInitializer().variableInitializer().size();
 
@@ -538,6 +546,8 @@ public class JSFMListener implements JSFMParserListener {
                                 }else{
                                     System.out.println("ERROR - Array dimension does not match initialization. Try removing a pair of []");
                                 }
+                            }else{
+                                System.out.println("3D Arrays are not yet supported.");
                             }
                         }else{
                             System.out.println("ERROR - Missing pair of {}");

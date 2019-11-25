@@ -59,9 +59,9 @@ literal
     | NULL_LITERAL
     ;
 
-integerLiteral : DECIMAL_LITERAL;
+integerLiteral : (SUB)? DECIMAL_LITERAL;
 
-floatLiteral : FLOAT_LITERAL;
+floatLiteral : (SUB)? FLOAT_LITERAL;
 
 qualifiedNameList : qualifiedName (COMMA qualifiedName)*;
 
