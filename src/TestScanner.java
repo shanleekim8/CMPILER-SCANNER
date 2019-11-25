@@ -5,7 +5,11 @@ import org.antlr.v4.runtime.misc.IntervalSet;
 import org.antlr.v4.runtime.misc.ParseCancellationException;
 import org.antlr.v4.gui.TreeViewer;
 import org.antlr.v4.runtime.tree.ParseTree;
-
+import javax.swing.*;
+import javax.swing.border.Border;
+import java.awt.*;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.io.File;
 import java.io.FileInputStream;
 import java.util.Arrays;
@@ -15,37 +19,113 @@ public class TestScanner {
     static Token token;
     static JSFMLexer lexer;
 
+    public static void initializeGUI(){
+        //GUI Initialization
+        JFrame mainFrame = new JFrame("JSFM Interpreter");
+        JPanel mainPanel = new JPanel(new BorderLayout());
+        JPanel inputPanel = new JPanel();
+        JPanel outputPanel = new JPanel();
+
+        JTextArea inputTextArea =  new JTextArea(15, 83);
+        inputTextArea.setBackground(Color.BLACK);
+        inputTextArea.setForeground(Color.WHITE);
+        inputTextArea.setFont(new Font("Segoe UI Light", Font.PLAIN, 18));
+        JScrollPane inputScroll = new JScrollPane(inputTextArea);
+        inputScroll.setVerticalScrollBarPolicy(ScrollPaneConstants.VERTICAL_SCROLLBAR_ALWAYS);
+
+        JTextArea outputTextArea =  new JTextArea(8, 100);
+        outputTextArea.setBackground(Color.lightGray);
+        outputTextArea.setForeground(Color.WHITE);
+        outputTextArea.setFont(new Font("Segoe UI Light", Font.PLAIN, 14));
+        outputTextArea.setEditable(false);
+        JScrollPane outputScroll = new JScrollPane(outputTextArea);
+        outputScroll.setVerticalScrollBarPolicy(ScrollPaneConstants.VERTICAL_SCROLLBAR_ALWAYS);
+
+
+        JButton runButton = new JButton("Run");
+        runButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                try{
+//                    FileInputStream fis = new FileInputStream(new File("./src/testInput.txt"));
+                    lexer = new JSFMLexer(CharStreams.fromString(inputTextArea.getText()));
+                    lexer.removeErrorListeners();
+                    lexer.addErrorListener(new ThrowingErrorListener());
+
+                    TokenStream stream = new CommonTokenStream(lexer);
+                    JSFMParser parser = new JSFMParser(stream);
+                    parser.addParseListener(new JSFMListener(lexer));
+                    //parser.removeErrorListeners();
+        //            parser.addErrorListener(new ThrowingErrorListener());
+
+
+                    org.antlr.v4.runtime.tree.ParseTree pTree = parser.compilationUnit();
+
+                    TreeViewer viewer = new TreeViewer(Arrays.asList(
+                            parser.getRuleNames()),pTree);
+
+                    viewer.open();
+
+        //            while (token.getType() != JSFMLexer.EOF){
+        //
+        //                token = lexer.nextToken();
+        //            }
+
+                }catch(Exception ex){
+                    System.out.println("exception caught " + ex.getMessage());
+                    ex.printStackTrace();
+                }
+            }
+        });
+
+        inputPanel.add(inputScroll);
+        inputPanel.add(runButton, BorderLayout.SOUTH);
+        outputPanel.add(outputScroll);
+
+        mainFrame.setSize(1280, 720);
+        inputPanel.setPreferredSize(new Dimension(1280, 480));
+        outputPanel.setPreferredSize(new Dimension(1280, 240));
+        mainPanel.add(inputPanel, BorderLayout.CENTER);
+        mainPanel.add(outputPanel, BorderLayout.SOUTH);
+//        mainPanel.add(inputTextArea, BorderLayout.CENTER);
+//        mainPanel.add(outputTextArea, BorderLayout.SOUTH);
+        mainFrame.add(mainPanel);
+
+        mainFrame.setDefaultCloseOperation(mainFrame.EXIT_ON_CLOSE);
+        mainFrame.setVisible(true);
+    }
+
     public static void main(String[] args){
-
-        try{
-            FileInputStream fis = new FileInputStream(new File("./src/testInput.txt"));
-            lexer = new JSFMLexer(CharStreams.fromStream(fis));
-            lexer.removeErrorListeners();
-            lexer.addErrorListener(new ThrowingErrorListener());
-
-            TokenStream stream = new CommonTokenStream(lexer);
-            JSFMParser parser = new JSFMParser(stream);
-            parser.addParseListener(new JSFMListener(lexer));
-            //parser.removeErrorListeners();
-//            parser.addErrorListener(new ThrowingErrorListener());
-
-
-            org.antlr.v4.runtime.tree.ParseTree pTree = parser.compilationUnit();
-
-            TreeViewer viewer = new TreeViewer(Arrays.asList(
-                    parser.getRuleNames()),pTree);
-
-            viewer.open();
-
-//            while (token.getType() != JSFMLexer.EOF){
+        initializeGUI();
+//        try{
+//            FileInputStream fis = new FileInputStream(new File("./src/testInput.txt"));
+//            lexer = new JSFMLexer(CharStreams.fromStream(fis));
+//            lexer.removeErrorListeners();
+//            lexer.addErrorListener(new ThrowingErrorListener());
 //
-//                token = lexer.nextToken();
-//            }
-
-        }catch(Exception e){
-            System.out.println("exception caught " + e.getMessage());
-            e.printStackTrace();
-        }
+//            TokenStream stream = new CommonTokenStream(lexer);
+//            JSFMParser parser = new JSFMParser(stream);
+//            parser.addParseListener(new JSFMListener(lexer));
+//            //parser.removeErrorListeners();
+////            parser.addErrorListener(new ThrowingErrorListener());
+//
+//
+//            org.antlr.v4.runtime.tree.ParseTree pTree = parser.compilationUnit();
+//
+//            TreeViewer viewer = new TreeViewer(Arrays.asList(
+//                    parser.getRuleNames()),pTree);
+//
+//            viewer.open();
+//
+////            while (token.getType() != JSFMLexer.EOF){
+////
+////                token = lexer.nextToken();
+////            }
+//
+//        }catch(Exception e){
+//            System.out.println("exception caught " + e.getMessage());
+//            e.printStackTrace();
+//        }
 
     }
 
