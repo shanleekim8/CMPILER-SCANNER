@@ -18,27 +18,28 @@ import java.util.List;
 public class TestScanner {
     static Token token;
     static JSFMLexer lexer;
+    static JFrame mainFrame = new JFrame("JSFM Interpreter");
+    static JPanel mainPanel = new JPanel(new BorderLayout());
+    static JPanel inputPanel = new JPanel();
+    static JPanel outputPanel = new JPanel();
+    static JTextArea inputTextArea =  new JTextArea(15, 83);
+    static JTextArea outputTextArea =  new JTextArea(8, 100);
+    static JScrollPane inputScroll = new JScrollPane(inputTextArea);
+    static JScrollPane outputScroll = new JScrollPane(outputTextArea);
 
-    public static void initializeGUI(){
+    public void initializeGUI(TestScanner t){
+
         //GUI Initialization
-        JFrame mainFrame = new JFrame("JSFM Interpreter");
-        JPanel mainPanel = new JPanel(new BorderLayout());
-        JPanel inputPanel = new JPanel();
-        JPanel outputPanel = new JPanel();
 
-        JTextArea inputTextArea =  new JTextArea(15, 83);
         inputTextArea.setBackground(Color.BLACK);
         inputTextArea.setForeground(Color.WHITE);
         inputTextArea.setFont(new Font("Segoe UI Light", Font.PLAIN, 18));
-        JScrollPane inputScroll = new JScrollPane(inputTextArea);
         inputScroll.setVerticalScrollBarPolicy(ScrollPaneConstants.VERTICAL_SCROLLBAR_ALWAYS);
 
-        JTextArea outputTextArea =  new JTextArea(8, 100);
-        outputTextArea.setBackground(Color.lightGray);
+        outputTextArea.setBackground(Color.BLACK);
         outputTextArea.setForeground(Color.WHITE);
-        outputTextArea.setFont(new Font("Segoe UI Light", Font.PLAIN, 14));
+        outputTextArea.setFont(new Font("Segoe UI Light", Font.PLAIN, 18));
         outputTextArea.setEditable(false);
-        JScrollPane outputScroll = new JScrollPane(outputTextArea);
         outputScroll.setVerticalScrollBarPolicy(ScrollPaneConstants.VERTICAL_SCROLLBAR_ALWAYS);
 
 
@@ -54,7 +55,7 @@ public class TestScanner {
 
                     TokenStream stream = new CommonTokenStream(lexer);
                     JSFMParser parser = new JSFMParser(stream);
-                    parser.addParseListener(new JSFMListener(lexer));
+                    parser.addParseListener(new JSFMListener(lexer, t));
                     //parser.removeErrorListeners();
         //            parser.addErrorListener(new ThrowingErrorListener());
 
@@ -96,7 +97,8 @@ public class TestScanner {
     }
 
     public static void main(String[] args){
-        initializeGUI();
+        TestScanner t = new TestScanner();
+        t.initializeGUI(t);
 //        try{
 //            FileInputStream fis = new FileInputStream(new File("./src/testInput.txt"));
 //            lexer = new JSFMLexer(CharStreams.fromStream(fis));
