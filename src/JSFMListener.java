@@ -33,7 +33,7 @@ public class JSFMListener implements JSFMParserListener {
 //        System.out.println(symbolTable.get("yes"));
 //    }
 
-    public JSFMListener(JSFMLexer l, TestScanner t){
+    public JSFMListener(JSFMLexer l){
         lexer = l;
 //        gui = t;
     }

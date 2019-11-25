@@ -55,7 +55,7 @@ public class TestScanner {
 
                     TokenStream stream = new CommonTokenStream(lexer);
                     JSFMParser parser = new JSFMParser(stream);
-                    parser.addParseListener(new JSFMListener(lexer, t));
+                    parser.addParseListener(new JSFMListener(lexer));
                     //parser.removeErrorListeners();
         //            parser.addErrorListener(new ThrowingErrorListener());
 
