@@ -1051,9 +1051,31 @@ public class JSFMListener implements JSFMParserListener {
                 }
                 System.out.print(" \"\n");
             }
+        }else if(token.getType() == JSFMLexer.IDENTIFIER){
+            JSFMValues temp;
+            if(symbolTable.containsKey(token.getText())){
+                temp = symbolTable.get(token.getText());
+                if(!temp.isNull()){
+                    boo = temp.getBoolValue();
+
+                    token = tempLexer.nextToken();
+                    if(token.getType() != JSFMLexer.EOF){
+                        System.out.print("ERROR - boolin variables can only have one boolin value in them. Please remove \" " + token.getText());
+                        token = tempLexer.nextToken();
+                        while(token.getType() != JSFMLexer.EOF){
+                            System.out.print(token.getText());
+                            token = tempLexer.nextToken();
+                        }
+                        System.out.print(" \"\n");
+                    }
+                }else{
+                    System.out.println("ERROR - Variable " + token.getText() + " is not initialized. Please initialize it first.");
+                }
+            }else{
+                System.out.println("ERROR - Variable " + token.getText() + " does not exist. Please declare and initialize it first.");
+            }
         }else{
-            System.out.println("ERROR - Variable type (" + type + ") does not match with the variable type of " + token.getText()
-                    + " (" + token.getType() + ")");
+            System.out.println("ERROR - Variable type (" + type + ") does not match with the variable type of " + token.getText() + ".");
         }
 
         return boo;
@@ -1075,9 +1097,31 @@ public class JSFMListener implements JSFMParserListener {
                 }
                 System.out.print(" \"\n");
             }
+        }else if(token.getType() == JSFMLexer.IDENTIFIER){
+            JSFMValues temp;
+            if(symbolTable.containsKey(token.getText())){
+                temp = symbolTable.get(token.getText());
+                if(!temp.isNull()){
+                    ch = temp.getCharValue();
+
+                    token = tempLexer.nextToken();
+                    if(token.getType() != JSFMLexer.EOF){
+                        System.out.print("ERROR - kachow variables can only have one kachow value in them. Please remove \" " + token.getText());
+                        token = tempLexer.nextToken();
+                        while(token.getType() != JSFMLexer.EOF){
+                            System.out.print(token.getText());
+                            token = tempLexer.nextToken();
+                        }
+                        System.out.print(" \"\n");
+                    }
+                }else{
+                    System.out.println("ERROR - Variable " + token.getText() + " is not initialized. Please initialize it first.");
+                }
+            }else{
+                System.out.println("ERROR - Variable " + token.getText() + " does not exist. Please declare and initialize it first.");
+            }
         }else{
-            System.out.println("ERROR - Variable type (" + type + ") does not match with the variable type of " + token.getText()
-                    + " (" + token.getType() + ")");
+            System.out.println("ERROR - Variable type (" + type + ") does not match with the variable type of " + token.getText() + ".");
         }
 
         return ch;
@@ -1116,32 +1160,36 @@ public class JSFMListener implements JSFMParserListener {
 
                     if(symbolTable.containsKey(token.getText())){
                         temp = symbolTable.get(token.getText());
-                        switch (temp.getObjectType()){
-                            case "techies":
-                                value = value + temp.getIntValue();
-                                break;
-                            case "coke":
-                                value = value + temp.getFloatValue();
-                                break;
-                            case "thread":
-                                value = value + temp.getStringValue();
-                                break;
-                            case "kachow":
-                                value = value + temp.getCharValue();
-                                break;
-                            case "boolin":
-                                value = value + temp.getBoolValue();
-                                break;
+                        if(!temp.isNull()){
+                            switch (temp.getObjectType()){
+                                case "techies":
+                                    value = value + temp.getIntValue();
+                                    break;
+                                case "coke":
+                                    value = value + temp.getFloatValue();
+                                    break;
+                                case "thread":
+                                    value = value + temp.getStringValue();
+                                    break;
+                                case "kachow":
+                                    value = value + temp.getCharValue();
+                                    break;
+                                case "boolin":
+                                    value = value + temp.getBoolValue();
+                                    break;
+                            }
+                        }else{
+                            System.out.println("ERROR - Variable '" + token.getText() + "' is not initialized. Please initialize it first.");
                         }
                     }else{
-                        System.out.println("ERROR - Variable name '" + token.getText() + "' is not defined." );
+                        System.out.println("ERROR - Variable '" + token.getText() + "' does not exist. Please declare and initialize it first.");
                     }
 
                     token = tempLexer.nextToken();
                     tokenType = token.getType();
                     skipWS();
                     break;
-                default: System.out.println("ERROR - Expecting a string. Not " + token.getText());
+                default: System.out.println("ERROR - Expecting a string instead of '" + token.getText() + "'.");
             }
         }while(tokenType == JSFMLexer.ADD);
 
@@ -1215,36 +1263,45 @@ public class JSFMListener implements JSFMParserListener {
                 break;
             case JSFMLexer.IDENTIFIER:
                 JSFMValues temp;
-                temp = symbolTable.get(token.getText());
-                if(temp.getObjectType().equals("techies")){
-                    if(type.equals("techies")){
-                        value = temp.getIntValue();
-                        token = tempLexer.nextToken();
-                        tokenType = token.getType();
-                    }else if(type.equals("coke")){
-                        value = temp.getIntValue();
-                        token = tempLexer.nextToken();
-                        tokenType = token.getType();
+                if(symbolTable.containsKey(token.getText())){
+                    temp = symbolTable.get(token.getText());
+                    if(!temp.isNull()){
+                        if(temp.getObjectType().equals("techies")){
+                            if(type.equals("techies")){
+                                value = temp.getIntValue();
+                                token = tempLexer.nextToken();
+                                tokenType = token.getType();
+                            }else if(type.equals("coke")){
+                                value = temp.getIntValue();
+                                token = tempLexer.nextToken();
+                                tokenType = token.getType();
+                            }else{
+                                System.out.println("ERROR - Expecting mismatched data types (" + type + ") cannot have a techies value." );
+                            }
+                        }else if(temp.getObjectType().equals("coke")){
+                            if(type.equals("techies")){
+                                System.out.println("WARNING - Variable type (" + type + ") does not match with the type of "
+                                        + token.getText() + ". Value may be inaccurate due to loss in conversion.");
+                                value = (int) temp.getFloatValue();
+                                token = tempLexer.nextToken();
+                                tokenType = token.getType();
+                            }else if(type.equals("coke")){
+                                value = temp.getFloatValue();
+                                token = tempLexer.nextToken();
+                                tokenType = token.getType();
+                            }else{
+                                System.out.println("ERROR - Expecting mismatched data types (" + type + ") cannot have a float value." );
+                            }
+                        }else{
+                            System.out.println("ERROR- Expecting a number or '(' instead of a '" + temp.getObjectType() + "'.");
+                        }
                     }else{
-                        System.out.println("ERROR - Expecting mismatched data types (" + type + ") cannot have a techies value." );
-                    }
-                }else if(temp.getObjectType().equals("coke")){
-                    if(type.equals("techies")){
-                        System.out.println("WARNING - Variable type (" + type + ") does not match with the type of "
-                                + token.getText() + ". Value may be inaccurate due to loss in conversion.");
-                        value = (int) temp.getFloatValue();
-                        token = tempLexer.nextToken();
-                        tokenType = token.getType();
-                    }else if(type.equals("coke")){
-                        value = temp.getFloatValue();
-                        token = tempLexer.nextToken();
-                        tokenType = token.getType();
-                    }else{
-                        System.out.println("ERROR - Expecting mismatched data types (" + type + ") cannot have a float value." );
+                        System.out.println("ERROR - Variable '" + token.getText() + "' is not initialized. Please initialize it first.");
                     }
                 }else{
-                    System.out.println("ERROR- Expecting a number or '(' instead of '" + temp.getObjectType() + "'.");
+                    System.out.println("ERROR - Variable '" + token.getText() + "' does not exist. Please declare and initialize it first.");
                 }
+
                 break;
             case JSFMLexer.LPAREN:
                 token = tempLexer.nextToken();
