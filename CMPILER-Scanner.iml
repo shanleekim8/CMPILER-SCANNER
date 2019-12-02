@@ -16,9 +16,8 @@
         <SOURCES />
       </library>
     </orderEntry>
-    <orderEntry type="library" exported="" name="evalEx" level="project" />
     <orderEntry type="module-library" exported="">
-      <library name="Eval Ex">
+      <library name="EvalEx">
         <CLASSES />
         <JAVADOC />
         <SOURCES>

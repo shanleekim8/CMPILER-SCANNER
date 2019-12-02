@@ -1,5 +1,6 @@
 // Generated from C:/Users/Shan/IdeaProjects/CMPILER-Scanner/src\JSFMParser.g4 by ANTLR 4.7.2
 
+import com.udojava.evalex.Expression;
 import org.antlr.v4.runtime.CharStream;
 import org.antlr.v4.runtime.CharStreams;
 import org.antlr.v4.runtime.ParserRuleContext;
@@ -7,13 +8,10 @@ import org.antlr.v4.runtime.Token;
 import org.antlr.v4.runtime.tree.ErrorNode;
 import org.antlr.v4.runtime.tree.TerminalNode;
 
-
 import javax.swing.*;
-import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.math.BigDecimal;
-import java.util.Enumeration;
 import java.util.Hashtable;
 
 /**
@@ -717,7 +715,6 @@ public class JSFMListener implements JSFMParserListener {
     @Override public void exitStatement(JSFMParser.StatementContext ctx) {
         if(ctx.expression() != null){
             String vName = ctx.start.getText();
-            float value = 0;
             JSFMParser.ExpressionContext temp = ctx.expression().expression(1);
             JSFMValues tempVal;
             String operator = ctx.expression().bop.getText();
@@ -725,7 +722,7 @@ public class JSFMListener implements JSFMParserListener {
 
             if(symbolTable.containsKey(vName)){
                 tempVal = symbolTable.get(vName);
-                if(!tempVal.isFinal() || (tempVal.isFinal() && tempVal.isNull())){
+                if(!tempVal.isFinal() || (tempVal.isFinal() && tempVal.isEmpty())){
                     tempLexer = new JSFMLexer(CharStreams.fromString(operator));
                     token = tempLexer.nextToken();
                     tokenType = token.getType();
@@ -911,7 +908,13 @@ public class JSFMListener implements JSFMParserListener {
      *
      * <p>The default implementation does nothing.</p>
      */
-    @Override public void exitParExpression(JSFMParser.ParExpressionContext ctx) { }
+    @Override public void exitParExpression(JSFMParser.ParExpressionContext ctx) {
+        System.out.println(ctx.getText());
+
+        if(ctx.expression().bop.getText().equals("==")){
+            
+        }
+    }
     /**
      * {@inheritDoc}
      *
@@ -995,7 +998,7 @@ public class JSFMListener implements JSFMParserListener {
 
         if(symbolTable.containsKey(vName)){
             JSFMValues temp = symbolTable.get(vName);
-            if(!temp.isFinal() || (temp.isFinal() && temp.isNull())){
+            if(!temp.isFinal() || (temp.isFinal() && temp.isEmpty())){
                 pause = true;
                 inputFrame = new JFrame("Input");
                 inputFrame.setSize(500,250);
@@ -1126,7 +1129,7 @@ public class JSFMListener implements JSFMParserListener {
             JSFMValues temp;
             if(symbolTable.containsKey(token.getText())){
                 temp = symbolTable.get(token.getText());
-                if(!temp.isNull()){
+                if(!temp.isEmpty()){
                     boo = temp.getBoolValue();
 
                     token = tempLexer.nextToken();
@@ -1172,7 +1175,7 @@ public class JSFMListener implements JSFMParserListener {
             JSFMValues temp;
             if(symbolTable.containsKey(token.getText())){
                 temp = symbolTable.get(token.getText());
-                if(!temp.isNull()){
+                if(!temp.isEmpty()){
                     ch = temp.getCharValue();
 
                     token = tempLexer.nextToken();
@@ -1231,7 +1234,7 @@ public class JSFMListener implements JSFMParserListener {
 
                     if(symbolTable.containsKey(token.getText())){
                         temp = symbolTable.get(token.getText());
-                        if(!temp.isNull()){
+                        if(!temp.isEmpty()){
                             switch (temp.getObjectType()){
                                 case "techies":
                                     value = value + temp.getIntValue();
@@ -1336,7 +1339,7 @@ public class JSFMListener implements JSFMParserListener {
                 JSFMValues temp;
                 if(symbolTable.containsKey(token.getText())){
                     temp = symbolTable.get(token.getText());
-                    if(!temp.isNull()){
+                    if(!temp.isEmpty()){
                         if(temp.getObjectType().equals("techies")){
                             if(type.equals("techies")){
                                 value = temp.getIntValue();
@@ -1427,7 +1430,7 @@ public class JSFMListener implements JSFMParserListener {
                 System.out.println("HELLO WORLD -- " + s);
                 JSFMValues temp = symbolTable.get(vName);
                 System.out.println(temp.getStringValue());
-                if(!temp.isFinal() || (temp.isFinal() && temp.isNull())){
+                if(!temp.isFinal() || (temp.isFinal() && temp.isEmpty())){
                     tempLexer = new JSFMLexer(CharStreams.fromString(s));
                     switch(temp.getObjectType()){
                         case "techies":

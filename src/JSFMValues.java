@@ -7,20 +7,20 @@ public class JSFMValues {
     private String objectType;
     private String arrayValues;
     private boolean isArray = false;
-    private boolean isNull;
+    private boolean isEmpty;
     private boolean isFinal;
 
     public JSFMValues(String type, int value, boolean f){
         objectType = type;
         intValue = value;
-        isNull = false;
+        isEmpty = false;
         isFinal = f;
     }
 
     public JSFMValues(String type, float value, boolean f){
         objectType = type;
         floatValue = value;
-        isNull = false;
+        isEmpty = false;
         isFinal = f;
     }
 
@@ -28,21 +28,21 @@ public class JSFMValues {
     public JSFMValues(String type, char value, boolean f){
         objectType = type;
         charValue = value;
-        isNull = false;
+        isEmpty = false;
         isFinal = f;
     }
 
     public JSFMValues(String type, boolean value, boolean f){
         objectType = type;
         boolValue = value;
-        isNull = false;
+        isEmpty = false;
         isFinal = f;
     }
 
     public JSFMValues(String type, String value, boolean f){
         objectType = type;
         stringValue = value;
-        isNull = false;
+        isEmpty = false;
         isFinal = f;
     }
 
@@ -50,20 +50,20 @@ public class JSFMValues {
         objectType = type;
         isArray = array;
         arrayValues = values;
-        isNull = false;
+        isEmpty = false;
         isFinal = f;
     }
 
     public JSFMValues(boolean array, String type, boolean f){
         objectType = type;
         isArray = array;
-        isNull = true;
+        isEmpty = true;
         isFinal = f;
     }
 
     public JSFMValues(String type, boolean f){
         objectType = type;
-        isNull = true;
+        isEmpty = true;
         isFinal = f;
     }
 
@@ -89,8 +89,8 @@ public class JSFMValues {
         this.boolValue = boolValue;
     }
 
-    public void setNull(boolean isNull){
-        this.isNull = isNull;
+    public void setNull(boolean isEmpty){
+        this.isEmpty = isEmpty;
     }
 
     public void setIsArray(boolean array) {
@@ -130,8 +130,8 @@ public class JSFMValues {
         return isArray;
     }
 
-    public boolean isNull() {
-        return isNull;
+    public boolean isEmpty() {
+        return isEmpty;
     }
 
     public boolean isFinal() {
