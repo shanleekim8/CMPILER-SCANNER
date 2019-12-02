@@ -26,6 +26,7 @@ public class TestScanner {
     static JTextArea outputTextArea =  new JTextArea(8, 70);
     static JScrollPane inputScroll = new JScrollPane(inputTextArea);
     static JScrollPane outputScroll = new JScrollPane(outputTextArea);
+    static TreeViewer viewer;
 
     public void initializeGUI(TestScanner t){
 
@@ -44,6 +45,7 @@ public class TestScanner {
 
 
         JButton runButton = new JButton("Run");
+        JButton parseTreeButton = new JButton("Show Parse Tree");
         runButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
@@ -56,21 +58,14 @@ public class TestScanner {
                     TokenStream stream = new CommonTokenStream(lexer);
                     JSFMParser parser = new JSFMParser(stream);
                     parser.addParseListener(new JSFMListener(lexer));
-                    //parser.removeErrorListeners();
-        //            parser.addErrorListener(new ThrowingErrorListener());
 
 
                     org.antlr.v4.runtime.tree.ParseTree pTree = parser.compilationUnit();
 
-                    TreeViewer viewer = new TreeViewer(Arrays.asList(
+                    parseTreeButton.setVisible(true);
+                    viewer = new TreeViewer(Arrays.asList(
                             parser.getRuleNames()),pTree);
 
-                    viewer.open();
-
-        //            while (token.getType() != JSFMLexer.EOF){
-        //
-        //                token = lexer.nextToken();
-        //            }
 
                 }catch(Exception ex){
                     System.out.println("exception caught " + ex.getMessage());
@@ -79,8 +74,17 @@ public class TestScanner {
             }
         });
 
+        parseTreeButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent actionEvent) {
+                viewer.open();
+            }
+        });
+
         inputPanel.add(inputScroll);
         inputPanel.add(runButton, BorderLayout.SOUTH);
+        inputPanel.add(parseTreeButton, BorderLayout.SOUTH);
+        parseTreeButton.setVisible(false);
         outputPanel.add(outputScroll);
 
         mainFrame.setSize(1280, 720);

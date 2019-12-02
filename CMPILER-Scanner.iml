@@ -16,5 +16,16 @@
         <SOURCES />
       </library>
     </orderEntry>
+    <orderEntry type="library" exported="" name="evalEx" level="project" />
+    <orderEntry type="module-library" exported="">
+      <library name="Eval Ex">
+        <CLASSES />
+        <JAVADOC />
+        <SOURCES>
+          <root url="file://$MODULE_DIR$/EvalEx-master/src/main/java" />
+          <root url="file://$MODULE_DIR$/EvalEx-master/src/test/java" />
+        </SOURCES>
+      </library>
+    </orderEntry>
   </component>
 </module>

@@ -7,7 +7,12 @@ import org.antlr.v4.runtime.Token;
 import org.antlr.v4.runtime.tree.ErrorNode;
 import org.antlr.v4.runtime.tree.TerminalNode;
 
+
+import javax.swing.*;
 import java.awt.*;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.math.BigDecimal;
 import java.util.Enumeration;
 import java.util.Hashtable;
 
@@ -27,6 +32,8 @@ public class JSFMListener implements JSFMParserListener {
     static String type = "";
     static boolean isFinal;
     static String exprValue = "";
+    static boolean pause = true;
+    static JFrame inputFrame;
 //    public static void main(String[] args){
 //
 //        symbolTable.put("yes", "eys");
@@ -44,6 +51,8 @@ public class JSFMListener implements JSFMParserListener {
      */
     @Override public void enterCompilationUnit(JSFMParser.CompilationUnitContext ctx) {
         JSFMValues temp = new JSFMValues("keyword", true);
+
+        symbolTable.clear();
 
         symbolTable.put("boolin", temp);
         symbolTable.put("cease", temp);
@@ -71,6 +80,8 @@ public class JSFMListener implements JSFMParserListener {
         symbolTable.put("false", temp);
         symbolTable.put("null", temp);
 
+
+        TestScanner.outputTextArea.setText("");
     }
     /**
      * {@inheritDoc}
@@ -545,22 +556,22 @@ public class JSFMListener implements JSFMParserListener {
                                     }
                                     values = values + "}";
                                 }else{
-                                    System.out.println("ERROR - Array dimension does not match initialization. Try removing a pair of []");
+                                    TestScanner.outputTextArea.append("ERROR - Array dimension does not match initialization. Try removing a pair of []\n");
                                 }
                             }else{
-                                System.out.println("3D Arrays are not yet supported.");
+                                TestScanner.outputTextArea.append("3D Arrays are not yet supported.\n");
                             }
                         }else{
-                            System.out.println("ERROR - Missing pair of {}");
+                            TestScanner.outputTextArea.append("ERROR - Missing pair of {}\n");
                         }
 
 
                     }else{
-                        System.out.print("ERROR - Uneven brackets. Consider removing a");
+                        TestScanner.outputTextArea.append("ERROR - Uneven brackets. Consider removing a");
                         if(ctx.variableDeclaratorId().LBRACK().size() > ctx.variableDeclaratorId().RBRACK().size()){
-                            System.out.println("'['");
+                            TestScanner.outputTextArea.append("'['\n");
                         }else{
-                            System.out.println("']'");
+                            TestScanner.outputTextArea.append("']'\n");
                         }
                     }
 
@@ -568,7 +579,7 @@ public class JSFMListener implements JSFMParserListener {
                     if(!symbolTable.containsKey(vName)){
                         symbolTable.put(vName, new JSFMValues(type, true, values, isFinal));
                     }else{
-                        System.out.println("ERROR - Variable '" + vName + "' already exists. Recheck your variable delcarations or try removing the type declaration.");
+                        TestScanner.outputTextArea.append("ERROR - Variable '" + vName + "' already exists. Recheck your variable delcarations or try removing the type declaration.\n");
                     }
                 }
             }
@@ -722,6 +733,7 @@ public class JSFMListener implements JSFMParserListener {
                     switch(tokenType){
                         case JSFMLexer.ASSIGN:
                             tempLexer = new JSFMLexer(CharStreams.fromString(temp.getText()));
+                            BigDecimal result = null;
 
                             if(type.equals("techies")){
                                 tempVal.setIntValue((int) parse());
@@ -753,7 +765,7 @@ public class JSFMListener implements JSFMParserListener {
                                 tempVal.setStringValue(tempVal.getStringValue() + parseStr());
                                 tempVal.setNull(false);
                             }else if(type.equals("boolin")){
-                                System.out.println("ERROR - Cannot use addition for a boolin variable.");
+                                TestScanner.outputTextArea.append("ERROR - Cannot use addition for a boolin variable.\n");
                             }
 
                             break;
@@ -770,9 +782,9 @@ public class JSFMListener implements JSFMParserListener {
                                 tempVal.setCharValue((char) (tempVal.getCharValue() - parseChar()));
                                 tempVal.setNull(false);
                             }else if(type.equals("thread")){
-                                System.out.println("ERROR - Cannot use subtraction for a thread variable.");
+                                TestScanner.outputTextArea.append("ERROR - Cannot use subtraction for a thread variable.\n");
                             }else if(type.equals("boolin")){
-                                System.out.println("ERROR - Cannot use subtraction for a boolin variable.");
+                                TestScanner.outputTextArea.append("ERROR - Cannot use subtraction for a boolin variable.\n");
                             }
 
                             break;
@@ -789,9 +801,9 @@ public class JSFMListener implements JSFMParserListener {
                                 tempVal.setCharValue((char) (tempVal.getCharValue() * parseChar()));
                                 tempVal.setNull(false);
                             }else if(type.equals("thread")){
-                                System.out.println("ERROR - Cannot use multiplication for a thread variable.");
+                                TestScanner.outputTextArea.append("ERROR - Cannot use multiplication for a thread variable.\n");
                             }else if(type.equals("boolin")){
-                                System.out.println("ERROR - Cannot use multiplication for a boolin variable.");
+                                TestScanner.outputTextArea.append("ERROR - Cannot use multiplication for a boolin variable.\n");
                             }
 
                             break;
@@ -808,20 +820,20 @@ public class JSFMListener implements JSFMParserListener {
                                 tempVal.setCharValue((char) (tempVal.getCharValue() / parseChar()));
                                 tempVal.setNull(false);
                             }else if(type.equals("thread")){
-                                System.out.println("ERROR - Cannot use division for a thread variable.");
+                                TestScanner.outputTextArea.append("ERROR - Cannot use division for a thread variable.\n");
                             }else if(type.equals("boolin")){
-                                System.out.println("ERROR - Cannot use division for a boolin variable.");
+                                TestScanner.outputTextArea.append("ERROR - Cannot use division for a boolin variable.\n");
                             }
 
                             break;
                     }
                     symbolTable.put(vName, tempVal);
                 }else{
-                    System.out.println("ERROR - " + vName + " is an ultimate variable. Its value cannot be changed.");
+                    TestScanner.outputTextArea.append("ERROR - " + vName + " is an ultimate variable. Its value cannot be changed.\n");
                 }
 
             }else{
-                System.out.println("ERROR - " + vName + " is not declared.");
+                TestScanner.outputTextArea.append("ERROR - " + vName + " is not declared.\n");
             }
 
         }
@@ -977,7 +989,56 @@ public class JSFMListener implements JSFMParserListener {
      *
      * <p>The default implementation does nothing.</p>
      */
-    @Override public void exitInputStatement(JSFMParser.InputStatementContext ctx) { }
+    @Override public void exitInputStatement(JSFMParser.InputStatementContext ctx) {
+        String question = ctx.STRING_LITERAL().getText();
+        String vName = ctx.IDENTIFIER().getText();
+
+        if(symbolTable.containsKey(vName)){
+            JSFMValues temp = symbolTable.get(vName);
+            if(!temp.isFinal() || (temp.isFinal() && temp.isNull())){
+                pause = true;
+                inputFrame = new JFrame("Input");
+                inputFrame.setSize(500,250);
+                JPanel inputPanel = new JPanel();
+                JLabel questionLbl = new JLabel(question);
+                JTextField inputTxtFld = new JTextField(10);
+                JButton inputBtn = new JButton("Input");
+                inputBtnListener listener = new inputBtnListener(inputTxtFld, pause, vName);
+
+                inputBtn.addActionListener(listener);
+
+                inputPanel.add(questionLbl);
+                inputPanel.add(inputTxtFld);
+                inputPanel.add(inputBtn);
+                inputFrame.add(inputPanel);
+                inputFrame.setDefaultCloseOperation(inputFrame.HIDE_ON_CLOSE);
+                inputFrame.setVisible(true);
+
+
+
+//                while(pause){
+//                    System.out.println("1");
+//                    pause = listener.getPause();
+
+//                    try
+//                    {
+//                        Thread.sleep(5000);
+//                    }
+//                    catch(InterruptedException ex)
+//                    {
+//                        Thread.currentThread().interrupt();
+//                    }
+
+              //  }
+            }else{
+                TestScanner.outputTextArea.append("ERROR - Variable " + vName + " is an ultimate variable. Its value cannot be changed.");
+            }
+
+        }else{
+            TestScanner.outputTextArea.append("ERROR - Variable " + vName + " does not exist. Please declare and initialize it first.");
+        }
+
+    }
     /**
      * {@inheritDoc}
      *
@@ -997,9 +1058,8 @@ public class JSFMListener implements JSFMParserListener {
         tempLexer = new JSFMLexer(CharStreams.fromString(temp));
         print = parseStr();
 
-
 //        System.out.print(print.replace("\\n", System.lineSeparator()));
-        TestScanner.outputTextArea.setText(print.replace("\\n", System.lineSeparator()));
+        TestScanner.outputTextArea.append(print.replace("\\n", System.lineSeparator()));
     }
     /**
      * {@inheritDoc}
@@ -1054,7 +1114,7 @@ public class JSFMListener implements JSFMParserListener {
             }
             token = tempLexer.nextToken();
             if(token.getType() != JSFMLexer.EOF){
-                System.out.print("ERROR - boolin variables can only have one boolin value in them. Please remove \" " + token.getText());
+                TestScanner.outputTextArea.append("ERROR - boolin variables can only have one boolin value in them. Please remove \" " + token.getText());
                 token = tempLexer.nextToken();
                 while(token.getType() != JSFMLexer.EOF){
                     System.out.print(token.getText());
@@ -1071,7 +1131,7 @@ public class JSFMListener implements JSFMParserListener {
 
                     token = tempLexer.nextToken();
                     if(token.getType() != JSFMLexer.EOF){
-                        System.out.print("ERROR - boolin variables can only have one boolin value in them. Please remove \" " + token.getText());
+                        TestScanner.outputTextArea.append("ERROR - boolin variables can only have one boolin value in them. Please remove \" " + token.getText());
                         token = tempLexer.nextToken();
                         while(token.getType() != JSFMLexer.EOF){
                             System.out.print(token.getText());
@@ -1080,13 +1140,13 @@ public class JSFMListener implements JSFMParserListener {
                         System.out.print(" \"\n");
                     }
                 }else{
-                    System.out.println("ERROR - Variable " + token.getText() + " is not initialized. Please initialize it first.");
+                    TestScanner.outputTextArea.append("ERROR - Variable " + token.getText() + " is not initialized. Please initialize it first.");
                 }
             }else{
-                System.out.println("ERROR - Variable " + token.getText() + " does not exist. Please declare and initialize it first.");
+                TestScanner.outputTextArea.append("ERROR - Variable " + token.getText() + " does not exist. Please declare and initialize it first.");
             }
         }else{
-            System.out.println("ERROR - Variable type (" + type + ") does not match with the variable type of " + token.getText() + ".");
+            TestScanner.outputTextArea.append("ERROR - Variable type (" + type + ") does not match with the variable type of " + token.getText() + ".");
         }
 
         return boo;
@@ -1100,7 +1160,7 @@ public class JSFMListener implements JSFMParserListener {
             ch = token.getText().substring(1,2).charAt(0);
             token = tempLexer.nextToken();
             if(token.getType() != JSFMLexer.EOF){
-                System.out.print("ERROR - kachow variables can only have one kachow value in them. Please remove \" " + token.getText());
+                TestScanner.outputTextArea.append("ERROR - kachow variables can only have one kachow value in them. Please remove \" " + token.getText());
                 token = tempLexer.nextToken();
                 while(token.getType() != JSFMLexer.EOF){
                     System.out.print(token.getText());
@@ -1117,22 +1177,22 @@ public class JSFMListener implements JSFMParserListener {
 
                     token = tempLexer.nextToken();
                     if(token.getType() != JSFMLexer.EOF){
-                        System.out.print("ERROR - kachow variables can only have one kachow value in them. Please remove \" " + token.getText());
+                        TestScanner.outputTextArea.append("ERROR - kachow variables can only have one kachow value in them. Please remove \" " + token.getText());
                         token = tempLexer.nextToken();
                         while(token.getType() != JSFMLexer.EOF){
-                            System.out.print(token.getText());
+                            TestScanner.outputTextArea.append(token.getText());
                             token = tempLexer.nextToken();
                         }
-                        System.out.print(" \"\n");
+                        TestScanner.outputTextArea.append(" \"\n");
                     }
                 }else{
-                    System.out.println("ERROR - Variable " + token.getText() + " is not initialized. Please initialize it first.");
+                    TestScanner.outputTextArea.append("ERROR - Variable " + token.getText() + " is not initialized. Please initialize it first.\n");
                 }
             }else{
-                System.out.println("ERROR - Variable " + token.getText() + " does not exist. Please declare and initialize it first.");
+                TestScanner.outputTextArea.append("ERROR - Variable " + token.getText() + " does not exist. Please declare and initialize it first.\n");
             }
         }else{
-            System.out.println("ERROR - Variable type (" + type + ") does not match with the variable type of " + token.getText() + ".");
+            TestScanner.outputTextArea.append("ERROR - Variable type (" + type + ") does not match with the variable type of " + token.getText() + ".\n");
         }
 
         return ch;
@@ -1190,17 +1250,17 @@ public class JSFMListener implements JSFMParserListener {
                                     break;
                             }
                         }else{
-                            System.out.println("ERROR - Variable '" + token.getText() + "' is not initialized. Please initialize it first.");
+                            TestScanner.outputTextArea.append("ERROR - Variable '" + token.getText() + "' is not initialized. Please initialize it first.\n");
                         }
                     }else{
-                        System.out.println("ERROR - Variable '" + token.getText() + "' does not exist. Please declare and initialize it first.");
+                        TestScanner.outputTextArea.append("ERROR - Variable '" + token.getText() + "' does not exist. Please declare and initialize it first.\n");
                     }
 
                     token = tempLexer.nextToken();
                     tokenType = token.getType();
                     skipWS();
                     break;
-                default: System.out.println("ERROR - Expecting a string instead of '" + token.getText() + "'.");
+                default: TestScanner.outputTextArea.append("ERROR - Expecting a string instead of '" + token.getText() + "'.\n");
             }
         }while(tokenType == JSFMLexer.ADD);
 
@@ -1266,8 +1326,8 @@ public class JSFMListener implements JSFMParserListener {
             case JSFMLexer.FLOAT_LITERAL:
                 value = Float.parseFloat(token.getText());
                 if(!type.equals("coke")){
-                    System.out.println("WARNING - Variable type (" + type + ") does not match with the type of "
-                            + token.getText() + ". Value may be inaccurate due to loss in conversion.");
+                    TestScanner.outputTextArea.append("WARNING - Variable type (" + type + ") does not match with the type of "
+                            + token.getText() + ". Value may be inaccurate due to loss in conversion.\n");
                 }
                 token = tempLexer.nextToken();
                 tokenType = token.getType();
@@ -1287,12 +1347,12 @@ public class JSFMListener implements JSFMParserListener {
                                 token = tempLexer.nextToken();
                                 tokenType = token.getType();
                             }else{
-                                System.out.println("ERROR - Expecting mismatched data types (" + type + ") cannot have a techies value." );
+                                TestScanner.outputTextArea.append("ERROR - Expecting mismatched data types (" + type + ") cannot have a techies value.\n");
                             }
                         }else if(temp.getObjectType().equals("coke")){
                             if(type.equals("techies")){
-                                System.out.println("WARNING - Variable type (" + type + ") does not match with the type of "
-                                        + token.getText() + ". Value may be inaccurate due to loss in conversion.");
+                                TestScanner.outputTextArea.append("WARNING - Variable type (" + type + ") does not match with the type of "
+                                        + token.getText() + ". Value may be inaccurate due to loss in conversion.\n");
                                 value = (int) temp.getFloatValue();
                                 token = tempLexer.nextToken();
                                 tokenType = token.getType();
@@ -1301,16 +1361,16 @@ public class JSFMListener implements JSFMParserListener {
                                 token = tempLexer.nextToken();
                                 tokenType = token.getType();
                             }else{
-                                System.out.println("ERROR - Expecting mismatched data types (" + type + ") cannot have a float value." );
+                                TestScanner.outputTextArea.append("ERROR - Expecting mismatched data types (" + type + ") cannot have a float value.\n" );
                             }
                         }else{
-                            System.out.println("ERROR- Expecting a number or '(' instead of a '" + temp.getObjectType() + "'.");
+                            TestScanner.outputTextArea.append("ERROR- Expecting a number or '(' instead of a '" + temp.getObjectType() + "'.\n");
                         }
                     }else{
-                        System.out.println("ERROR - Variable '" + token.getText() + "' is not initialized. Please initialize it first.");
+                        TestScanner.outputTextArea.append("ERROR - Variable '" + token.getText() + "' is not initialized. Please initialize it first.\n");
                     }
                 }else{
-                    System.out.println("ERROR - Variable '" + token.getText() + "' does not exist. Please declare and initialize it first.");
+                    TestScanner.outputTextArea.append("ERROR - Variable '" + token.getText() + "' does not exist. Please declare and initialize it first.\n");
                 }
 
                 break;
@@ -1319,7 +1379,7 @@ public class JSFMListener implements JSFMParserListener {
                 tokenType = token.getType();
                 value = EXPR();
                 if (tokenType != JSFMLexer.RPAREN) {
-                    System.out.println("ERROR - Uneven parentheses. Remove ')'.");
+                    TestScanner.outputTextArea.append("ERROR - Uneven parentheses. Remove ')'.\n");
                 }
                 token = tempLexer.nextToken();
                 tokenType = token.getType();
@@ -1338,7 +1398,7 @@ public class JSFMListener implements JSFMParserListener {
                     token = tempLexer.nextToken();
                     tokenType = token.getType();
                 }else{
-                    System.out.println("ERROR - Expecting a number or '(' instead of '" + token.getText() + "' after '-'.");
+                    TestScanner.outputTextArea.append("ERROR - Expecting a number or '(' instead of '" + token.getText() + "' after '-'.");
                 }
                 break;
             default:
@@ -1346,4 +1406,73 @@ public class JSFMListener implements JSFMParserListener {
         }
         return value;
     }
+
+    private class inputBtnListener implements ActionListener{
+        JTextField textField;
+        String s = "";
+        boolean pause;
+        String vName;
+
+        public inputBtnListener(JTextField txtFld, boolean p, String var){
+            textField = txtFld;
+            pause = p;
+            vName = var;
+        }
+
+        @Override
+        public void actionPerformed(ActionEvent actionEvent) {
+            s = textField.getText();
+            pause = false;
+            if(symbolTable.containsKey(vName)){
+                System.out.println("HELLO WORLD -- " + s);
+                JSFMValues temp = symbolTable.get(vName);
+                System.out.println(temp.getStringValue());
+                if(!temp.isFinal() || (temp.isFinal() && temp.isNull())){
+                    tempLexer = new JSFMLexer(CharStreams.fromString(s));
+                    switch(temp.getObjectType()){
+                        case "techies":
+                            float intVal = parse();
+                            temp.setIntValue((int) intVal);
+                            break;
+                        case "coke":
+                            float f = parse();
+                            temp.setFloatValue(f);
+                            break;
+                        case "thread":
+                            String test = parseStr();
+                            temp.setStringValue(test);
+                            break;
+                        case "kachow":
+                            char c = parseChar();
+                            temp.setCharValue(c);
+                            break;
+                        case "boolin":
+                            boolean b = parseBool();
+                            temp.setBoolValue(b);
+                            break;
+                        default: TestScanner.outputTextArea.append("Variable type of " + vName + " does not match with the type of input.\n");
+                    }
+
+                    symbolTable.put(vName, temp);
+                }else{
+                    TestScanner.outputTextArea.append("ERROR - Variable " + vName + " is an ultimate variable. Its value cannot be changed.\n");
+                }
+            }else{
+                TestScanner.outputTextArea.append("ERROR - Variable " + vName + " does not exist. Please declare and initialize it first.\n");
+            }
+
+
+            inputFrame.dispose();
+
+        }
+
+        public boolean getPause(){
+            return pause;
+        }
+
+        public String getString(){
+            return s;
+        }
+    }
+
 }
