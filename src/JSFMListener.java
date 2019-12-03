@@ -909,11 +909,32 @@ public class JSFMListener implements JSFMParserListener {
      * <p>The default implementation does nothing.</p>
      */
     @Override public void exitParExpression(JSFMParser.ParExpressionContext ctx) {
-        System.out.println(ctx.getText());
+        System.out.println(ctx.getText() + " START");
 
-        if(ctx.expression().bop.getText().equals("==")){
-            
+        Expression expr = new Expression(ctx.expression().getText());
+        try {
+            BigDecimal res = expr.eval();
+        }catch(Exception e){
+            String var = e.getMessage().split("Unknown operator or function: ")[1];
+            JSFMValues temp;
+            System.out.println(e.getMessage().split("Unknown operator or function: ")[1]);
+            if(symbolTable.containsKey(var)){
+                temp = symbolTable.get(var);
+                if(!temp.isEmpty()){
+                    switch (temp.getObjectType()){
+                        case "techies":
+                            expr.setVariable(var, BigDecimal.valueOf(temp.getIntValue()));
+                            break;
+                    }
+                }else{
+                    TestScanner.outputTextArea.append("ERROR - Variable " + var + " has not been initialized. Please initialize it first.\n");
+                }
+            }else{
+                TestScanner.outputTextArea.append("ERROR - Variable " + var + " does not exist. Please declare and initialize it first.\n");
+            }
+
         }
+
     }
     /**
      * {@inheritDoc}
