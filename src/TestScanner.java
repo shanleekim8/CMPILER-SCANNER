@@ -35,6 +35,7 @@ public class TestScanner {
         inputTextArea.setBackground(Color.BLACK);
         inputTextArea.setForeground(Color.WHITE);
         inputTextArea.setFont(new Font("Segoe UI Light", Font.PLAIN, 18));
+        inputTextArea.append("main{\n\n}");
         inputScroll.setVerticalScrollBarPolicy(ScrollPaneConstants.VERTICAL_SCROLLBAR_ALWAYS);
 
         outputTextArea.setBackground(Color.BLACK);
