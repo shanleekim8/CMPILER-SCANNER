@@ -32,6 +32,10 @@ public class JSFMListener implements JSFMParserListener {
     static String exprValue = "";
     static boolean pause = true;
     static JFrame inputFrame;
+    static boolean ifTrue = false;
+    static boolean toBeSkipped;
+    static int controlNum = 0;
+
 //    public static void main(String[] args){
 //
 //        symbolTable.put("yes", "eys");
@@ -706,13 +710,86 @@ public class JSFMListener implements JSFMParserListener {
      *
      * <p>The default implementation does nothing.</p>
      */
-    @Override public void enterStatement(JSFMParser.StatementContext ctx) { }
+    @Override public void enterStatement(JSFMParser.StatementContext ctx) {
+        if(ifTrue){
+
+        }else{
+
+        }
+
+
+        System.out.println("ENTER STMT - " + controlNum + " " + ctx.getText());
+//        if(ctx.parent.getText().contains("upon(")) {
+//            String ifStatement = ctx.parent.getText().substring(5, ctx.parent.getText().length() - 1);
+//            boolean error = true;
+//            Expression expr = new Expression(ifStatement);
+//
+//            while(error){
+//                try{
+//                    BigDecimal res = expr.eval();
+//                    if(res.intValue() == 1){
+//                        //TRUE
+//                        ifTrue = true;
+//                        System.out.println("TRUE");
+//                        error = false;
+//                    }else if(res.intValue() == 0){
+//                        ifTrue = false;
+//                        //FALSE
+//
+//                        error = false;
+//                    }
+//                }catch(Exception e){
+//                    System.out.println("EXCEPTION CAUGHT - " + e.getMessage());
+//                    String var = e.getMessage().split("Unknown operator or function: ")[1];
+//                    JSFMValues temp;
+//                    System.out.println(e.getMessage().split("Unknown operator or function: ")[1]);
+//                    if(symbolTable.containsKey(var)){
+//                        temp = symbolTable.get(var);
+//                        if(!temp.isEmpty()){
+//                            switch (temp.getObjectType()){
+//                                case "techies":
+//                                    expr.setVariable(var, BigDecimal.valueOf(temp.getIntValue()));
+//                                    break;
+//                                case "float":
+//                                    expr.setVariable(var, BigDecimal.valueOf(temp.getFloatValue()));
+//                                    break;
+//                                case "thread":
+//                                    expr.setVariable(var, temp.getStringValue());
+//                                    break;
+//                                case "kachow":
+//                                    break;
+//                                case "boolin":
+//                                    if(temp.getBoolValue()) {
+//                                        expr.setVariable(var, BigDecimal.valueOf(1));
+//                                    }else{
+//                                        expr.setVariable(var, BigDecimal.valueOf(0));
+//                                    }
+//                                    break;
+//                            }
+//                        }else{
+//                            TestScanner.outputTextArea.append("ERROR - Variable " + var + " has not been initialized. Please initialize it first.\n");
+//                        }
+//                    }else{
+//                        TestScanner.outputTextArea.append("ERROR - Variable " + var + " does not exist. Please declare and initialize it first.\n");
+//                    }
+//
+//                }
+//            }
+//
+//        }
+    }
     /**
      * {@inheritDoc}
      *
      * <p>The default implementation does nothing.</p>
      */
     @Override public void exitStatement(JSFMParser.StatementContext ctx) {
+        System.out.println("EXIT STMT - " + controlNum +" "+ ctx.getText());
+
+        JSFMParser.StatementContext test = ctx;
+
+
+
         if(ctx.expression() != null){
             String vName = ctx.start.getText();
             JSFMParser.ExpressionContext temp = ctx.expression().expression(1);
@@ -835,6 +912,8 @@ public class JSFMListener implements JSFMParserListener {
 
         }
 
+        ifTrue = false;
+
         type = "";
     }
     /**
@@ -902,38 +981,85 @@ public class JSFMListener implements JSFMParserListener {
      *
      * <p>The default implementation does nothing.</p>
      */
-    @Override public void enterParExpression(JSFMParser.ParExpressionContext ctx) { }
+    @Override public void enterParExpression(JSFMParser.ParExpressionContext ctx) {
+    }
     /**
      * {@inheritDoc}
      *
      * <p>The default implementation does nothing.</p>
      */
     @Override public void exitParExpression(JSFMParser.ParExpressionContext ctx) {
-        System.out.println(ctx.getText() + " START");
+        String ifStatement = ctx.expression().getText();
+        boolean error = true;
+        Expression expr = new Expression(ifStatement);
 
-        Expression expr = new Expression(ctx.expression().getText());
-        try {
-            BigDecimal res = expr.eval();
-        }catch(Exception e){
-            String var = e.getMessage().split("Unknown operator or function: ")[1];
-            JSFMValues temp;
-            System.out.println(e.getMessage().split("Unknown operator or function: ")[1]);
-            if(symbolTable.containsKey(var)){
-                temp = symbolTable.get(var);
-                if(!temp.isEmpty()){
-                    switch (temp.getObjectType()){
-                        case "techies":
-                            expr.setVariable(var, BigDecimal.valueOf(temp.getIntValue()));
-                            break;
-                    }
-                }else{
-                    TestScanner.outputTextArea.append("ERROR - Variable " + var + " has not been initialized. Please initialize it first.\n");
+        while(error){
+            try{
+                BigDecimal res = expr.eval();
+                if(res.intValue() == 1){
+                        //TRUE
+                    ifTrue = true;
+                    System.out.println("TRUE");
+                    error = false;
+                }else if(res.intValue() == 0){
+                    ifTrue = false;
+                    //FALSE
+                    System.out.println("FALSE");
+                    error = false;
                 }
-            }else{
-                TestScanner.outputTextArea.append("ERROR - Variable " + var + " does not exist. Please declare and initialize it first.\n");
+            }catch(Exception e){
+                System.out.println("EXCEPTION CAUGHT - " + e.getMessage());
+                String var = e.getMessage().split("Unknown operator or function: ")[1];
+                JSFMValues temp;
+                if(symbolTable.containsKey(var)){
+                    temp = symbolTable.get(var);
+                    if(!temp.isEmpty()){
+                        switch (temp.getObjectType()){
+                            case "techies":
+                                expr.setVariable(var, BigDecimal.valueOf(temp.getIntValue()));
+                                break;
+                            case "float":
+                                expr.setVariable(var, BigDecimal.valueOf(temp.getFloatValue()));
+                                break;
+                            case "thread":
+                                 expr.setVariable(var, temp.getStringValue());
+                                 break;
+                            case "kachow":
+                                expr.setVariable(var, BigDecimal.valueOf((int) temp.getCharValue()));
+                                  break;
+                            case "boolin":
+                                if(temp.getBoolValue()) {
+                                    expr.setVariable(var, BigDecimal.valueOf(1));
+                                }else{
+                                    expr.setVariable(var, BigDecimal.valueOf(0));
+                                }
+                                break;
+                            }
+                        }else{
+                            TestScanner.outputTextArea.append("ERROR - Variable " + var + " has not been initialized. Please initialize it first.\n");
+                        }
+                    }else{
+                        TestScanner.outputTextArea.append("ERROR - Variable " + var + " does not exist. Please declare and initialize it first.\n");
+                    }
+
+                }
             }
 
-        }
+
+//
+//        try {
+//            System.out.println(ctx.getText());
+//            System.out.println(ctx.getParent().getText());
+//            System.out.println(ctx.getParent().getParent().getText());
+//            System.out.println(ctx.getParent().getParent().getParent().getText());
+//            BigDecimal res = expr.eval();
+//            if(res.intValue() == 1){
+//                System.out.println("TRUE");
+//            }else if(res.intValue() == 0){
+//                System.out.println("FALSE");
+//            }
+//
+//        }
 
     }
     /**
@@ -1103,7 +1229,9 @@ public class JSFMListener implements JSFMParserListener {
      *
      * <p>The default implementation does nothing.</p>
      */
-    @Override public void enterEveryRule(ParserRuleContext ctx) { }
+    @Override public void enterEveryRule(ParserRuleContext ctx) {
+        controlNum++;
+    }
     /**
      * {@inheritDoc}
      *
