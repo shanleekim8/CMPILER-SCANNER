@@ -32,9 +32,12 @@ public class JSFMListener implements JSFMParserListener {
     static String exprValue = "";
     static boolean pause = true;
     static JFrame inputFrame;
-    static boolean ifTrue = false;
-    static boolean toBeSkipped;
+    static boolean ifStatement = false;
+    static boolean ifResult = true;
+    static boolean toBeSkipped = false;
+    static boolean ifInUse = false;
     static int controlNum = 0;
+    static int ifNum = 0;
 
 //    public static void main(String[] args){
 //
@@ -91,6 +94,7 @@ public class JSFMListener implements JSFMParserListener {
      * <p>The default implementation does nothing.</p>
      */
     @Override public void exitCompilationUnit(JSFMParser.CompilationUnitContext ctx) {
+        TestScanner.outputTextArea.append("\nProcess finished.\n");
 //        Enumeration e = symbolTable.keys();
 //        JSFMValues value;
 //
@@ -711,10 +715,10 @@ public class JSFMListener implements JSFMParserListener {
      * <p>The default implementation does nothing.</p>
      */
     @Override public void enterStatement(JSFMParser.StatementContext ctx) {
-        if(ifTrue){
-
-        }else{
-
+        if(ifStatement && !ifResult){ //if statement
+            ifStatement = false;
+            ifInUse = true;
+            ifNum = controlNum;
         }
 
 
@@ -789,130 +793,136 @@ public class JSFMListener implements JSFMParserListener {
         JSFMParser.StatementContext test = ctx;
 
 
+        if(!ifInUse){
+            if(ctx.expression() != null){
+                String vName = ctx.start.getText();
+                JSFMParser.ExpressionContext temp = ctx.expression().expression(1);
+                JSFMValues tempVal;
+                String operator = ctx.expression().bop.getText();
+                type = symbolTable.get(vName).getObjectType();
 
-        if(ctx.expression() != null){
-            String vName = ctx.start.getText();
-            JSFMParser.ExpressionContext temp = ctx.expression().expression(1);
-            JSFMValues tempVal;
-            String operator = ctx.expression().bop.getText();
-            type = symbolTable.get(vName).getObjectType();
+                if(symbolTable.containsKey(vName)){
+                    tempVal = symbolTable.get(vName);
+                    if(!tempVal.isFinal() || (tempVal.isFinal() && tempVal.isEmpty())){
+                        tempLexer = new JSFMLexer(CharStreams.fromString(operator));
+                        token = tempLexer.nextToken();
+                        tokenType = token.getType();
 
-            if(symbolTable.containsKey(vName)){
-                tempVal = symbolTable.get(vName);
-                if(!tempVal.isFinal() || (tempVal.isFinal() && tempVal.isEmpty())){
-                    tempLexer = new JSFMLexer(CharStreams.fromString(operator));
-                    token = tempLexer.nextToken();
-                    tokenType = token.getType();
+                        switch(tokenType){
+                            case JSFMLexer.ASSIGN:
+                                tempLexer = new JSFMLexer(CharStreams.fromString(temp.getText()));
+                                BigDecimal result = null;
 
-                    switch(tokenType){
-                        case JSFMLexer.ASSIGN:
-                            tempLexer = new JSFMLexer(CharStreams.fromString(temp.getText()));
-                            BigDecimal result = null;
+                                if(type.equals("techies")){
+                                    tempVal.setIntValue((int) parse());
+                                }else if(type.equals("coke")){
+                                    tempVal.setFloatValue(parse());
+                                }else if(type.equals("kachow")){
+                                    tempVal.setCharValue(parseChar());
+                                }else if(type.equals("thread")){
+                                    tempVal.setStringValue(parseStr());
+                                }else if(type.equals("boolin")){
+                                    tempVal.setBoolValue(parseBool());
+                                }
+                                tempVal.setNull(false);
 
-                            if(type.equals("techies")){
-                                tempVal.setIntValue((int) parse());
-                            }else if(type.equals("coke")){
-                                tempVal.setFloatValue(parse());
-                            }else if(type.equals("kachow")){
-                                tempVal.setCharValue(parseChar());
-                            }else if(type.equals("thread")){
-                                tempVal.setStringValue(parseStr());
-                            }else if(type.equals("boolin")){
-                                tempVal.setBoolValue(parseBool());
-                            }
-                            tempVal.setNull(false);
+                                break;
+                            case JSFMLexer.ADD_ASSIGN:
+                                tempLexer = new JSFMLexer(CharStreams.fromString(temp.getText()));
 
-                            break;
-                        case JSFMLexer.ADD_ASSIGN:
-                            tempLexer = new JSFMLexer(CharStreams.fromString(temp.getText()));
+                                if(type.equals("techies")){
+                                    tempVal.setIntValue(tempVal.getIntValue() + (int) parse());
+                                    tempVal.setNull(false);
+                                }else if(type.equals("coke")){
+                                    tempVal.setFloatValue(tempVal.getFloatValue() + parse());
+                                    tempVal.setNull(false);
+                                }else if(type.equals("kachow")){
+                                    tempVal.setCharValue((char) (tempVal.getCharValue() + parseChar()));
+                                    tempVal.setNull(false);
+                                }else if(type.equals("thread")){
+                                    tempVal.setStringValue(tempVal.getStringValue() + parseStr());
+                                    tempVal.setNull(false);
+                                }else if(type.equals("boolin")){
+                                    TestScanner.outputTextArea.append("ERROR - Cannot use addition for a boolin variable.\n");
+                                }
 
-                            if(type.equals("techies")){
-                                tempVal.setIntValue(tempVal.getIntValue() + (int) parse());
-                                tempVal.setNull(false);
-                            }else if(type.equals("coke")){
-                                tempVal.setFloatValue(tempVal.getFloatValue() + parse());
-                                tempVal.setNull(false);
-                            }else if(type.equals("kachow")){
-                                tempVal.setCharValue((char) (tempVal.getCharValue() + parseChar()));
-                                tempVal.setNull(false);
-                            }else if(type.equals("thread")){
-                                tempVal.setStringValue(tempVal.getStringValue() + parseStr());
-                                tempVal.setNull(false);
-                            }else if(type.equals("boolin")){
-                                TestScanner.outputTextArea.append("ERROR - Cannot use addition for a boolin variable.\n");
-                            }
+                                break;
+                            case JSFMLexer.SUB_ASSIGN:
+                                tempLexer = new JSFMLexer(CharStreams.fromString(temp.getText()));
 
-                            break;
-                        case JSFMLexer.SUB_ASSIGN:
-                            tempLexer = new JSFMLexer(CharStreams.fromString(temp.getText()));
+                                if(type.equals("techies")){
+                                    tempVal.setIntValue(tempVal.getIntValue() - (int) parse());
+                                    tempVal.setNull(false);
+                                }else if(type.equals("coke")){
+                                    tempVal.setFloatValue(tempVal.getFloatValue() - parse());
+                                    tempVal.setNull(false);
+                                }else if(type.equals("kachow")){
+                                    tempVal.setCharValue((char) (tempVal.getCharValue() - parseChar()));
+                                    tempVal.setNull(false);
+                                }else if(type.equals("thread")){
+                                    TestScanner.outputTextArea.append("ERROR - Cannot use subtraction for a thread variable.\n");
+                                }else if(type.equals("boolin")){
+                                    TestScanner.outputTextArea.append("ERROR - Cannot use subtraction for a boolin variable.\n");
+                                }
 
-                            if(type.equals("techies")){
-                                tempVal.setIntValue(tempVal.getIntValue() - (int) parse());
-                                tempVal.setNull(false);
-                            }else if(type.equals("coke")){
-                                tempVal.setFloatValue(tempVal.getFloatValue() - parse());
-                                tempVal.setNull(false);
-                            }else if(type.equals("kachow")){
-                                tempVal.setCharValue((char) (tempVal.getCharValue() - parseChar()));
-                                tempVal.setNull(false);
-                            }else if(type.equals("thread")){
-                                TestScanner.outputTextArea.append("ERROR - Cannot use subtraction for a thread variable.\n");
-                            }else if(type.equals("boolin")){
-                                TestScanner.outputTextArea.append("ERROR - Cannot use subtraction for a boolin variable.\n");
-                            }
+                                break;
+                            case JSFMLexer.MUL_ASSIGN:
+                                tempLexer = new JSFMLexer(CharStreams.fromString(temp.getText()));
 
-                            break;
-                        case JSFMLexer.MUL_ASSIGN:
-                            tempLexer = new JSFMLexer(CharStreams.fromString(temp.getText()));
+                                if(type.equals("techies")){
+                                    tempVal.setIntValue(tempVal.getIntValue() * (int) parse());
+                                    tempVal.setNull(false);
+                                }else if(type.equals("coke")){
+                                    tempVal.setFloatValue(tempVal.getFloatValue() * parse());
+                                    tempVal.setNull(false);
+                                }else if(type.equals("kachow")){
+                                    tempVal.setCharValue((char) (tempVal.getCharValue() * parseChar()));
+                                    tempVal.setNull(false);
+                                }else if(type.equals("thread")){
+                                    TestScanner.outputTextArea.append("ERROR - Cannot use multiplication for a thread variable.\n");
+                                }else if(type.equals("boolin")){
+                                    TestScanner.outputTextArea.append("ERROR - Cannot use multiplication for a boolin variable.\n");
+                                }
 
-                            if(type.equals("techies")){
-                                tempVal.setIntValue(tempVal.getIntValue() * (int) parse());
-                                tempVal.setNull(false);
-                            }else if(type.equals("coke")){
-                                tempVal.setFloatValue(tempVal.getFloatValue() * parse());
-                                tempVal.setNull(false);
-                            }else if(type.equals("kachow")){
-                                tempVal.setCharValue((char) (tempVal.getCharValue() * parseChar()));
-                                tempVal.setNull(false);
-                            }else if(type.equals("thread")){
-                                TestScanner.outputTextArea.append("ERROR - Cannot use multiplication for a thread variable.\n");
-                            }else if(type.equals("boolin")){
-                                TestScanner.outputTextArea.append("ERROR - Cannot use multiplication for a boolin variable.\n");
-                            }
+                                break;
+                            case JSFMLexer.DIV_ASSIGN:
+                                tempLexer = new JSFMLexer(CharStreams.fromString(temp.getText()));
 
-                            break;
-                        case JSFMLexer.DIV_ASSIGN:
-                            tempLexer = new JSFMLexer(CharStreams.fromString(temp.getText()));
+                                if(type.equals("techies")){
+                                    tempVal.setIntValue(tempVal.getIntValue() / (int) parse());
+                                    tempVal.setNull(false);
+                                }else if(type.equals("coke")){
+                                    tempVal.setFloatValue(tempVal.getFloatValue() / parse());
+                                    tempVal.setNull(false);
+                                }else if(type.equals("kachow")){
+                                    tempVal.setCharValue((char) (tempVal.getCharValue() / parseChar()));
+                                    tempVal.setNull(false);
+                                }else if(type.equals("thread")){
+                                    TestScanner.outputTextArea.append("ERROR - Cannot use division for a thread variable.\n");
+                                }else if(type.equals("boolin")){
+                                    TestScanner.outputTextArea.append("ERROR - Cannot use division for a boolin variable.\n");
+                                }
 
-                            if(type.equals("techies")){
-                                tempVal.setIntValue(tempVal.getIntValue() / (int) parse());
-                                tempVal.setNull(false);
-                            }else if(type.equals("coke")){
-                                tempVal.setFloatValue(tempVal.getFloatValue() / parse());
-                                tempVal.setNull(false);
-                            }else if(type.equals("kachow")){
-                                tempVal.setCharValue((char) (tempVal.getCharValue() / parseChar()));
-                                tempVal.setNull(false);
-                            }else if(type.equals("thread")){
-                                TestScanner.outputTextArea.append("ERROR - Cannot use division for a thread variable.\n");
-                            }else if(type.equals("boolin")){
-                                TestScanner.outputTextArea.append("ERROR - Cannot use division for a boolin variable.\n");
-                            }
-
-                            break;
+                                break;
+                        }
+                        symbolTable.put(vName, tempVal);
+                    }else{
+                        TestScanner.outputTextArea.append("ERROR - " + vName + " is an ultimate variable. Its value cannot be changed.\n");
                     }
-                    symbolTable.put(vName, tempVal);
+
                 }else{
-                    TestScanner.outputTextArea.append("ERROR - " + vName + " is an ultimate variable. Its value cannot be changed.\n");
+                    TestScanner.outputTextArea.append("ERROR - " + vName + " is not declared.\n");
                 }
 
-            }else{
-                TestScanner.outputTextArea.append("ERROR - " + vName + " is not declared.\n");
             }
-
         }
 
-        ifTrue = false;
+
+
+        if(ifInUse && ifNum == controlNum){ //end of if statement
+            ifInUse = false;
+            ifNum = controlNum;
+        }
 
         type = "";
     }
@@ -989,24 +999,23 @@ public class JSFMListener implements JSFMParserListener {
      * <p>The default implementation does nothing.</p>
      */
     @Override public void exitParExpression(JSFMParser.ParExpressionContext ctx) {
-        String ifStatement = ctx.expression().getText();
         boolean error = true;
-        Expression expr = new Expression(ifStatement);
+        Expression expr = new Expression(ctx.expression().getText());
 
         while(error){
             try{
                 BigDecimal res = expr.eval();
                 if(res.intValue() == 1){
                         //TRUE
-                    ifTrue = true;
+                    ifResult = true;
                     System.out.println("TRUE");
-                    error = false;
                 }else if(res.intValue() == 0){
-                    ifTrue = false;
+                    ifResult = false;
                     //FALSE
                     System.out.println("FALSE");
-                    error = false;
                 }
+                error = false;
+                ifStatement = true;
             }catch(Exception e){
                 System.out.println("EXCEPTION CAUGHT - " + e.getMessage());
                 String var = e.getMessage().split("Unknown operator or function: ")[1];
@@ -1203,13 +1212,16 @@ public class JSFMListener implements JSFMParserListener {
      * <p>The default implementation does nothing.</p>
      */
     @Override public void exitOutputStatement(JSFMParser.OutputStatementContext ctx) {
-        print = "";
-        String temp = ctx.getText().substring(8, ctx.getText().length()-2);
-        tempLexer = new JSFMLexer(CharStreams.fromString(temp));
-        print = parseStr();
 
-//        System.out.print(print.replace("\\n", System.lineSeparator()));
-        TestScanner.outputTextArea.append(print.replace("\\n", System.lineSeparator()));
+        if(!ifInUse){
+            print = "";
+            String temp = ctx.getText().substring(8, ctx.getText().length()-2);
+            tempLexer = new JSFMLexer(CharStreams.fromString(temp));
+            print = parseStr();
+
+            TestScanner.outputTextArea.append(print.replace("\\n", System.lineSeparator()));
+        }
+
     }
     /**
      * {@inheritDoc}
@@ -1237,7 +1249,9 @@ public class JSFMListener implements JSFMParserListener {
      *
      * <p>The default implementation does nothing.</p>
      */
-    @Override public void exitEveryRule(ParserRuleContext ctx) { }
+    @Override public void exitEveryRule(ParserRuleContext ctx) {
+        controlNum--;
+    }
     /**
      * {@inheritDoc}
      *
