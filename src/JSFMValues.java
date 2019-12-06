@@ -70,23 +70,28 @@ public class JSFMValues {
 
     public void setCharValue(char charValue) {
         this.charValue = charValue;
+        isEmpty = false;
     }
 
     public void setIntValue(int intValue) {
         this.intValue = intValue;
+        isEmpty = false;
     }
 
     public void setFloatValue(float floatValue) {
         this.floatValue = floatValue;
+        isEmpty = false;
     }
 
 
     public void setStringValue(String stringValue) {
         this.stringValue = stringValue;
+        isEmpty = false;
     }
 
     public void setBoolValue(boolean boolValue){
         this.boolValue = boolValue;
+        isEmpty = false;
     }
 
     public void setNull(boolean isEmpty){
