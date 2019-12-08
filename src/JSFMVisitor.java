@@ -437,23 +437,16 @@ public class JSFMVisitor extends JSFMParserBaseVisitor<Object> {
         while(error){
             try{
                 while(whileTrue){
-                    System.out.println("1");
                     res = expr.eval();
                     if(res != null){
-                        System.out.println("2");
                         if(res == BigDecimal.valueOf(1)){
-                            System.out.println("3");
                             this.visit(ctx.statement());
-
                             expr = new Expression(condition);
                         }else if(res == BigDecimal.valueOf(0)){
-                            System.out.println("4");
                             whileTrue = false;
                             error = false;
                         }
-                        System.out.println("5");
                     }
-                    System.out.println("6");
                 }
             }catch(Exception e){
                 String var = e.getMessage().split("Unknown operator or function: ")[1];
@@ -494,7 +487,64 @@ public class JSFMVisitor extends JSFMParserBaseVisitor<Object> {
     }
 
     @Override
-    public Object visitDoWhileLoopStmt(JSFMParser.DoWhileLoopStmtContext ctx) { return visitChildren(ctx); }
+    public Object visitDoWhileLoopStmt(JSFMParser.DoWhileLoopStmtContext ctx) {
+        String condition = ctx.parExpression().expression().getText();
+
+        Expression expr = new Expression(condition);
+        BigDecimal res = null;
+        boolean error = true;
+        boolean whileTrue = true;
+        this.visit(ctx.statement());
+        while(error){
+            try{
+                while(whileTrue){
+                    res = expr.eval();
+                    if(res != null){
+                        if(res == BigDecimal.valueOf(1)){
+                            this.visit(ctx.statement());
+                            expr = new Expression(condition);
+                        }else if(res == BigDecimal.valueOf(0)){
+                            whileTrue = false;
+                            error = false;
+                        }
+                    }
+                }
+            }catch(Exception e){
+                String var = e.getMessage().split("Unknown operator or function: ")[1];
+                JSFMValues temp;
+                if(symbolTable.containsKey(var)){
+                    temp = symbolTable.get(var);
+                    if(!temp.isEmpty()){
+                        switch (temp.getObjectType()){
+                            case "techies":
+                                expr.setVariable(var, BigDecimal.valueOf(temp.getIntValue()));
+                                break;
+                            case "coke":
+                                expr.setVariable(var, BigDecimal.valueOf(temp.getFloatValue()));
+                                break;
+                            case "thread":
+                                expr.setVariable(var, temp.getStringValue());
+                                break;
+                            case "kachow":
+                                expr.setVariable(var, BigDecimal.valueOf((int) temp.getCharValue()));
+                                break;
+                            case "boolin":
+                                if(temp.getBoolValue()) {
+                                    expr.setVariable(var, BigDecimal.valueOf(1));
+                                }else{
+                                    expr.setVariable(var, BigDecimal.valueOf(0));
+                                }
+                                break;
+                            default: TestScanner.outputTextArea.append("ERROR - Variable " + var + " is not a variable.\n");
+                                error = false;
+                        }
+                    }
+                }
+            }
+
+        }
+        return null;
+    }
 
     @Override
     public Object visitSwitchStmt(JSFMParser.SwitchStmtContext ctx) { return visitChildren(ctx); }
