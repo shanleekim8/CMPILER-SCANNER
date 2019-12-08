@@ -9,7 +9,6 @@ public class JSFMValues {
     private boolean isArray = false;
     private boolean isEmpty;
     private boolean isFinal;
-    private Object value;
 
     public JSFMValues(String type, int value, boolean f){
         objectType = type;

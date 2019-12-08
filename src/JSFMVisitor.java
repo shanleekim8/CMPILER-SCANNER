@@ -5,6 +5,8 @@ import org.antlr.v4.runtime.tree.RuleNode;
 import org.antlr.v4.runtime.tree.TerminalNode;
 
 import javax.swing.*;
+import java.math.BigDecimal;
+import java.util.Enumeration;
 import java.util.Hashtable;
 
 public class JSFMVisitor extends JSFMParserBaseVisitor<Object> {
@@ -12,6 +14,7 @@ public class JSFMVisitor extends JSFMParserBaseVisitor<Object> {
 
     @Override
     public Object visitCompilationUnit(JSFMParser.CompilationUnitContext ctx) {
+        symbolTable.clear();
         TestScanner.outputTextArea.setText("");
         System.out.println("In compilation unit");
         return visitChildren(ctx);
@@ -163,83 +166,268 @@ public class JSFMVisitor extends JSFMParserBaseVisitor<Object> {
         if(ctx.variableModifier() != null){
             isFinal = true;
         }
-
+        JSFMValues toBeReturned = null;
         String varName = "";
         String varValue = "";
 
         for(int i=0; i< ctx.variableDeclarators().variableDeclarator().size(); i++){
             varName = ctx.variableDeclarators().variableDeclarator(i).variableDeclaratorId().getText();
+            if(!symbolTable.containsKey(varName)){
+                if(ctx.variableDeclarators().variableDeclarator(i).variableInitializer()!= null){ //has a value
+                    varValue = ctx.variableDeclarators().variableDeclarator(i).variableInitializer().getText();
+                    System.out.println(type + " " + varName + " " + varValue);
 
-            if(ctx.variableDeclarators().variableDeclarator(i).variableInitializer()!= null){ //has a value
-                varValue = ctx.variableDeclarators().variableDeclarator(i).variableInitializer().getText();
-                System.out.println(type + " " + varName + " " + varValue);
+                    if(type.equalsIgnoreCase("coke") || type.equalsIgnoreCase("techies")){
+                        Expression expr = new Expression(varValue);
 
-                if(type.equalsIgnoreCase("coke") || type.equalsIgnoreCase("techies")){
-                    Expression expr = new Expression(varValue);
-
-                    JSFMValues var;
-                    switch(type) {
-                        case "techies":
-                            var = new JSFMValues(type, expr.eval().intValue(), isFinal);
-                            symbolTable.put(varName, var);
-                            break;
-                        case "coke":
-                            var = new JSFMValues(type, expr.eval().floatValue(), isFinal);
-                            symbolTable.put(varName, var);
-                            break;
-                    }
-                } else if(type.equals("boolin") || type.equals("thread") || type.equals("kachow")){
-                    JSFMValues var;
-                    switch(type) {
-                        case "boolin":
-                            if(varValue == "true") {
-                                var = new JSFMValues(type,true, isFinal);
+                        JSFMValues var;
+                        switch(type) {
+                            case "techies":
+                                var = new JSFMValues(type, expr.eval().intValue(), isFinal);
+                                toBeReturned = var;
                                 symbolTable.put(varName, var);
-                            }
-                            else if(varValue == "false") {
-                                var = new JSFMValues(type,false, isFinal);
+                                break;
+                            case "coke":
+                                var = new JSFMValues(type, expr.eval().floatValue(), isFinal);
                                 symbolTable.put(varName, var);
-                            }
-                            break;
-                        case "thread":
-                            var = new JSFMValues(type, varValue.substring(1, varValue.length()-1), isFinal);
-                            symbolTable.put(varName, var);
-                            break;
-                        case "kachow":
-                            var = new JSFMValues(type, varValue.charAt(1), isFinal);
-                            symbolTable.put(varName, var);
-                            break;
+                                toBeReturned = var;
+                                break;
+                        }
+                    } else if(type.equals("boolin") || type.equals("thread") || type.equals("kachow")){
+                        JSFMValues var;
+                        switch(type) {
+                            case "boolin":
+                                if(varValue == "true") {
+                                    var = new JSFMValues(type,true, isFinal);
+                                    symbolTable.put(varName, var);
+                                    toBeReturned = var;
+                                }
+                                else if(varValue == "false") {
+                                    var = new JSFMValues(type,false, isFinal);
+                                    symbolTable.put(varName, var);
+                                    toBeReturned = var;
+                                }
+                                break;
+                            case "thread":
+                                var = new JSFMValues(type, varValue.substring(1, varValue.length()-1), isFinal);
+                                symbolTable.put(varName, var);
+                                toBeReturned = var;
+                                break;
+                            case "kachow":
+                                var = new JSFMValues(type, varValue.charAt(1), isFinal);
+                                symbolTable.put(varName, var);
+                                toBeReturned = var;
+                                break;
+                        }
                     }
+                }else{ //no value
+                    JSFMValues var = new JSFMValues(type, isFinal);
+                    symbolTable.put(varName, var);
+                    toBeReturned = var;
                 }
-            }else{ //no value
-                JSFMValues var = new JSFMValues(type, isFinal);
-                symbolTable.put(varName, var);
+            }else{
+                TestScanner.outputTextArea.append("ERROR - Variable " + varName + " has already been declared. " +
+                        "Please check your declared variables or make this into an assignment statement.\n");
             }
+
 
         }
 
 
-        return null;
+        return toBeReturned;
     }
 
     @Override
     public Object visitReturnStatement(JSFMParser.ReturnStatementContext ctx) {
-        return null;
+        return visitChildren(ctx);
     }
 
     @Override
     public Object visitReturnExpression(JSFMParser.ReturnExpressionContext ctx) {
-        return null;
+        return visitChildren(ctx);
     }
 
     @Override
     public Object visitBlockStmt(JSFMParser.BlockStmtContext ctx) { return visitChildren(ctx); }
 
     @Override
-    public Object visitIfElseStmt(JSFMParser.IfElseStmtContext ctx) { return visitChildren(ctx); }
+    public Object visitIfElseStmt(JSFMParser.IfElseStmtContext ctx) {
+
+        Expression expr = new Expression(ctx.parExpression().expression().getText());
+        BigDecimal res = null;
+        boolean error = true;
+        while(error){
+            try{
+                res = expr.eval();
+                error = false;
+            }catch(Exception e){
+                String var = e.getMessage().split("Unknown operator or function: ")[1];
+                JSFMValues temp;
+                if(symbolTable.containsKey(var)){
+                    temp = symbolTable.get(var);
+                    if(!temp.isEmpty()){
+                        switch (temp.getObjectType()){
+                            case "techies":
+                                expr.setVariable(var, BigDecimal.valueOf(temp.getIntValue()));
+                                break;
+                            case "coke":
+                                expr.setVariable(var, BigDecimal.valueOf(temp.getFloatValue()));
+                                break;
+                            case "thread":
+                                expr.setVariable(var, temp.getStringValue());
+                                break;
+                            case "kachow":
+                                expr.setVariable(var, BigDecimal.valueOf((int) temp.getCharValue()));
+                                break;
+                            case "boolin":
+                                if(temp.getBoolValue()) {
+                                    expr.setVariable(var, BigDecimal.valueOf(1));
+                                }else{
+                                    expr.setVariable(var, BigDecimal.valueOf(0));
+                                }
+                                break;
+                            default: TestScanner.outputTextArea.append("ERROR - Variable " + var + " is not a variable.\n");
+                                error = false;
+                        }
+                    }
+                }
+            }
+        }
+
+        if(res != null){
+            if(res == BigDecimal.valueOf(1)){
+                return this.visit(ctx.statement(0));
+            }else{
+                if(ctx.ELSE()!= null){
+                    return this.visit(ctx.statement(1));
+                }
+            }
+        }
+
+        return null;
+    }
 
     @Override
-    public Object visitForLoopStmt(JSFMParser.ForLoopStmtContext ctx) { return visitChildren(ctx); }
+    public Object visitForLoopStmt(JSFMParser.ForLoopStmtContext ctx) {
+        Hashtable<String, JSFMValues> tempTable = new Hashtable<String, JSFMValues>();
+        JSFMValues localVar;
+        System.out.println("IN FOR LOOP STMT");
+        String itrVal = "";
+        String maxVal = "";
+        String condition = ctx.forControl().expression().getText();
+
+        if(ctx.forControl().forInit().localVariableDeclaration() != null) {
+            System.out.println("Potato");
+            String vName = ctx.forControl().forInit().localVariableDeclaration().variableDeclarators()
+                    .variableDeclarator(0).variableDeclaratorId().getText();
+            if(!symbolTable.containsKey(vName)){
+                String type = ctx.forControl().forInit().localVariableDeclaration().typeType().getText();
+
+                if(type.equalsIgnoreCase("techies") || type.equalsIgnoreCase("coke")) {
+                    localVar = (JSFMValues) this.visit(ctx.forControl().forInit().localVariableDeclaration());
+                    tempTable.put(vName, localVar);
+                    itrVal = ctx.forControl().forInit().localVariableDeclaration().variableDeclarators().variableDeclarator(0).variableInitializer().getText();
+                    maxVal = ctx.children.get(2).getChild(2).getChild(2).getText(); //max value IF only one condition
+
+                    Expression expr = new Expression(condition);
+                    BigDecimal res = null;
+                    boolean error = true;
+                    boolean loopTrue = true;
+                    while(error){
+                        try{
+                            while(loopTrue){
+                                res = expr.eval();
+                                if(res != null){
+                                    if(res == BigDecimal.valueOf(1)){
+                                        this.visit(ctx.statement());
+                                        if(ctx.forControl().prepostFix() != null){
+                                            this.visit(ctx.forControl().prepostFix());
+                                            expr = new Expression(condition);
+                                        }else if(ctx.forControl().expressionList() != null){
+                                            this.visit(ctx.forControl().expressionList());
+                                            expr = new Expression(condition);
+                                        }
+                                    }else{
+                                        loopTrue = false;
+                                        error = false;
+                                    }
+                                }
+                            }
+
+                        }catch(Exception e){
+                            String var = e.getMessage().split("Unknown operator or function: ")[1];
+                            JSFMValues temp;
+                            if(symbolTable.containsKey(var)){
+                                temp = symbolTable.get(var);
+                                if(!temp.isEmpty()){
+                                    switch (temp.getObjectType()){
+                                        case "techies":
+                                            expr.setVariable(var, BigDecimal.valueOf(temp.getIntValue()));
+                                            break;
+                                        case "coke":
+                                            expr.setVariable(var, BigDecimal.valueOf(temp.getFloatValue()));
+                                            break;
+                                        case "thread":
+                                            expr.setVariable(var, temp.getStringValue());
+                                            break;
+                                        case "kachow":
+                                            expr.setVariable(var, BigDecimal.valueOf((int) temp.getCharValue()));
+                                            break;
+                                        case "boolin":
+                                            if(temp.getBoolValue()) {
+                                                expr.setVariable(var, BigDecimal.valueOf(1));
+                                            }else{
+                                                expr.setVariable(var, BigDecimal.valueOf(0));
+                                            }
+                                            break;
+                                        default: TestScanner.outputTextArea.append("ERROR - Variable " + var + " is not a variable.\n");
+                                            error = false;
+                                    }
+                                }
+                            }
+                        }
+                    }
+                    Enumeration e = tempTable.keys();
+
+                    while(e.hasMoreElements()){
+                        String key = (String) e.nextElement();
+                        if(symbolTable.containsKey(key)){
+                            symbolTable.remove(key);
+                        }
+                    }
+                } else {
+                    System.out.println("ERROR - Only techies and coke are allowed.");
+                }
+
+            }
+
+        } else {
+            System.out.println("Banana");
+            boolean nonNumeric = false;
+            itrVal = ctx.forControl().forInit().expressionList().expression(0).getChild(ctx.forControl().forInit().expressionList().expression(0).getChildCount() - 1).getText(); //value of iterator
+            maxVal = ctx.forControl().expression().getChild(ctx.forControl().expression().getChildCount() - 1).getText(); //max value IF only one condition
+
+            try{
+                int temp = Integer.parseInt(itrVal);
+                temp = Integer.parseInt(maxVal);
+
+                float temp2 = Float.parseFloat(itrVal);
+                temp2 = Float.parseFloat(maxVal);
+            }catch(NumberFormatException e){
+                System.out.println("ERROR - Non Numeric Value");
+                nonNumeric = true;
+            }
+
+            if(!nonNumeric){
+            }
+        }
+
+        System.out.println("itr val: " + itrVal + " & max val: " + maxVal);
+
+        System.out.println("Initial Val: " + itrVal + ", Max Val: " + maxVal);
+
+        return null;
+    }
 
     @Override
     public Object visitWhileLoopStmt(JSFMParser.WhileLoopStmtContext ctx) { return visitChildren(ctx); }
@@ -254,7 +442,416 @@ public class JSFMVisitor extends JSFMParserBaseVisitor<Object> {
     public Object visitBreakStmt(JSFMParser.BreakStmtContext ctx) { return visitChildren(ctx); }
 
     @Override
-    public Object visitExprStmt(JSFMParser.ExprStmtContext ctx) { return visitChildren(ctx); }
+    public Object visitExprStmt(JSFMParser.ExprStmtContext ctx) {
+        if(ctx.expression().expression()!= null){
+            String vName = ctx.expression().expression(0).getText();
+            String assign = ctx.expression().bop.getText();
+            if(symbolTable.containsKey(vName)){
+                JSFMValues temp = symbolTable.get(vName);
+                if(!temp.isFinal() || (temp.isFinal() && temp.isEmpty())){
+                    Expression expr = new Expression(ctx.expression().expression(1).getText());
+                    if(temp.getObjectType().equals("techies") || temp.getObjectType().equals("coke")
+                    ||  temp.getObjectType().equals("boolin")){
+                        boolean error = true;
+                        BigDecimal res = null;
+                        while(error){
+                            try{
+                                res = expr.eval();
+                                error = false;
+                            }catch(Exception e){
+                                String var = e.getMessage().split("Unknown operator or function: ")[1];
+                                JSFMValues temp2;
+                                if(symbolTable.containsKey(var)){
+                                    temp2 = symbolTable.get(var);
+                                    if(!temp2.isEmpty()){
+                                        switch (temp2.getObjectType()){
+                                            case "techies":
+                                                expr.setVariable(var, BigDecimal.valueOf(temp2.getIntValue()));
+                                                break;
+                                            case "coke":
+                                                expr.setVariable(var, BigDecimal.valueOf(temp2.getFloatValue()));
+                                                break;
+                                            case "thread":
+                                                expr.setVariable(var, temp2.getStringValue());
+                                                break;
+                                            case "kachow":
+                                                expr.setVariable(var, BigDecimal.valueOf((int) temp2.getCharValue()));
+                                                break;
+                                            case "boolin":
+                                                if(temp2.getBoolValue()) {
+                                                    expr.setVariable(var, BigDecimal.valueOf(1));
+                                                }else{
+                                                    expr.setVariable(var, BigDecimal.valueOf(0));
+                                                }
+                                                break;
+                                            default: TestScanner.outputTextArea.append("ERROR - Variable " + var + " is not a variable.\n");
+                                            error = false;
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                        if(res != null){
+                            switch (assign){
+                                case "=":
+                                    if(temp.getObjectType().equals("techies")){
+                                        temp.setIntValue(res.intValue());
+                                    }else if(temp.getObjectType().equals("coke")){
+                                        temp.setFloatValue(res.floatValue());
+                                    }else if(temp.getObjectType().equals("boolin")){
+                                        if(res == BigDecimal.valueOf(0)){
+                                            temp.setBoolValue(false);
+                                        }else{
+                                            temp.setBoolValue(true);
+                                        }
+                                    }
+                                    break;
+                                case "+=":
+                                    if(!temp.isEmpty()){
+                                        if(temp.getObjectType().equals("techies")){
+                                            temp.setIntValue(temp.getIntValue() + res.intValue());
+                                        }else if(temp.getObjectType().equals("coke")){
+                                            temp.setFloatValue(temp.getFloatValue() + res.floatValue());
+                                        }else if(temp.getObjectType().equals("boolin")){
+                                            TestScanner.outputTextArea.append("ERROR - Variable type boolin cannot use the += operator.\n");
+                                        }
+                                    }else{
+                                        TestScanner.outputTextArea.append("ERROR - Variable " + vName + " is not initialized. " +
+                                                "Please initialize it first.\n");
+                                    }
+
+                                    break;
+                                case "-=":
+                                    if(!temp.isEmpty()){
+                                        if(temp.getObjectType().equals("techies")){
+                                            temp.setIntValue(temp.getIntValue() - res.intValue());
+                                        }else if(temp.getObjectType().equals("coke")){
+                                            temp.setFloatValue(temp.getFloatValue() - res.floatValue());
+                                        }else if(temp.getObjectType().equals("boolin")){
+                                            TestScanner.outputTextArea.append("ERROR - Variable type boolin cannot use the -= operator.\n");
+                                        }
+                                    }else{
+                                        TestScanner.outputTextArea.append("ERROR - Variable " + vName + " is not initialized. " +
+                                                "Please initialize it first.\n");
+                                    }
+                                    break;
+                                case "*=":
+                                    if(!temp.isEmpty()){
+                                        if(temp.getObjectType().equals("techies")){
+                                            temp.setIntValue(temp.getIntValue() * res.intValue());
+                                        }else if(temp.getObjectType().equals("coke")){
+                                            temp.setFloatValue(temp.getFloatValue() * res.floatValue());
+                                        }else if(temp.getObjectType().equals("boolin")){
+                                            TestScanner.outputTextArea.append("ERROR - Variable type boolin cannot use the *= operator.\n");
+                                        }
+                                    }else{
+                                        TestScanner.outputTextArea.append("ERROR - Variable " + vName + " is not initialized. " +
+                                                "Please initialize it first.\n");
+                                    }
+                                    break;
+                                case "/=":
+                                    if(!temp.isEmpty()){
+                                        if(temp.getObjectType().equals("techies")){
+                                            temp.setIntValue(temp.getIntValue() / res.intValue());
+                                        }else if(temp.getObjectType().equals("coke")){
+                                            temp.setFloatValue(temp.getFloatValue() / res.floatValue());
+                                        }else if(temp.getObjectType().equals("boolin")){
+                                            TestScanner.outputTextArea.append("ERROR - Variable type boolin cannot use the /= operator.\n");
+                                        }
+                                    }else{
+                                        TestScanner.outputTextArea.append("ERROR - Variable " + vName + " is not initialized. " +
+                                                "Please initialize it first.\n");
+                                    }
+                                    break;
+                            }
+                            symbolTable.put(vName, temp);
+                        }
+                    }else if(temp.getObjectType().equals("kachow")){
+                        String val = ctx.expression().expression(1).getText();
+                        int test = -999;
+                        if(val.length() == 3 && val.charAt(0) == '\'' && val.charAt(2) == '\''){
+                            switch (assign){
+                                case "=":
+                                    temp.setCharValue(val.charAt(1));
+                                    break;
+                                case "+=":
+                                    if(!temp.isEmpty()){
+                                        temp.setCharValue((char)((int)temp.getCharValue() + (int)val.charAt(1)));
+                                    }else{
+                                        TestScanner.outputTextArea.append("ERROR - Variable " + vName + " is not initialized. " +
+                                                "Please initialize it first.\n");
+                                    }
+                                    break;
+                                case "-=":
+                                    if(!temp.isEmpty()){
+                                        temp.setCharValue((char)((int)temp.getCharValue() - (int)val.charAt(1)));
+                                    }else{
+                                        TestScanner.outputTextArea.append("ERROR - Variable " + vName + " is not initialized. " +
+                                            "Please initialize it first.\n");
+                                    }                                    break;
+                                case "*=":
+                                    if(!temp.isEmpty()){
+                                        temp.setCharValue((char)((int)temp.getCharValue() * (int)val.charAt(1)));
+                                    }else{
+                                        TestScanner.outputTextArea.append("ERROR - Variable " + vName + " is not initialized. " +
+                                                "Please initialize it first.\n");
+                                    }
+                                    break;
+                                case "/=":
+                                    if(!temp.isEmpty()){
+                                        temp.setCharValue((char)((int)temp.getCharValue() / (int)val.charAt(1)));
+                                    }else{
+                                        TestScanner.outputTextArea.append("ERROR - Variable " + vName + " is not initialized. " +
+                                                "Please initialize it first.\n");
+                                    }
+                                    break;
+                            }
+                            symbolTable.put(vName, temp);
+                        }else{
+                            try{ //not an identifier
+                                test = Integer.parseInt(val);
+
+                                switch (assign){
+                                    case "=":
+                                        temp.setCharValue((char) test);
+                                        break;
+                                    case "+=":
+                                        if(!temp.isEmpty()){
+                                            temp.setCharValue((char)((int)temp.getCharValue() + test));
+                                        }else{
+                                            TestScanner.outputTextArea.append("ERROR - Variable " + vName + " is not initialized. " +
+                                                    "Please initialize it first.\n");
+                                        }
+                                        break;
+                                    case "-=":
+                                        if(!temp.isEmpty()){
+                                            temp.setCharValue((char)((int)temp.getCharValue() - test));
+                                        }else{
+                                            TestScanner.outputTextArea.append("ERROR - Variable " + vName + " is not initialized. " +
+                                                    "Please initialize it first.\n");
+                                        }                                    break;
+                                    case "*=":
+                                        if(!temp.isEmpty()){
+                                            temp.setCharValue((char)((int)temp.getCharValue() * test));
+                                        }else{
+                                            TestScanner.outputTextArea.append("ERROR - Variable " + vName + " is not initialized. " +
+                                                    "Please initialize it first.\n");
+                                        }
+                                        break;
+                                    case "/=":
+                                        if(!temp.isEmpty()){
+                                            temp.setCharValue((char)((int)temp.getCharValue() / test));
+                                        }else{
+                                            TestScanner.outputTextArea.append("ERROR - Variable " + vName + " is not initialized. " +
+                                                    "Please initialize it first.\n");
+                                        }
+                                        break;
+                                }
+                            }catch(NumberFormatException e){
+                                if(symbolTable.containsKey(val)){
+                                    JSFMValues temp2 = symbolTable.get(val);
+                                    if(!temp2.isEmpty()){
+                                        switch (assign){
+                                            case "=":
+                                                if(temp2.getObjectType().equals("kachow")){
+                                                    temp.setCharValue(temp2.getCharValue());
+                                                }else if(temp2.getObjectType().equals("techies")){
+                                                    temp.setCharValue((char) temp2.getIntValue());
+                                                }else{
+                                                    TestScanner.outputTextArea.append("ERROR - Cannot assign variable type "
+                                                            + temp2.getObjectType() + " to kachow.\n");
+                                                }
+                                                break;
+                                            case "+=":
+                                                if(!temp.isEmpty()){
+                                                    if(temp2.getObjectType().equals("kachow")){
+                                                        temp.setCharValue((char)((int) temp.getCharValue() + (int)temp2.getCharValue()));
+                                                    }else if(temp2.getObjectType().equals("techies")){
+                                                        temp.setCharValue((char)((int) temp.getCharValue() + temp2.getIntValue()));
+                                                    }else{
+                                                        TestScanner.outputTextArea.append("ERROR - Cannot add variable type "
+                                                                + temp2.getObjectType() + " to kachow.\n");
+                                                    }
+                                                }else{
+                                                    TestScanner.outputTextArea.append("ERROR - Variable " + vName + " is not initialized. " +
+                                                            "Please initialize it first.\n");
+                                                }
+                                                break;
+                                            case "-=":
+                                                if(!temp.isEmpty()){
+                                                    if(temp2.getObjectType().equals("kachow")){
+                                                        temp.setCharValue((char)((int) temp.getCharValue() - (int)temp2.getCharValue()));
+                                                    }else if(temp2.getObjectType().equals("techies")){
+                                                        temp.setCharValue((char)((int) temp.getCharValue() - temp2.getIntValue()));
+                                                    }else{
+                                                        TestScanner.outputTextArea.append("ERROR - Cannot subtract variable type "
+                                                                + temp2.getObjectType() + " from kachow.\n");
+                                                    }
+                                                }else{
+                                                    TestScanner.outputTextArea.append("ERROR - Variable " + vName + " is not initialized. " +
+                                                            "Please initialize it first.\n");
+                                                }
+                                                break;
+                                            case "*=":
+                                                if(!temp.isEmpty()){
+                                                    if(temp2.getObjectType().equals("kachow")){
+                                                        temp.setCharValue((char)((int) temp.getCharValue() * (int)temp2.getCharValue()));
+                                                    }else if(temp2.getObjectType().equals("techies")){
+                                                        temp.setCharValue((char)((int) temp.getCharValue() * temp2.getIntValue()));
+                                                    }else{
+                                                        TestScanner.outputTextArea.append("ERROR - Cannot multiply variable type "
+                                                                + temp2.getObjectType() + " to kachow.\n");
+                                                    }
+                                                }else{
+                                                    TestScanner.outputTextArea.append("ERROR - Variable " + vName + " is not initialized. " +
+                                                            "Please initialize it first.\n");
+                                                }
+                                                break;
+                                            case "/=":
+                                                if(!temp.isEmpty()){
+                                                    if(temp2.getObjectType().equals("kachow")){
+                                                        temp.setCharValue((char)((int) temp.getCharValue() / (int)temp2.getCharValue()));
+                                                    }else if(temp2.getObjectType().equals("techies")){
+                                                        temp.setCharValue((char)((int) temp.getCharValue() / temp2.getIntValue()));
+                                                    }else{
+                                                        TestScanner.outputTextArea.append("ERROR - Cannot divide variable type "
+                                                                + temp2.getObjectType() + " with kachow.\n");
+                                                    }
+                                                }else{
+                                                    TestScanner.outputTextArea.append("ERROR - Variable " + vName + " is not initialized. " +
+                                                            "Please initialize it first.\n");
+                                                }
+                                                break;
+                                        }
+                                    }else{
+                                        TestScanner.outputTextArea.append("ERROR - Variable " + val + " is not initialized. " +
+                                                "Please initialize it first.\n");
+                                    }
+                                }else{
+                                    TestScanner.outputTextArea.append("ERROR - Variable " + val + " does not exist. " +
+                                            "Please declare and initialize it first.\n");
+                                }
+                            }
+                            symbolTable.put(vName, temp);
+                        }
+                    }else if(temp.getObjectType().equals("thread")){
+                        String val = ctx.expression().expression(1).getText();
+                        String str = "";
+                        if(val.contains("+")){
+                            String[] res = val.split("\\+");
+                            for(int i=0; i< res.length; i++){
+                                if(res[i].charAt(0) == '\"' && res[i].charAt(res[i].length()-1) == '\"'){
+                                    str += res[i].substring(1, res[i].length()-1);
+                                }else{ //identifier
+                                    try{
+                                        Float f = Float.parseFloat(res[i]);
+                                        str += res[i];
+//                                        if(f % 1 == 0){
+//                                            str += f.intValue();
+//                                        }else{
+//                                            str += f;
+//                                        }
+                                    }catch(NumberFormatException e){
+                                        if(symbolTable.containsKey(res[i])){
+                                            JSFMValues temp2 = symbolTable.get(res[i]);
+                                            if(!temp2.isEmpty()){
+                                                switch(temp2.getObjectType()){
+                                                    case "techies":
+                                                        str += temp2.getIntValue();
+                                                        break;
+                                                    case "coke":
+                                                        str += temp2.getFloatValue();
+                                                        break;
+                                                    case "thread":
+                                                        str += temp2.getStringValue();
+                                                        break;
+                                                    case "kachow":
+                                                        str += temp2.getCharValue();
+                                                        break;
+                                                    case "boolin":
+                                                        str += temp2.getBoolValue();
+                                                        break;
+                                                    default: TestScanner.outputTextArea.append("ERROR - " + res[i] + " is not a variable.\n");
+                                                }
+                                            }else{
+                                                TestScanner.outputTextArea.append("ERROR - Variable " + res[i] + " is not initialized. " +
+                                                        "Please initialize it first.\n");
+                                            }
+                                        }else{
+                                            TestScanner.outputTextArea.append("ERROR - Variable " + res[i] + " does not exist. " +
+                                                    "Please declare and initialize it first.\n");
+                                        }
+                                    }
+
+                                }
+                            }
+                            if(assign.equals("=")){
+                                temp.setStringValue(str);
+                                symbolTable.put(vName, temp);
+                            }else if(assign.equals("+=")){
+                                temp.setStringValue(temp.getStringValue().concat(str));
+                                symbolTable.put(vName, temp);
+                            }else{
+                                TestScanner.outputTextArea.append("ERROR - Cannot use the " + assign + " operator on thread values.\n");
+                            }
+                        }else{
+                            if(val.charAt(0) == '\"' && val.charAt(val.length()-1) == '\"'){
+                                str = val.substring(1, val.length()-1);
+                            }else{
+                                if(symbolTable.containsKey(val)){
+                                    JSFMValues temp2 = symbolTable.get(val);
+                                    if(!temp2.isEmpty()){
+                                        switch(temp2.getObjectType()){
+                                            case "techies":
+                                                str += temp2.getIntValue();
+                                                break;
+                                            case "coke":
+                                                str += temp2.getFloatValue();
+                                                break;
+                                            case "thread":
+                                                str += temp2.getStringValue();
+                                                break;
+                                            case "kachow":
+                                                str += temp2.getCharValue();
+                                                break;
+                                            case "boolin":
+                                                str += temp2.getBoolValue();
+                                                break;
+                                            default: TestScanner.outputTextArea.append("ERROR - " + val + " is not a variable.\n");
+                                        }
+                                    }else{
+                                        TestScanner.outputTextArea.append("ERROR - Variable " + val + " is not initialized. " +
+                                                "Please initialize it first.\n");
+                                    }
+                                }else{
+                                    TestScanner.outputTextArea.append("ERROR - Variable " + val + " does not exist. " +
+                                            "Please declare and initialize it first.\n");
+                                }
+                            }
+
+                            if(assign.equals("=")){
+                                temp.setStringValue(str);
+                                symbolTable.put(vName, temp);
+                            }else if(assign.equals("+=")){
+                                temp.setStringValue(temp.getStringValue().concat(str));
+                                symbolTable.put(vName, temp);
+                            }else{
+                                TestScanner.outputTextArea.append("ERROR - Cannot use the " + assign + " operator on thread values.\n");
+                            }
+
+                        }
+                    }
+
+                }
+            }else{
+                TestScanner.outputTextArea.append("ERROR - Variable " + vName + " does not exist. " +
+                        "Please declare and initialize it first.\n");
+            }
+            Expression expr  = new Expression(ctx.expression().expression(1).getText());
+        }
+
+        return visitChildren(ctx);
+    }
 
     @Override
     public Object visitIdentifierStmt(JSFMParser.IdentifierStmtContext ctx) { return visitChildren(ctx); }
@@ -266,57 +863,87 @@ public class JSFMVisitor extends JSFMParserBaseVisitor<Object> {
 
     @Override
     public Object visitSwitchBlockStatementGroup(JSFMParser.SwitchBlockStatementGroupContext ctx) {
-        return null;
+        return visitChildren(ctx);
     }
 
     @Override
     public Object visitSwitchLabel(JSFMParser.SwitchLabelContext ctx) {
-        return null;
+        return visitChildren(ctx);
     }
 
     @Override
     public Object visitForControl(JSFMParser.ForControlContext ctx) {
-        return null;
+        return visitChildren(ctx);
     }
 
     @Override
     public Object visitForInit(JSFMParser.ForInitContext ctx) {
-        return null;
+        return visitChildren(ctx);
     }
 
     @Override
     public Object visitEnhancedForControl(JSFMParser.EnhancedForControlContext ctx) {
-        return null;
+        return visitChildren(ctx);
     }
 
     @Override
     public Object visitParExpression(JSFMParser.ParExpressionContext ctx) {
-        return null;
+        return visitChildren(ctx);
     }
 
     @Override
     public Object visitExpressionList(JSFMParser.ExpressionListContext ctx) {
-        return null;
+        return visitChildren(ctx);
     }
 
     @Override
     public Object visitMethodCall(JSFMParser.MethodCallContext ctx) {
-        return null;
+        return visitChildren(ctx);
     }
 
     @Override
     public Object visitPrepostFix(JSFMParser.PrepostFixContext ctx) {
-        return null;
+        String vName = ctx.IDENTIFIER().getText();
+        if(symbolTable.containsKey(vName)){
+            JSFMValues temp = symbolTable.get(vName);
+            if(temp.getObjectType().equals("techies") || temp.getObjectType().equals("coke")){
+                if(!temp.isEmpty()){
+                    if(ctx.INC() != null){
+                        if(temp.getObjectType().equals("techies")){
+                            temp.setIntValue(temp.getIntValue()+1);
+                        }else{
+                            temp.setFloatValue(temp.getFloatValue()+1);
+                        }
+                    }else if(ctx.DEC() != null){
+                        if(temp.getObjectType().equals("techies")){
+                            temp.setIntValue(temp.getIntValue()-1);
+                        }else{
+                            temp.setFloatValue(temp.getFloatValue()-1);
+                        }
+                    }
+
+                    symbolTable.put(vName, temp);
+                }else{
+                    TestScanner.outputTextArea.append("ERROR - Variable " + vName + " has not been initialized. Please initialize it first.\n");
+                }
+            }else{
+                TestScanner.outputTextArea.append("ERROR - Only variable types techies and coke may be incremented/decremented. " +
+                        vName + " is of " + temp.getObjectType() + " type.\n");
+            }
+        }else{
+            TestScanner.outputTextArea.append("ERROR - Variable " + vName + " does not exist. Please declare and initialize it first.\n");
+        }
+        return visitChildren(ctx);
     }
 
     @Override
     public Object visitExpression(JSFMParser.ExpressionContext ctx) {
-        return null;
+        return visitChildren(ctx);
     }
 
     @Override
     public Object visitPrimary(JSFMParser.PrimaryContext ctx) {
-        return null;
+        return visitChildren(ctx);
     }
 
     @Override
@@ -424,17 +1051,8 @@ public class JSFMVisitor extends JSFMParserBaseVisitor<Object> {
 
     @Override
     public Object visitPrimitiveType(JSFMParser.PrimitiveTypeContext ctx) {
-        return null;
+        return visitChildren(ctx);
     }
 
 
-    @Override
-    public Object visitTerminal(TerminalNode terminalNode) {
-        return null;
-    }
-
-    @Override
-    public Object visitErrorNode(ErrorNode errorNode) {
-        return null;
-    }
 }

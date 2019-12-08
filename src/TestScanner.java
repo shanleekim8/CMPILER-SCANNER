@@ -53,16 +53,16 @@ public class TestScanner {
                 try{
 //                    FileInputStream fis = new FileInputStream(new File("./src/testInput.txt"));
                     lexer = new JSFMLexer(CharStreams.fromString(inputTextArea.getText()));
-                   // lexer.removeErrorListeners();
+                    lexer.removeErrorListeners();
                    // lexer.addErrorListener(new ThrowingErrorListener());
 
                     TokenStream stream = new CommonTokenStream(lexer);
                     JSFMParser parser = new JSFMParser(stream);
-                    //parser.removeParseListeners();
-                  //  parser.addParseListener(new JSFMListener(lexer));
-                    JSFMVisitor visitor = new JSFMVisitor();
+                    //parser.addParseListener(new JSFMListener(lexer));
 
                     org.antlr.v4.runtime.tree.ParseTree pTree = parser.compilationUnit();
+
+                    JSFMVisitor visitor = new JSFMVisitor();
 
                     visitor.visit(pTree);
 
