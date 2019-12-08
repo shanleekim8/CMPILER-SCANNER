@@ -13,6 +13,7 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.math.BigDecimal;
 import java.util.Hashtable;
+import java.util.Stack;
 
 /**
  * This class provides an empty implementation of {@link JSFMParserListener},
@@ -22,6 +23,7 @@ import java.util.Hashtable;
 public class JSFMListener implements JSFMParserListener {
 //    private TestScanner gui;
     static Hashtable<String, JSFMValues> symbolTable = new Hashtable<String, JSFMValues>();
+    static Hashtable<String, JSFMFunction> functionTable = new Hashtable<String, JSFMFunction>();
     static Token token;
     static int tokenType;
     static JSFMLexer lexer;
@@ -29,15 +31,17 @@ public class JSFMListener implements JSFMParserListener {
     static String print = "";
     static String type = "";
     static boolean isFinal;
-    static String exprValue = "";
     static boolean pause = true;
     static JFrame inputFrame;
     static boolean ifStatement = false;
+    static boolean elseStatement = false;
     static boolean ifResult = true;
-    static boolean toBeSkipped = false;
     static boolean ifInUse = false;
+    static boolean elseInUse = false;
     static int controlNum = 0;
-    static int ifNum = 0;
+    static JSFMIfElse ifElseTemp;
+    static Stack<JSFMIfElse> ifElseStack = new Stack<JSFMIfElse>();
+
 
 //    public static void main(String[] args){
 //
@@ -85,6 +89,12 @@ public class JSFMListener implements JSFMParserListener {
         symbolTable.put("false", temp);
         symbolTable.put("null", temp);
 
+        ifElseStack = new Stack<JSFMIfElse>();
+        ifStatement = false;
+        elseStatement = false;
+        ifResult = true;
+        ifInUse = false;
+        elseInUse = false;
 
         TestScanner.outputTextArea.setText("");
     }
@@ -95,6 +105,30 @@ public class JSFMListener implements JSFMParserListener {
      */
     @Override public void exitCompilationUnit(JSFMParser.CompilationUnitContext ctx) {
         TestScanner.outputTextArea.append("\nProcess finished.\n");
+
+        if(ifStatement){
+            System.out.println("IF STATEMENT TRUE");
+        }else{
+            System.out.println("IF STATEMENT FALSE");
+        }
+
+        if(elseStatement){
+            System.out.println("ELSE STATEMENT TRUE");
+        }else{
+            System.out.println("ELSE STATEMENT FALSE");
+        }
+
+        if(ifInUse){
+            System.out.println("IF IN USE TRUE");
+        }else{
+            System.out.println("IF IN USE FALSE");
+        }
+
+        if(elseInUse){
+            System.out.println("ELSE IN USE TRUE");
+        }else{
+            System.out.println("ELSE IN USE FALSE");
+        }
 //        Enumeration e = symbolTable.keys();
 //        JSFMValues value;
 //
@@ -662,19 +696,6 @@ public class JSFMListener implements JSFMParserListener {
      * <p>The default implementation does nothing.</p>
      */
     @Override public void enterLocalVariableDeclaration(JSFMParser.LocalVariableDeclarationContext ctx) {
-       // System.out.println(ctx.start.getText());
-//        String temp = ctx.start.getText();
-//
-//
-//        if(temp.equals("techies") || temp.equals("coke") || temp.equals("thread") || temp.equals("kachow") || temp.equals("boolin")){
-//            type = ctx.start.getText();
-//            isFinal = false;
-//        }else if(temp.equals("ultimate")){
-//            isFinal = true;
-//
-//        }else{
-//            System.out.println("ERROR - Invalid type. Expecting one of the following: techies, coke, thread, kachow, boolin.");
-//        }
     }
     /**
      * {@inheritDoc}
@@ -682,7 +703,7 @@ public class JSFMListener implements JSFMParserListener {
      * <p>The default implementation does nothing.</p>
      */
     @Override public void exitLocalVariableDeclaration(JSFMParser.LocalVariableDeclarationContext ctx) {
-        //System.out.println(ctx.stop.getText());
+
         type = "";
     }
     /**
@@ -709,223 +730,328 @@ public class JSFMListener implements JSFMParserListener {
      * <p>The default implementation does nothing.</p>
      */
     @Override public void exitReturnExpression(JSFMParser.ReturnExpressionContext ctx) { }
+
+    @Override
+    public void enterBlockStmt(JSFMParser.BlockStmtContext ctx) {
+
+    }
+
+    @Override
+    public void exitBlockStmt(JSFMParser.BlockStmtContext ctx) {
+
+    }
+
+    @Override
+    public void enterIfElseStmt(JSFMParser.IfElseStmtContext ctx) {
+
+    }
+
+    @Override
+    public void exitIfElseStmt(JSFMParser.IfElseStmtContext ctx) {
+
+    }
+
+    @Override
+    public void enterForLoopStmt(JSFMParser.ForLoopStmtContext ctx) {
+
+    }
+
+    @Override
+    public void exitForLoopStmt(JSFMParser.ForLoopStmtContext ctx) {
+
+    }
+
+    @Override
+    public void enterWhileLoopStmt(JSFMParser.WhileLoopStmtContext ctx) {
+
+    }
+
+    @Override
+    public void exitWhileLoopStmt(JSFMParser.WhileLoopStmtContext ctx) {
+
+    }
+
+    @Override
+    public void enterDoWhileLoopStmt(JSFMParser.DoWhileLoopStmtContext ctx) {
+
+    }
+
+    @Override
+    public void exitDoWhileLoopStmt(JSFMParser.DoWhileLoopStmtContext ctx) {
+
+    }
+
+    @Override
+    public void enterSwitchStmt(JSFMParser.SwitchStmtContext ctx) {
+
+    }
+
+    @Override
+    public void exitSwitchStmt(JSFMParser.SwitchStmtContext ctx) {
+
+    }
+
+    @Override
+    public void enterBreakStmt(JSFMParser.BreakStmtContext ctx) {
+
+    }
+
+    @Override
+    public void exitBreakStmt(JSFMParser.BreakStmtContext ctx) {
+
+    }
+
+    @Override
+    public void enterExprStmt(JSFMParser.ExprStmtContext ctx) {
+
+    }
+
+    @Override
+    public void exitExprStmt(JSFMParser.ExprStmtContext ctx) {
+
+    }
+
+    @Override
+    public void enterIdentifierStmt(JSFMParser.IdentifierStmtContext ctx) {
+
+    }
+
+    @Override
+    public void exitIdentifierStmt(JSFMParser.IdentifierStmtContext ctx) {
+
+    }
+
+    @Override
+    public void enterOutputStmt(JSFMParser.OutputStmtContext ctx) {
+
+    }
+
+    @Override
+    public void exitOutputStmt(JSFMParser.OutputStmtContext ctx) {
+
+    }
+
+    @Override
+    public void enterInputStmt(JSFMParser.InputStmtContext ctx) {
+
+    }
+
+    @Override
+    public void exitInputStmt(JSFMParser.InputStmtContext ctx) {
+
+    }
+
     /**
      * {@inheritDoc}
      *
      * <p>The default implementation does nothing.</p>
      */
-    @Override public void enterStatement(JSFMParser.StatementContext ctx) {
-        if(ifStatement && !ifResult){ //if statement
-            ifStatement = false;
-            ifInUse = true;
-            ifNum = controlNum;
-        }
-
-
-        System.out.println("ENTER STMT - " + controlNum + " " + ctx.getText());
-//        if(ctx.parent.getText().contains("upon(")) {
-//            String ifStatement = ctx.parent.getText().substring(5, ctx.parent.getText().length() - 1);
-//            boolean error = true;
-//            Expression expr = new Expression(ifStatement);
+//    @Override public void enterStatement(JSFMParser.StatementContext ctx) {
 //
-//            while(error){
-//                try{
-//                    BigDecimal res = expr.eval();
-//                    if(res.intValue() == 1){
-//                        //TRUE
-//                        ifTrue = true;
-//                        System.out.println("TRUE");
-//                        error = false;
-//                    }else if(res.intValue() == 0){
-//                        ifTrue = false;
-//                        //FALSE
+//        if((!ifInUse && !elseInUse) ||(ifInUse && ifResult) || (elseInUse && !ifResult)){
+//                System.out.println("IM IN ENTER STMT- " + controlNum);
+//            if(ctx.parent.getText().contains("upon(") && ctx.parent.getText().contains("otherwise")){
+//                elseStatement = true;
+//            }
 //
-//                        error = false;
-//                    }
-//                }catch(Exception e){
-//                    System.out.println("EXCEPTION CAUGHT - " + e.getMessage());
-//                    String var = e.getMessage().split("Unknown operator or function: ")[1];
-//                    JSFMValues temp;
-//                    System.out.println(e.getMessage().split("Unknown operator or function: ")[1]);
-//                    if(symbolTable.containsKey(var)){
-//                        temp = symbolTable.get(var);
-//                        if(!temp.isEmpty()){
-//                            switch (temp.getObjectType()){
-//                                case "techies":
-//                                    expr.setVariable(var, BigDecimal.valueOf(temp.getIntValue()));
-//                                    break;
-//                                case "float":
-//                                    expr.setVariable(var, BigDecimal.valueOf(temp.getFloatValue()));
-//                                    break;
-//                                case "thread":
-//                                    expr.setVariable(var, temp.getStringValue());
-//                                    break;
-//                                case "kachow":
-//                                    break;
-//                                case "boolin":
-//                                    if(temp.getBoolValue()) {
-//                                        expr.setVariable(var, BigDecimal.valueOf(1));
-//                                    }else{
-//                                        expr.setVariable(var, BigDecimal.valueOf(0));
-//                                    }
-//                                    break;
-//                            }
-//                        }else{
-//                            TestScanner.outputTextArea.append("ERROR - Variable " + var + " has not been initialized. Please initialize it first.\n");
-//                        }
-//                    }else{
-//                        TestScanner.outputTextArea.append("ERROR - Variable " + var + " does not exist. Please declare and initialize it first.\n");
-//                    }
+//            if(ifStatement){ //if statement
+//                ifStatement = false;
+//                ifInUse = true;
+//                ifElseTemp.setIfNum(controlNum);
+//                ifElseStack.push(ifElseTemp);
 //
+////            ifNum = controlNum;
+////            ifStack.push(controlNum);
+//            }else if(elseStatement){
+//                if(ifInUse && ifElseTemp.getIfNum() < controlNum){
+//                    ifElseStack.push(ifElseTemp);
+//                    ifElseTemp = new JSFMIfElse(ifResult);
 //                }
+//                elseStatement = false;
+//                elseInUse = true;
+//                //elseNum = controlNum;
+//                ifElseTemp.setElseNum(controlNum);
+//            }
+//        }
+//
+//
+//    }
+//    /**
+//     * {@inheritDoc}
+//     *
+//     * <p>The default implementation does nothing.</p>
+//     */
+//    @Override public void exitStatement(JSFMParser.StatementContext ctx) {
+//        JSFMIfElse test;
+//
+//        if((!ifInUse && !elseInUse) ||(ifInUse && ifResult) || (elseInUse && !ifResult)){
+//            if(ctx.expression() != null){
+//                String vName = ctx.start.getText();
+//                JSFMParser.ExpressionContext temp = ctx.expression().expression(1);
+//                JSFMValues tempVal;
+//                String operator = ctx.expression().bop.getText();
+//                type = symbolTable.get(vName).getObjectType();
+//
+//                if(symbolTable.containsKey(vName)){
+//                    tempVal = symbolTable.get(vName);
+//                    if(!tempVal.isFinal() || (tempVal.isFinal() && tempVal.isEmpty())){
+//                        tempLexer = new JSFMLexer(CharStreams.fromString(operator));
+//                        token = tempLexer.nextToken();
+//                        tokenType = token.getType();
+//
+//                        switch(tokenType){
+//                            case JSFMLexer.ASSIGN:
+//                                tempLexer = new JSFMLexer(CharStreams.fromString(temp.getText()));
+//                                BigDecimal result = null;
+//
+//                                if(type.equals("techies")){
+//                                    tempVal.setIntValue((int) parse());
+//                                }else if(type.equals("coke")){
+//                                    tempVal.setFloatValue(parse());
+//                                }else if(type.equals("kachow")){
+//                                    tempVal.setCharValue(parseChar());
+//                                }else if(type.equals("thread")){
+//                                    tempVal.setStringValue(parseStr());
+//                                }else if(type.equals("boolin")){
+//                                    tempVal.setBoolValue(parseBool());
+//                                }
+//                                tempVal.setNull(false);
+//
+//                                break;
+//                            case JSFMLexer.ADD_ASSIGN:
+//                                tempLexer = new JSFMLexer(CharStreams.fromString(temp.getText()));
+//
+//                                if(type.equals("techies")){
+//                                    tempVal.setIntValue(tempVal.getIntValue() + (int) parse());
+//                                }else if(type.equals("coke")){
+//                                    tempVal.setFloatValue(tempVal.getFloatValue() + parse());
+//                                }else if(type.equals("kachow")){
+//                                    tempVal.setCharValue((char) (tempVal.getCharValue() + parseChar()));
+//                                }else if(type.equals("thread")){
+//                                    tempVal.setStringValue(tempVal.getStringValue() + parseStr());
+//                                }else if(type.equals("boolin")){
+//                                    TestScanner.outputTextArea.append("ERROR - Cannot use addition for a boolin variable.\n");
+//                                }
+//
+//                                break;
+//                            case JSFMLexer.SUB_ASSIGN:
+//                                tempLexer = new JSFMLexer(CharStreams.fromString(temp.getText()));
+//
+//                                if(type.equals("techies")){
+//                                    tempVal.setIntValue(tempVal.getIntValue() - (int) parse());
+//                                    tempVal.setNull(false);
+//                                }else if(type.equals("coke")){
+//                                    tempVal.setFloatValue(tempVal.getFloatValue() - parse());
+//                                    tempVal.setNull(false);
+//                                }else if(type.equals("kachow")){
+//                                    tempVal.setCharValue((char) (tempVal.getCharValue() - parseChar()));
+//                                    tempVal.setNull(false);
+//                                }else if(type.equals("thread")){
+//                                    TestScanner.outputTextArea.append("ERROR - Cannot use subtraction for a thread variable.\n");
+//                                }else if(type.equals("boolin")){
+//                                    TestScanner.outputTextArea.append("ERROR - Cannot use subtraction for a boolin variable.\n");
+//                                }
+//
+//                                break;
+//                            case JSFMLexer.MUL_ASSIGN:
+//                                tempLexer = new JSFMLexer(CharStreams.fromString(temp.getText()));
+//
+//                                if(type.equals("techies")){
+//                                    tempVal.setIntValue(tempVal.getIntValue() * (int) parse());
+//                                    tempVal.setNull(false);
+//                                }else if(type.equals("coke")){
+//                                    tempVal.setFloatValue(tempVal.getFloatValue() * parse());
+//                                    tempVal.setNull(false);
+//                                }else if(type.equals("kachow")){
+//                                    tempVal.setCharValue((char) (tempVal.getCharValue() * parseChar()));
+//                                    tempVal.setNull(false);
+//                                }else if(type.equals("thread")){
+//                                    TestScanner.outputTextArea.append("ERROR - Cannot use multiplication for a thread variable.\n");
+//                                }else if(type.equals("boolin")){
+//                                    TestScanner.outputTextArea.append("ERROR - Cannot use multiplication for a boolin variable.\n");
+//                                }
+//
+//                                break;
+//                            case JSFMLexer.DIV_ASSIGN:
+//                                tempLexer = new JSFMLexer(CharStreams.fromString(temp.getText()));
+//
+//                                if(type.equals("techies")){
+//                                    tempVal.setIntValue(tempVal.getIntValue() / (int) parse());
+//                                    tempVal.setNull(false);
+//                                }else if(type.equals("coke")){
+//                                    tempVal.setFloatValue(tempVal.getFloatValue() / parse());
+//                                    tempVal.setNull(false);
+//                                }else if(type.equals("kachow")){
+//                                    tempVal.setCharValue((char) (tempVal.getCharValue() / parseChar()));
+//                                    tempVal.setNull(false);
+//                                }else if(type.equals("thread")){
+//                                    TestScanner.outputTextArea.append("ERROR - Cannot use division for a thread variable.\n");
+//                                }else if(type.equals("boolin")){
+//                                    TestScanner.outputTextArea.append("ERROR - Cannot use division for a boolin variable.\n");
+//                                }
+//
+//                                break;
+//                        }
+//                        symbolTable.put(vName, tempVal);
+//                    }else{
+//                        TestScanner.outputTextArea.append("ERROR - " + vName + " is an ultimate variable. Its value cannot be changed.\n");
+//                    }
+//
+//                }else{
+//                    TestScanner.outputTextArea.append("ERROR - " + vName + " is not declared.\n");
+//                }
+//
+//            }
+//        }
+//
+//
+//        if(ifInUse && ifElseTemp.getIfNum() == controlNum){ //end of if statement
+//            if(!ifElseStack.empty()){
+//                JSFMIfElse store = ifElseStack.pop();
+//                if(!ifElseStack.empty()){
+//                    ifElseTemp = ifElseStack.peek();
+//                    ifResult = ifElseTemp.getResult();
+//                    if(ifElseTemp.getIfNum() > 0){
+//                        ifInUse = true;
+//                        elseInUse = false;
+//
+//                    }else if(ifElseTemp.getElseNum() > 0){
+//                        ifInUse = false;
+//                        elseInUse = true;
+//                    }
+//                    ifResult = ifElseTemp.getResult();
+//                }else{
+//                    ifInUse = false;
+//                }
+//            }else{
+//                ifInUse = false;
 //            }
 //
 //        }
-    }
-    /**
-     * {@inheritDoc}
-     *
-     * <p>The default implementation does nothing.</p>
-     */
-    @Override public void exitStatement(JSFMParser.StatementContext ctx) {
-        System.out.println("EXIT STMT - " + controlNum +" "+ ctx.getText());
-
-        JSFMParser.StatementContext test = ctx;
-
-
-        if(!ifInUse){
-            if(ctx.expression() != null){
-                String vName = ctx.start.getText();
-                JSFMParser.ExpressionContext temp = ctx.expression().expression(1);
-                JSFMValues tempVal;
-                String operator = ctx.expression().bop.getText();
-                type = symbolTable.get(vName).getObjectType();
-
-                if(symbolTable.containsKey(vName)){
-                    tempVal = symbolTable.get(vName);
-                    if(!tempVal.isFinal() || (tempVal.isFinal() && tempVal.isEmpty())){
-                        tempLexer = new JSFMLexer(CharStreams.fromString(operator));
-                        token = tempLexer.nextToken();
-                        tokenType = token.getType();
-
-                        switch(tokenType){
-                            case JSFMLexer.ASSIGN:
-                                tempLexer = new JSFMLexer(CharStreams.fromString(temp.getText()));
-                                BigDecimal result = null;
-
-                                if(type.equals("techies")){
-                                    tempVal.setIntValue((int) parse());
-                                }else if(type.equals("coke")){
-                                    tempVal.setFloatValue(parse());
-                                }else if(type.equals("kachow")){
-                                    tempVal.setCharValue(parseChar());
-                                }else if(type.equals("thread")){
-                                    tempVal.setStringValue(parseStr());
-                                }else if(type.equals("boolin")){
-                                    tempVal.setBoolValue(parseBool());
-                                }
-                                tempVal.setNull(false);
-
-                                break;
-                            case JSFMLexer.ADD_ASSIGN:
-                                tempLexer = new JSFMLexer(CharStreams.fromString(temp.getText()));
-
-                                if(type.equals("techies")){
-                                    tempVal.setIntValue(tempVal.getIntValue() + (int) parse());
-                                    tempVal.setNull(false);
-                                }else if(type.equals("coke")){
-                                    tempVal.setFloatValue(tempVal.getFloatValue() + parse());
-                                    tempVal.setNull(false);
-                                }else if(type.equals("kachow")){
-                                    tempVal.setCharValue((char) (tempVal.getCharValue() + parseChar()));
-                                    tempVal.setNull(false);
-                                }else if(type.equals("thread")){
-                                    tempVal.setStringValue(tempVal.getStringValue() + parseStr());
-                                    tempVal.setNull(false);
-                                }else if(type.equals("boolin")){
-                                    TestScanner.outputTextArea.append("ERROR - Cannot use addition for a boolin variable.\n");
-                                }
-
-                                break;
-                            case JSFMLexer.SUB_ASSIGN:
-                                tempLexer = new JSFMLexer(CharStreams.fromString(temp.getText()));
-
-                                if(type.equals("techies")){
-                                    tempVal.setIntValue(tempVal.getIntValue() - (int) parse());
-                                    tempVal.setNull(false);
-                                }else if(type.equals("coke")){
-                                    tempVal.setFloatValue(tempVal.getFloatValue() - parse());
-                                    tempVal.setNull(false);
-                                }else if(type.equals("kachow")){
-                                    tempVal.setCharValue((char) (tempVal.getCharValue() - parseChar()));
-                                    tempVal.setNull(false);
-                                }else if(type.equals("thread")){
-                                    TestScanner.outputTextArea.append("ERROR - Cannot use subtraction for a thread variable.\n");
-                                }else if(type.equals("boolin")){
-                                    TestScanner.outputTextArea.append("ERROR - Cannot use subtraction for a boolin variable.\n");
-                                }
-
-                                break;
-                            case JSFMLexer.MUL_ASSIGN:
-                                tempLexer = new JSFMLexer(CharStreams.fromString(temp.getText()));
-
-                                if(type.equals("techies")){
-                                    tempVal.setIntValue(tempVal.getIntValue() * (int) parse());
-                                    tempVal.setNull(false);
-                                }else if(type.equals("coke")){
-                                    tempVal.setFloatValue(tempVal.getFloatValue() * parse());
-                                    tempVal.setNull(false);
-                                }else if(type.equals("kachow")){
-                                    tempVal.setCharValue((char) (tempVal.getCharValue() * parseChar()));
-                                    tempVal.setNull(false);
-                                }else if(type.equals("thread")){
-                                    TestScanner.outputTextArea.append("ERROR - Cannot use multiplication for a thread variable.\n");
-                                }else if(type.equals("boolin")){
-                                    TestScanner.outputTextArea.append("ERROR - Cannot use multiplication for a boolin variable.\n");
-                                }
-
-                                break;
-                            case JSFMLexer.DIV_ASSIGN:
-                                tempLexer = new JSFMLexer(CharStreams.fromString(temp.getText()));
-
-                                if(type.equals("techies")){
-                                    tempVal.setIntValue(tempVal.getIntValue() / (int) parse());
-                                    tempVal.setNull(false);
-                                }else if(type.equals("coke")){
-                                    tempVal.setFloatValue(tempVal.getFloatValue() / parse());
-                                    tempVal.setNull(false);
-                                }else if(type.equals("kachow")){
-                                    tempVal.setCharValue((char) (tempVal.getCharValue() / parseChar()));
-                                    tempVal.setNull(false);
-                                }else if(type.equals("thread")){
-                                    TestScanner.outputTextArea.append("ERROR - Cannot use division for a thread variable.\n");
-                                }else if(type.equals("boolin")){
-                                    TestScanner.outputTextArea.append("ERROR - Cannot use division for a boolin variable.\n");
-                                }
-
-                                break;
-                        }
-                        symbolTable.put(vName, tempVal);
-                    }else{
-                        TestScanner.outputTextArea.append("ERROR - " + vName + " is an ultimate variable. Its value cannot be changed.\n");
-                    }
-
-                }else{
-                    TestScanner.outputTextArea.append("ERROR - " + vName + " is not declared.\n");
-                }
-
-            }
-        }
-
-
-
-        if(ifInUse && ifNum == controlNum){ //end of if statement
-            ifInUse = false;
-            ifNum = controlNum;
-        }
-
-        type = "";
-    }
+//
+//        if(elseInUse && ifElseTemp.getElseNum() == controlNum){
+//            if(!ifElseStack.empty()){
+//                JSFMIfElse store = ifElseStack.pop();
+//                if(!ifElseStack.empty()){
+//                    ifElseTemp = ifElseStack.peek();
+//                    ifResult = ifElseTemp.getResult();
+//                    if(ifElseTemp.getIfNum() > 0){
+//                        ifInUse = true;
+//                        elseInUse = false;
+//                    }else if(ifElseTemp.getElseNum() > 0){
+//                        ifInUse = false;
+//                        elseInUse = true;
+//                    }
+//                }else{
+//                    elseInUse = false;
+//                }
+//            }else{
+//                elseInUse = false;
+//            }
+//        }
+//
+//        type = "";
+//    }
     /**
      * {@inheritDoc}
      *
@@ -999,76 +1125,85 @@ public class JSFMListener implements JSFMParserListener {
      * <p>The default implementation does nothing.</p>
      */
     @Override public void exitParExpression(JSFMParser.ParExpressionContext ctx) {
-        boolean error = true;
-        Expression expr = new Expression(ctx.expression().getText());
 
-        while(error){
-            try{
-                BigDecimal res = expr.eval();
-                if(res.intValue() == 1){
+        if((!ifInUse && !elseInUse) ||(ifInUse && ifResult) || (elseInUse && !ifResult)){
+            System.out.println(ctx.getText() + " EXIT PAR STATEMENT / IF STATEMENT");
+            boolean error = true;
+            Expression expr = new Expression(ctx.expression().getText());
+
+            while(error){
+                try{
+                    BigDecimal res = expr.eval();
+                    if(res.intValue() == 1){
+                        System.out.println("TRUE");
                         //TRUE
-                    ifResult = true;
-                    System.out.println("TRUE");
-                }else if(res.intValue() == 0){
-                    ifResult = false;
-                    //FALSE
-                    System.out.println("FALSE");
-                }
-                error = false;
-                ifStatement = true;
-            }catch(Exception e){
-                System.out.println("EXCEPTION CAUGHT - " + e.getMessage());
-                String var = e.getMessage().split("Unknown operator or function: ")[1];
-                JSFMValues temp;
-                if(symbolTable.containsKey(var)){
-                    temp = symbolTable.get(var);
-                    if(!temp.isEmpty()){
-                        switch (temp.getObjectType()){
-                            case "techies":
-                                expr.setVariable(var, BigDecimal.valueOf(temp.getIntValue()));
-                                break;
-                            case "float":
-                                expr.setVariable(var, BigDecimal.valueOf(temp.getFloatValue()));
-                                break;
-                            case "thread":
-                                 expr.setVariable(var, temp.getStringValue());
-                                 break;
-                            case "kachow":
-                                expr.setVariable(var, BigDecimal.valueOf((int) temp.getCharValue()));
-                                  break;
-                            case "boolin":
-                                if(temp.getBoolValue()) {
-                                    expr.setVariable(var, BigDecimal.valueOf(1));
-                                }else{
-                                    expr.setVariable(var, BigDecimal.valueOf(0));
+                        ifResult = true;
+                    }else if(res.intValue() == 0){
+                        System.out.println("FALSE");
+                        //FALSE
+                        ifResult = false;
+                    }
+                    ifStatement = true;
+
+                    if(ifInUse){
+                        ifInUse = false;
+                        if(!ifElseStack.empty()){
+                            JSFMIfElse store = ifElseStack.pop();
+                            ifElseStack.push(ifElseTemp);
+                        }
+                    }else if(elseInUse){
+                        elseInUse = false;
+                        if(!ifElseStack.empty()){
+                            JSFMIfElse store = ifElseStack.pop();
+                            ifElseStack.push(ifElseTemp);
+                        }
+                    }
+                    ifElseTemp = new JSFMIfElse(ifResult);
+                    error = false;
+                }catch(Exception e){
+                    System.out.println(e.getMessage() + " FUCK JAVA");
+                    if(e.getMessage().contains("Unknown operator or function: ")){
+                        String var = e.getMessage().split("Unknown operator or function: ")[1];
+                        JSFMValues temp;
+                        if(symbolTable.containsKey(var)){
+                            temp = symbolTable.get(var);
+                            if(!temp.isEmpty()){
+                                switch (temp.getObjectType()){
+                                    case "techies":
+                                        expr.setVariable(var, BigDecimal.valueOf(temp.getIntValue()));
+                                        break;
+                                    case "float":
+                                        expr.setVariable(var, BigDecimal.valueOf(temp.getFloatValue()));
+                                        break;
+                                    case "thread":
+                                        expr.setVariable(var, temp.getStringValue());
+                                        break;
+                                    case "kachow":
+                                        expr.setVariable(var, BigDecimal.valueOf((int) temp.getCharValue()));
+                                        break;
+                                    case "boolin":
+                                        if(temp.getBoolValue()) {
+                                            expr.setVariable(var, BigDecimal.valueOf(1));
+                                        }else{
+                                            expr.setVariable(var, BigDecimal.valueOf(0));
+                                        }
+                                        break;
                                 }
-                                break;
+                            }else{
+                                TestScanner.outputTextArea.append("ERROR - Variable " + var + " has not been initialized. Please initialize it first.\n");
                             }
                         }else{
-                            TestScanner.outputTextArea.append("ERROR - Variable " + var + " has not been initialized. Please initialize it first.\n");
+                            TestScanner.outputTextArea.append("ERROR - Variable " + var + " does not exist. Please declare and initialize it first.\n");
                         }
-                    }else{
-                        TestScanner.outputTextArea.append("ERROR - Variable " + var + " does not exist. Please declare and initialize it first.\n");
                     }
+
 
                 }
             }
 
+        }
 
-//
-//        try {
-//            System.out.println(ctx.getText());
-//            System.out.println(ctx.getParent().getText());
-//            System.out.println(ctx.getParent().getParent().getText());
-//            System.out.println(ctx.getParent().getParent().getParent().getText());
-//            BigDecimal res = expr.eval();
-//            if(res.intValue() == 1){
-//                System.out.println("TRUE");
-//            }else if(res.intValue() == 0){
-//                System.out.println("FALSE");
-//            }
-//
-//        }
+
 
     }
     /**
@@ -1151,44 +1286,101 @@ public class JSFMListener implements JSFMParserListener {
     @Override public void exitInputStatement(JSFMParser.InputStatementContext ctx) {
         String question = ctx.STRING_LITERAL().getText();
         String vName = ctx.IDENTIFIER().getText();
-
         if(symbolTable.containsKey(vName)){
             JSFMValues temp = symbolTable.get(vName);
             if(!temp.isFinal() || (temp.isFinal() && temp.isEmpty())){
                 pause = true;
                 inputFrame = new JFrame("Input");
-                inputFrame.setSize(500,250);
-                JPanel inputPanel = new JPanel();
-                JLabel questionLbl = new JLabel(question);
-                JTextField inputTxtFld = new JTextField(10);
-                JButton inputBtn = new JButton("Input");
-                inputBtnListener listener = new inputBtnListener(inputTxtFld, pause, vName);
-
-                inputBtn.addActionListener(listener);
-
-                inputPanel.add(questionLbl);
-                inputPanel.add(inputTxtFld);
-                inputPanel.add(inputBtn);
-                inputFrame.add(inputPanel);
                 inputFrame.setDefaultCloseOperation(inputFrame.HIDE_ON_CLOSE);
                 inputFrame.setVisible(true);
 
+                String s = "";
+                s = JOptionPane.showInputDialog(question);
+                inputFrame.setVisible(false);
+
+                if(symbolTable.containsKey(vName)){
+
+                    System.out.println("HELLO WORLD -- " + s + " " + vName);
+                    JSFMValues temp2 = symbolTable.get(vName);
+                    System.out.println(temp2.getStringValue());
+                    if(!temp2.isFinal() || (temp2.isFinal() && temp2.isEmpty())){
+                        switch(temp2.getObjectType()){
+                            case "techies":
+                                tempLexer = new JSFMLexer(CharStreams.fromString(s));
+                                token = tempLexer.nextToken();
+                                tokenType = token.getType();
+                                if(tokenType == JSFMLexer.FLOAT_LITERAL){
+                                    temp2.setIntValue((int) Float.parseFloat(s));
+                                }else if(tokenType == JSFMLexer.DECIMAL_LITERAL){
+                                    temp2.setIntValue(Integer.parseInt(s));
+                                }else{
+                                    TestScanner.outputTextArea.append("ERROR - Variable type of " + vName + " does not match with the variable type of your input (" + s + ")\n");
+                                }
+//                                float intVal = parse();
+//                                temp2.setIntValue((int) intVal);
+                                break;
+                            case "coke":
+                                tempLexer = new JSFMLexer(CharStreams.fromString(s));
+                                token = tempLexer.nextToken();
+                                tokenType = token.getType();
+                                if(tokenType == JSFMLexer.FLOAT_LITERAL || tokenType == JSFMLexer.DECIMAL_LITERAL){
+                                    temp2.setFloatValue(Float.parseFloat(s));
+                                }else{
+                                    TestScanner.outputTextArea.append("ERROR - Variable type of " + vName + " does not match with the variable type of your input (" + s + ")\n");
+                                }
+//                                float f = parse();
+//                                temp2.setFloatValue(f);
+                                break;
+                            case "thread":
+                                if(s.charAt(0) != '\"' && s.charAt(s.length()-1) != '\"'){
+                                    String str = "\"";
+                                    str = str.concat(s);
+                                    s = str.concat("\"");
+                                }else if(s.charAt(0) == '\"' && s.charAt(s.length()-1) != '\"'){
+                                    s = s.concat("\"");
+                                }else if(s.charAt(0) != '\"' && s.charAt(s.length()-1) == '\"'){
+                                    String str = "\"";
+                                    str = str.concat(s);
+                                    s = str;
+                                }
+                                tempLexer = new JSFMLexer(CharStreams.fromString(s));
+                                String test = parseStr();
+                                temp2.setStringValue(test);
+                                break;
+                            case "kachow":
+                                if(s.charAt(0) != '\'' && s.charAt(s.length()-1) != '\''){
+                                    String str = "\'";
+                                    str = str.concat(s);
+                                    s = str.concat("\'");
+                                }else if(s.charAt(0) == '\'' && s.charAt(s.length()-1) != '\''){
+                                    s = s.concat("\'");
+                                }else if(s.charAt(0) != '\'' && s.charAt(s.length()-1) == '\''){
+                                    String str = "\'";
+                                    str = str.concat(s);
+                                    s = str;
+                                }
+                                tempLexer = new JSFMLexer(CharStreams.fromString(s));
+                                char c = parseChar();
+                                temp2.setCharValue(c);
+                                break;
+                            case "boolin":
+                                boolean b = parseBool();
+                                temp2.setBoolValue(b);
+                                break;
+                            default: TestScanner.outputTextArea.append("Variable type of " + vName + " does not match with the type of input.\n");
+                        }
+
+                        symbolTable.put(vName, temp2);
+                    }else{
+                        TestScanner.outputTextArea.append("ERROR - Variable " + vName + " is an ultimate variable. Its value cannot be changed.\n");
+                    }
+                }else{
+                    TestScanner.outputTextArea.append("ERROR - Variable " + vName + " does not exist. Please declare and initialize it first.\n");
+                }
 
 
-//                while(pause){
-//                    System.out.println("1");
-//                    pause = listener.getPause();
+//                inputFrame.dispose();
 
-//                    try
-//                    {
-//                        Thread.sleep(5000);
-//                    }
-//                    catch(InterruptedException ex)
-//                    {
-//                        Thread.currentThread().interrupt();
-//                    }
-
-              //  }
             }else{
                 TestScanner.outputTextArea.append("ERROR - Variable " + vName + " is an ultimate variable. Its value cannot be changed.");
             }
@@ -1213,7 +1405,7 @@ public class JSFMListener implements JSFMParserListener {
      */
     @Override public void exitOutputStatement(JSFMParser.OutputStatementContext ctx) {
 
-        if(!ifInUse){
+        if((!ifInUse && !elseInUse) ||(ifInUse && ifResult) || (elseInUse && !ifResult)){
             print = "";
             String temp = ctx.getText().substring(8, ctx.getText().length()-2);
             tempLexer = new JSFMLexer(CharStreams.fromString(temp));

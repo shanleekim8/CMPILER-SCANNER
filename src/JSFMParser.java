@@ -2567,32 +2567,21 @@ public class JSFMParser extends Parser {
 	}
 
 	public static class StatementContext extends ParserRuleContext {
-		public BlockContext blockLabel;
-		public Token identifierLabel;
-		public BlockContext block() {
-			return getRuleContext(BlockContext.class,0);
+		public StatementContext(ParserRuleContext parent, int invokingState) {
+			super(parent, invokingState);
 		}
-		public TerminalNode IF() { return getToken(JSFMParser.IF, 0); }
+		@Override public int getRuleIndex() { return RULE_statement; }
+	 
+		public StatementContext() { }
+		public void copyFrom(StatementContext ctx) {
+			super.copyFrom(ctx);
+		}
+	}
+	public static class SwitchStmtContext extends StatementContext {
+		public TerminalNode SWITCH() { return getToken(JSFMParser.SWITCH, 0); }
 		public ParExpressionContext parExpression() {
 			return getRuleContext(ParExpressionContext.class,0);
 		}
-		public List<StatementContext> statement() {
-			return getRuleContexts(StatementContext.class);
-		}
-		public StatementContext statement(int i) {
-			return getRuleContext(StatementContext.class,i);
-		}
-		public TerminalNode ELSE() { return getToken(JSFMParser.ELSE, 0); }
-		public TerminalNode FOR() { return getToken(JSFMParser.FOR, 0); }
-		public TerminalNode LPAREN() { return getToken(JSFMParser.LPAREN, 0); }
-		public ForControlContext forControl() {
-			return getRuleContext(ForControlContext.class,0);
-		}
-		public TerminalNode RPAREN() { return getToken(JSFMParser.RPAREN, 0); }
-		public TerminalNode WHILE() { return getToken(JSFMParser.WHILE, 0); }
-		public TerminalNode DO() { return getToken(JSFMParser.DO, 0); }
-		public TerminalNode SEMI() { return getToken(JSFMParser.SEMI, 0); }
-		public TerminalNode SWITCH() { return getToken(JSFMParser.SWITCH, 0); }
 		public TerminalNode LBRACE() { return getToken(JSFMParser.LBRACE, 0); }
 		public TerminalNode RBRACE() { return getToken(JSFMParser.RBRACE, 0); }
 		public List<SwitchBlockStatementGroupContext> switchBlockStatementGroup() {
@@ -2607,33 +2596,237 @@ public class JSFMParser extends Parser {
 		public SwitchLabelContext switchLabel(int i) {
 			return getRuleContext(SwitchLabelContext.class,i);
 		}
-		public TerminalNode BREAK() { return getToken(JSFMParser.BREAK, 0); }
-		public TerminalNode IDENTIFIER() { return getToken(JSFMParser.IDENTIFIER, 0); }
-		public ExpressionContext expression() {
-			return getRuleContext(ExpressionContext.class,0);
-		}
-		public TerminalNode COLON() { return getToken(JSFMParser.COLON, 0); }
-		public OutputStatementContext outputStatement() {
-			return getRuleContext(OutputStatementContext.class,0);
-		}
-		public InputStatementContext inputStatement() {
-			return getRuleContext(InputStatementContext.class,0);
-		}
-		public StatementContext(ParserRuleContext parent, int invokingState) {
-			super(parent, invokingState);
-		}
-		@Override public int getRuleIndex() { return RULE_statement; }
+		public SwitchStmtContext(StatementContext ctx) { copyFrom(ctx); }
 		@Override
 		public void enterRule(ParseTreeListener listener) {
-			if ( listener instanceof JSFMParserListener ) ((JSFMParserListener)listener).enterStatement(this);
+			if ( listener instanceof JSFMParserListener ) ((JSFMParserListener)listener).enterSwitchStmt(this);
 		}
 		@Override
 		public void exitRule(ParseTreeListener listener) {
-			if ( listener instanceof JSFMParserListener ) ((JSFMParserListener)listener).exitStatement(this);
+			if ( listener instanceof JSFMParserListener ) ((JSFMParserListener)listener).exitSwitchStmt(this);
 		}
 		@Override
 		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
-			if ( visitor instanceof JSFMParserVisitor ) return ((JSFMParserVisitor<? extends T>)visitor).visitStatement(this);
+			if ( visitor instanceof JSFMParserVisitor ) return ((JSFMParserVisitor<? extends T>)visitor).visitSwitchStmt(this);
+			else return visitor.visitChildren(this);
+		}
+	}
+	public static class DoWhileLoopStmtContext extends StatementContext {
+		public TerminalNode DO() { return getToken(JSFMParser.DO, 0); }
+		public StatementContext statement() {
+			return getRuleContext(StatementContext.class,0);
+		}
+		public TerminalNode WHILE() { return getToken(JSFMParser.WHILE, 0); }
+		public ParExpressionContext parExpression() {
+			return getRuleContext(ParExpressionContext.class,0);
+		}
+		public TerminalNode SEMI() { return getToken(JSFMParser.SEMI, 0); }
+		public DoWhileLoopStmtContext(StatementContext ctx) { copyFrom(ctx); }
+		@Override
+		public void enterRule(ParseTreeListener listener) {
+			if ( listener instanceof JSFMParserListener ) ((JSFMParserListener)listener).enterDoWhileLoopStmt(this);
+		}
+		@Override
+		public void exitRule(ParseTreeListener listener) {
+			if ( listener instanceof JSFMParserListener ) ((JSFMParserListener)listener).exitDoWhileLoopStmt(this);
+		}
+		@Override
+		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
+			if ( visitor instanceof JSFMParserVisitor ) return ((JSFMParserVisitor<? extends T>)visitor).visitDoWhileLoopStmt(this);
+			else return visitor.visitChildren(this);
+		}
+	}
+	public static class ExprStmtContext extends StatementContext {
+		public ExpressionContext expression() {
+			return getRuleContext(ExpressionContext.class,0);
+		}
+		public TerminalNode SEMI() { return getToken(JSFMParser.SEMI, 0); }
+		public ExprStmtContext(StatementContext ctx) { copyFrom(ctx); }
+		@Override
+		public void enterRule(ParseTreeListener listener) {
+			if ( listener instanceof JSFMParserListener ) ((JSFMParserListener)listener).enterExprStmt(this);
+		}
+		@Override
+		public void exitRule(ParseTreeListener listener) {
+			if ( listener instanceof JSFMParserListener ) ((JSFMParserListener)listener).exitExprStmt(this);
+		}
+		@Override
+		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
+			if ( visitor instanceof JSFMParserVisitor ) return ((JSFMParserVisitor<? extends T>)visitor).visitExprStmt(this);
+			else return visitor.visitChildren(this);
+		}
+	}
+	public static class BlockStmtContext extends StatementContext {
+		public BlockContext blockLabel;
+		public BlockContext block() {
+			return getRuleContext(BlockContext.class,0);
+		}
+		public BlockStmtContext(StatementContext ctx) { copyFrom(ctx); }
+		@Override
+		public void enterRule(ParseTreeListener listener) {
+			if ( listener instanceof JSFMParserListener ) ((JSFMParserListener)listener).enterBlockStmt(this);
+		}
+		@Override
+		public void exitRule(ParseTreeListener listener) {
+			if ( listener instanceof JSFMParserListener ) ((JSFMParserListener)listener).exitBlockStmt(this);
+		}
+		@Override
+		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
+			if ( visitor instanceof JSFMParserVisitor ) return ((JSFMParserVisitor<? extends T>)visitor).visitBlockStmt(this);
+			else return visitor.visitChildren(this);
+		}
+	}
+	public static class IdentifierStmtContext extends StatementContext {
+		public Token identifierLabel;
+		public TerminalNode COLON() { return getToken(JSFMParser.COLON, 0); }
+		public StatementContext statement() {
+			return getRuleContext(StatementContext.class,0);
+		}
+		public TerminalNode IDENTIFIER() { return getToken(JSFMParser.IDENTIFIER, 0); }
+		public IdentifierStmtContext(StatementContext ctx) { copyFrom(ctx); }
+		@Override
+		public void enterRule(ParseTreeListener listener) {
+			if ( listener instanceof JSFMParserListener ) ((JSFMParserListener)listener).enterIdentifierStmt(this);
+		}
+		@Override
+		public void exitRule(ParseTreeListener listener) {
+			if ( listener instanceof JSFMParserListener ) ((JSFMParserListener)listener).exitIdentifierStmt(this);
+		}
+		@Override
+		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
+			if ( visitor instanceof JSFMParserVisitor ) return ((JSFMParserVisitor<? extends T>)visitor).visitIdentifierStmt(this);
+			else return visitor.visitChildren(this);
+		}
+	}
+	public static class IfElseStmtContext extends StatementContext {
+		public TerminalNode IF() { return getToken(JSFMParser.IF, 0); }
+		public ParExpressionContext parExpression() {
+			return getRuleContext(ParExpressionContext.class,0);
+		}
+		public List<StatementContext> statement() {
+			return getRuleContexts(StatementContext.class);
+		}
+		public StatementContext statement(int i) {
+			return getRuleContext(StatementContext.class,i);
+		}
+		public TerminalNode ELSE() { return getToken(JSFMParser.ELSE, 0); }
+		public IfElseStmtContext(StatementContext ctx) { copyFrom(ctx); }
+		@Override
+		public void enterRule(ParseTreeListener listener) {
+			if ( listener instanceof JSFMParserListener ) ((JSFMParserListener)listener).enterIfElseStmt(this);
+		}
+		@Override
+		public void exitRule(ParseTreeListener listener) {
+			if ( listener instanceof JSFMParserListener ) ((JSFMParserListener)listener).exitIfElseStmt(this);
+		}
+		@Override
+		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
+			if ( visitor instanceof JSFMParserVisitor ) return ((JSFMParserVisitor<? extends T>)visitor).visitIfElseStmt(this);
+			else return visitor.visitChildren(this);
+		}
+	}
+	public static class BreakStmtContext extends StatementContext {
+		public TerminalNode BREAK() { return getToken(JSFMParser.BREAK, 0); }
+		public TerminalNode SEMI() { return getToken(JSFMParser.SEMI, 0); }
+		public TerminalNode IDENTIFIER() { return getToken(JSFMParser.IDENTIFIER, 0); }
+		public BreakStmtContext(StatementContext ctx) { copyFrom(ctx); }
+		@Override
+		public void enterRule(ParseTreeListener listener) {
+			if ( listener instanceof JSFMParserListener ) ((JSFMParserListener)listener).enterBreakStmt(this);
+		}
+		@Override
+		public void exitRule(ParseTreeListener listener) {
+			if ( listener instanceof JSFMParserListener ) ((JSFMParserListener)listener).exitBreakStmt(this);
+		}
+		@Override
+		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
+			if ( visitor instanceof JSFMParserVisitor ) return ((JSFMParserVisitor<? extends T>)visitor).visitBreakStmt(this);
+			else return visitor.visitChildren(this);
+		}
+	}
+	public static class WhileLoopStmtContext extends StatementContext {
+		public TerminalNode WHILE() { return getToken(JSFMParser.WHILE, 0); }
+		public ParExpressionContext parExpression() {
+			return getRuleContext(ParExpressionContext.class,0);
+		}
+		public StatementContext statement() {
+			return getRuleContext(StatementContext.class,0);
+		}
+		public WhileLoopStmtContext(StatementContext ctx) { copyFrom(ctx); }
+		@Override
+		public void enterRule(ParseTreeListener listener) {
+			if ( listener instanceof JSFMParserListener ) ((JSFMParserListener)listener).enterWhileLoopStmt(this);
+		}
+		@Override
+		public void exitRule(ParseTreeListener listener) {
+			if ( listener instanceof JSFMParserListener ) ((JSFMParserListener)listener).exitWhileLoopStmt(this);
+		}
+		@Override
+		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
+			if ( visitor instanceof JSFMParserVisitor ) return ((JSFMParserVisitor<? extends T>)visitor).visitWhileLoopStmt(this);
+			else return visitor.visitChildren(this);
+		}
+	}
+	public static class OutputStmtContext extends StatementContext {
+		public OutputStatementContext outputStatement() {
+			return getRuleContext(OutputStatementContext.class,0);
+		}
+		public OutputStmtContext(StatementContext ctx) { copyFrom(ctx); }
+		@Override
+		public void enterRule(ParseTreeListener listener) {
+			if ( listener instanceof JSFMParserListener ) ((JSFMParserListener)listener).enterOutputStmt(this);
+		}
+		@Override
+		public void exitRule(ParseTreeListener listener) {
+			if ( listener instanceof JSFMParserListener ) ((JSFMParserListener)listener).exitOutputStmt(this);
+		}
+		@Override
+		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
+			if ( visitor instanceof JSFMParserVisitor ) return ((JSFMParserVisitor<? extends T>)visitor).visitOutputStmt(this);
+			else return visitor.visitChildren(this);
+		}
+	}
+	public static class ForLoopStmtContext extends StatementContext {
+		public TerminalNode FOR() { return getToken(JSFMParser.FOR, 0); }
+		public TerminalNode LPAREN() { return getToken(JSFMParser.LPAREN, 0); }
+		public ForControlContext forControl() {
+			return getRuleContext(ForControlContext.class,0);
+		}
+		public TerminalNode RPAREN() { return getToken(JSFMParser.RPAREN, 0); }
+		public StatementContext statement() {
+			return getRuleContext(StatementContext.class,0);
+		}
+		public ForLoopStmtContext(StatementContext ctx) { copyFrom(ctx); }
+		@Override
+		public void enterRule(ParseTreeListener listener) {
+			if ( listener instanceof JSFMParserListener ) ((JSFMParserListener)listener).enterForLoopStmt(this);
+		}
+		@Override
+		public void exitRule(ParseTreeListener listener) {
+			if ( listener instanceof JSFMParserListener ) ((JSFMParserListener)listener).exitForLoopStmt(this);
+		}
+		@Override
+		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
+			if ( visitor instanceof JSFMParserVisitor ) return ((JSFMParserVisitor<? extends T>)visitor).visitForLoopStmt(this);
+			else return visitor.visitChildren(this);
+		}
+	}
+	public static class InputStmtContext extends StatementContext {
+		public InputStatementContext inputStatement() {
+			return getRuleContext(InputStatementContext.class,0);
+		}
+		public InputStmtContext(StatementContext ctx) { copyFrom(ctx); }
+		@Override
+		public void enterRule(ParseTreeListener listener) {
+			if ( listener instanceof JSFMParserListener ) ((JSFMParserListener)listener).enterInputStmt(this);
+		}
+		@Override
+		public void exitRule(ParseTreeListener listener) {
+			if ( listener instanceof JSFMParserListener ) ((JSFMParserListener)listener).exitInputStmt(this);
+		}
+		@Override
+		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
+			if ( visitor instanceof JSFMParserVisitor ) return ((JSFMParserVisitor<? extends T>)visitor).visitInputStmt(this);
 			else return visitor.visitChildren(this);
 		}
 	}
@@ -2648,13 +2841,15 @@ public class JSFMParser extends Parser {
 			_errHandler.sync(this);
 			switch ( getInterpreter().adaptivePredict(_input,44,_ctx) ) {
 			case 1:
+				_localctx = new BlockStmtContext(_localctx);
 				enterOuterAlt(_localctx, 1);
 				{
 				setState(378);
-				((StatementContext)_localctx).blockLabel = block();
+				((BlockStmtContext)_localctx).blockLabel = block();
 				}
 				break;
 			case 2:
+				_localctx = new IfElseStmtContext(_localctx);
 				enterOuterAlt(_localctx, 2);
 				{
 				setState(379);
@@ -2678,6 +2873,7 @@ public class JSFMParser extends Parser {
 				}
 				break;
 			case 3:
+				_localctx = new ForLoopStmtContext(_localctx);
 				enterOuterAlt(_localctx, 3);
 				{
 				setState(386);
@@ -2693,6 +2889,7 @@ public class JSFMParser extends Parser {
 				}
 				break;
 			case 4:
+				_localctx = new WhileLoopStmtContext(_localctx);
 				enterOuterAlt(_localctx, 4);
 				{
 				setState(392);
@@ -2704,6 +2901,7 @@ public class JSFMParser extends Parser {
 				}
 				break;
 			case 5:
+				_localctx = new DoWhileLoopStmtContext(_localctx);
 				enterOuterAlt(_localctx, 5);
 				{
 				setState(396);
@@ -2719,6 +2917,7 @@ public class JSFMParser extends Parser {
 				}
 				break;
 			case 6:
+				_localctx = new SwitchStmtContext(_localctx);
 				enterOuterAlt(_localctx, 6);
 				{
 				setState(402);
@@ -2762,6 +2961,7 @@ public class JSFMParser extends Parser {
 				}
 				break;
 			case 7:
+				_localctx = new BreakStmtContext(_localctx);
 				enterOuterAlt(_localctx, 7);
 				{
 				setState(419);
@@ -2781,6 +2981,7 @@ public class JSFMParser extends Parser {
 				}
 				break;
 			case 8:
+				_localctx = new ExprStmtContext(_localctx);
 				enterOuterAlt(_localctx, 8);
 				{
 				setState(424);
@@ -2790,10 +2991,11 @@ public class JSFMParser extends Parser {
 				}
 				break;
 			case 9:
+				_localctx = new IdentifierStmtContext(_localctx);
 				enterOuterAlt(_localctx, 9);
 				{
 				setState(427);
-				((StatementContext)_localctx).identifierLabel = match(IDENTIFIER);
+				((IdentifierStmtContext)_localctx).identifierLabel = match(IDENTIFIER);
 				setState(428);
 				match(COLON);
 				setState(429);
@@ -2801,6 +3003,7 @@ public class JSFMParser extends Parser {
 				}
 				break;
 			case 10:
+				_localctx = new OutputStmtContext(_localctx);
 				enterOuterAlt(_localctx, 10);
 				{
 				setState(430);
@@ -2808,6 +3011,7 @@ public class JSFMParser extends Parser {
 				}
 				break;
 			case 11:
+				_localctx = new InputStmtContext(_localctx);
 				enterOuterAlt(_localctx, 11);
 				{
 				setState(431);

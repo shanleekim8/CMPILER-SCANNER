@@ -317,15 +317,137 @@ public interface JSFMParserListener extends ParseTreeListener {
 	 */
 	void exitReturnExpression(JSFMParser.ReturnExpressionContext ctx);
 	/**
-	 * Enter a parse tree produced by {@link JSFMParser#statement}.
+	 * Enter a parse tree produced by the {@code blockStmt}
+	 * labeled alternative in {@link JSFMParser#statement}.
 	 * @param ctx the parse tree
 	 */
-	void enterStatement(JSFMParser.StatementContext ctx);
+	void enterBlockStmt(JSFMParser.BlockStmtContext ctx);
 	/**
-	 * Exit a parse tree produced by {@link JSFMParser#statement}.
+	 * Exit a parse tree produced by the {@code blockStmt}
+	 * labeled alternative in {@link JSFMParser#statement}.
 	 * @param ctx the parse tree
 	 */
-	void exitStatement(JSFMParser.StatementContext ctx);
+	void exitBlockStmt(JSFMParser.BlockStmtContext ctx);
+	/**
+	 * Enter a parse tree produced by the {@code ifElseStmt}
+	 * labeled alternative in {@link JSFMParser#statement}.
+	 * @param ctx the parse tree
+	 */
+	void enterIfElseStmt(JSFMParser.IfElseStmtContext ctx);
+	/**
+	 * Exit a parse tree produced by the {@code ifElseStmt}
+	 * labeled alternative in {@link JSFMParser#statement}.
+	 * @param ctx the parse tree
+	 */
+	void exitIfElseStmt(JSFMParser.IfElseStmtContext ctx);
+	/**
+	 * Enter a parse tree produced by the {@code forLoopStmt}
+	 * labeled alternative in {@link JSFMParser#statement}.
+	 * @param ctx the parse tree
+	 */
+	void enterForLoopStmt(JSFMParser.ForLoopStmtContext ctx);
+	/**
+	 * Exit a parse tree produced by the {@code forLoopStmt}
+	 * labeled alternative in {@link JSFMParser#statement}.
+	 * @param ctx the parse tree
+	 */
+	void exitForLoopStmt(JSFMParser.ForLoopStmtContext ctx);
+	/**
+	 * Enter a parse tree produced by the {@code whileLoopStmt}
+	 * labeled alternative in {@link JSFMParser#statement}.
+	 * @param ctx the parse tree
+	 */
+	void enterWhileLoopStmt(JSFMParser.WhileLoopStmtContext ctx);
+	/**
+	 * Exit a parse tree produced by the {@code whileLoopStmt}
+	 * labeled alternative in {@link JSFMParser#statement}.
+	 * @param ctx the parse tree
+	 */
+	void exitWhileLoopStmt(JSFMParser.WhileLoopStmtContext ctx);
+	/**
+	 * Enter a parse tree produced by the {@code doWhileLoopStmt}
+	 * labeled alternative in {@link JSFMParser#statement}.
+	 * @param ctx the parse tree
+	 */
+	void enterDoWhileLoopStmt(JSFMParser.DoWhileLoopStmtContext ctx);
+	/**
+	 * Exit a parse tree produced by the {@code doWhileLoopStmt}
+	 * labeled alternative in {@link JSFMParser#statement}.
+	 * @param ctx the parse tree
+	 */
+	void exitDoWhileLoopStmt(JSFMParser.DoWhileLoopStmtContext ctx);
+	/**
+	 * Enter a parse tree produced by the {@code switchStmt}
+	 * labeled alternative in {@link JSFMParser#statement}.
+	 * @param ctx the parse tree
+	 */
+	void enterSwitchStmt(JSFMParser.SwitchStmtContext ctx);
+	/**
+	 * Exit a parse tree produced by the {@code switchStmt}
+	 * labeled alternative in {@link JSFMParser#statement}.
+	 * @param ctx the parse tree
+	 */
+	void exitSwitchStmt(JSFMParser.SwitchStmtContext ctx);
+	/**
+	 * Enter a parse tree produced by the {@code breakStmt}
+	 * labeled alternative in {@link JSFMParser#statement}.
+	 * @param ctx the parse tree
+	 */
+	void enterBreakStmt(JSFMParser.BreakStmtContext ctx);
+	/**
+	 * Exit a parse tree produced by the {@code breakStmt}
+	 * labeled alternative in {@link JSFMParser#statement}.
+	 * @param ctx the parse tree
+	 */
+	void exitBreakStmt(JSFMParser.BreakStmtContext ctx);
+	/**
+	 * Enter a parse tree produced by the {@code exprStmt}
+	 * labeled alternative in {@link JSFMParser#statement}.
+	 * @param ctx the parse tree
+	 */
+	void enterExprStmt(JSFMParser.ExprStmtContext ctx);
+	/**
+	 * Exit a parse tree produced by the {@code exprStmt}
+	 * labeled alternative in {@link JSFMParser#statement}.
+	 * @param ctx the parse tree
+	 */
+	void exitExprStmt(JSFMParser.ExprStmtContext ctx);
+	/**
+	 * Enter a parse tree produced by the {@code identifierStmt}
+	 * labeled alternative in {@link JSFMParser#statement}.
+	 * @param ctx the parse tree
+	 */
+	void enterIdentifierStmt(JSFMParser.IdentifierStmtContext ctx);
+	/**
+	 * Exit a parse tree produced by the {@code identifierStmt}
+	 * labeled alternative in {@link JSFMParser#statement}.
+	 * @param ctx the parse tree
+	 */
+	void exitIdentifierStmt(JSFMParser.IdentifierStmtContext ctx);
+	/**
+	 * Enter a parse tree produced by the {@code outputStmt}
+	 * labeled alternative in {@link JSFMParser#statement}.
+	 * @param ctx the parse tree
+	 */
+	void enterOutputStmt(JSFMParser.OutputStmtContext ctx);
+	/**
+	 * Exit a parse tree produced by the {@code outputStmt}
+	 * labeled alternative in {@link JSFMParser#statement}.
+	 * @param ctx the parse tree
+	 */
+	void exitOutputStmt(JSFMParser.OutputStmtContext ctx);
+	/**
+	 * Enter a parse tree produced by the {@code inputStmt}
+	 * labeled alternative in {@link JSFMParser#statement}.
+	 * @param ctx the parse tree
+	 */
+	void enterInputStmt(JSFMParser.InputStmtContext ctx);
+	/**
+	 * Exit a parse tree produced by the {@code inputStmt}
+	 * labeled alternative in {@link JSFMParser#statement}.
+	 * @param ctx the parse tree
+	 */
+	void exitInputStmt(JSFMParser.InputStmtContext ctx);
 	/**
 	 * Enter a parse tree produced by {@link JSFMParser#switchBlockStatementGroup}.
 	 * @param ctx the parse tree

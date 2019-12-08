@@ -196,11 +196,82 @@ public interface JSFMParserVisitor<T> extends ParseTreeVisitor<T> {
 	 */
 	T visitReturnExpression(JSFMParser.ReturnExpressionContext ctx);
 	/**
-	 * Visit a parse tree produced by {@link JSFMParser#statement}.
+	 * Visit a parse tree produced by the {@code blockStmt}
+	 * labeled alternative in {@link JSFMParser#statement}.
 	 * @param ctx the parse tree
 	 * @return the visitor result
 	 */
-	T visitStatement(JSFMParser.StatementContext ctx);
+	T visitBlockStmt(JSFMParser.BlockStmtContext ctx);
+	/**
+	 * Visit a parse tree produced by the {@code ifElseStmt}
+	 * labeled alternative in {@link JSFMParser#statement}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitIfElseStmt(JSFMParser.IfElseStmtContext ctx);
+	/**
+	 * Visit a parse tree produced by the {@code forLoopStmt}
+	 * labeled alternative in {@link JSFMParser#statement}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitForLoopStmt(JSFMParser.ForLoopStmtContext ctx);
+	/**
+	 * Visit a parse tree produced by the {@code whileLoopStmt}
+	 * labeled alternative in {@link JSFMParser#statement}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitWhileLoopStmt(JSFMParser.WhileLoopStmtContext ctx);
+	/**
+	 * Visit a parse tree produced by the {@code doWhileLoopStmt}
+	 * labeled alternative in {@link JSFMParser#statement}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitDoWhileLoopStmt(JSFMParser.DoWhileLoopStmtContext ctx);
+	/**
+	 * Visit a parse tree produced by the {@code switchStmt}
+	 * labeled alternative in {@link JSFMParser#statement}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitSwitchStmt(JSFMParser.SwitchStmtContext ctx);
+	/**
+	 * Visit a parse tree produced by the {@code breakStmt}
+	 * labeled alternative in {@link JSFMParser#statement}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitBreakStmt(JSFMParser.BreakStmtContext ctx);
+	/**
+	 * Visit a parse tree produced by the {@code exprStmt}
+	 * labeled alternative in {@link JSFMParser#statement}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitExprStmt(JSFMParser.ExprStmtContext ctx);
+	/**
+	 * Visit a parse tree produced by the {@code identifierStmt}
+	 * labeled alternative in {@link JSFMParser#statement}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitIdentifierStmt(JSFMParser.IdentifierStmtContext ctx);
+	/**
+	 * Visit a parse tree produced by the {@code outputStmt}
+	 * labeled alternative in {@link JSFMParser#statement}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitOutputStmt(JSFMParser.OutputStmtContext ctx);
+	/**
+	 * Visit a parse tree produced by the {@code inputStmt}
+	 * labeled alternative in {@link JSFMParser#statement}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitInputStmt(JSFMParser.InputStmtContext ctx);
 	/**
 	 * Visit a parse tree produced by {@link JSFMParser#switchBlockStatementGroup}.
 	 * @param ctx the parse tree
