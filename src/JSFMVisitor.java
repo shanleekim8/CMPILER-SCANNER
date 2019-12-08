@@ -422,15 +422,76 @@ public class JSFMVisitor extends JSFMParserBaseVisitor<Object> {
             }
         }
 
-        System.out.println("itr val: " + itrVal + " & max val: " + maxVal);
-
-        System.out.println("Initial Val: " + itrVal + ", Max Val: " + maxVal);
 
         return null;
     }
 
     @Override
-    public Object visitWhileLoopStmt(JSFMParser.WhileLoopStmtContext ctx) { return visitChildren(ctx); }
+    public Object visitWhileLoopStmt(JSFMParser.WhileLoopStmtContext ctx) {
+        String condition = ctx.parExpression().expression().getText();
+
+        Expression expr = new Expression(condition);
+        BigDecimal res = null;
+        boolean error = true;
+        boolean whileTrue = true;
+        while(error){
+            try{
+                while(whileTrue){
+                    System.out.println("1");
+                    res = expr.eval();
+                    if(res != null){
+                        System.out.println("2");
+                        if(res == BigDecimal.valueOf(1)){
+                            System.out.println("3");
+                            this.visit(ctx.statement());
+
+                            expr = new Expression(condition);
+                        }else if(res == BigDecimal.valueOf(0)){
+                            System.out.println("4");
+                            whileTrue = false;
+                            error = false;
+                        }
+                        System.out.println("5");
+                    }
+                    System.out.println("6");
+                }
+            }catch(Exception e){
+                String var = e.getMessage().split("Unknown operator or function: ")[1];
+                JSFMValues temp;
+                if(symbolTable.containsKey(var)){
+                    temp = symbolTable.get(var);
+                    if(!temp.isEmpty()){
+                        switch (temp.getObjectType()){
+                            case "techies":
+                                expr.setVariable(var, BigDecimal.valueOf(temp.getIntValue()));
+                                break;
+                            case "coke":
+                                expr.setVariable(var, BigDecimal.valueOf(temp.getFloatValue()));
+                                break;
+                            case "thread":
+                                expr.setVariable(var, temp.getStringValue());
+                                break;
+                            case "kachow":
+                                expr.setVariable(var, BigDecimal.valueOf((int) temp.getCharValue()));
+                                break;
+                            case "boolin":
+                                if(temp.getBoolValue()) {
+                                    expr.setVariable(var, BigDecimal.valueOf(1));
+                                }else{
+                                    expr.setVariable(var, BigDecimal.valueOf(0));
+                                }
+                                break;
+                            default: TestScanner.outputTextArea.append("ERROR - Variable " + var + " is not a variable.\n");
+                                error = false;
+                        }
+                    }
+                }
+            }
+
+        }
+
+        return null;
+    }
 
     @Override
     public Object visitDoWhileLoopStmt(JSFMParser.DoWhileLoopStmtContext ctx) { return visitChildren(ctx); }
@@ -443,7 +504,9 @@ public class JSFMVisitor extends JSFMParserBaseVisitor<Object> {
 
     @Override
     public Object visitExprStmt(JSFMParser.ExprStmtContext ctx) {
-        if(ctx.expression().expression()!= null){
+        System.out.println("INSIDE EXPR STMT");
+        if(ctx.expression().expression()!= null && ctx.expression().bop != null){
+            System.out.println("Hello?");
             String vName = ctx.expression().expression(0).getText();
             String assign = ctx.expression().bop.getText();
             if(symbolTable.containsKey(vName)){
@@ -850,6 +913,7 @@ public class JSFMVisitor extends JSFMParserBaseVisitor<Object> {
             Expression expr  = new Expression(ctx.expression().expression(1).getText());
         }
 
+        System.out.println("EXITING EXPR STMT");
         return visitChildren(ctx);
     }
 
