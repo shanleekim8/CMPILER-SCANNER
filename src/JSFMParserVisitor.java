@@ -184,18 +184,6 @@ public interface JSFMParserVisitor<T> extends ParseTreeVisitor<T> {
 	 */
 	T visitLocalVariableDeclaration(JSFMParser.LocalVariableDeclarationContext ctx);
 	/**
-	 * Visit a parse tree produced by {@link JSFMParser#returnStatement}.
-	 * @param ctx the parse tree
-	 * @return the visitor result
-	 */
-	T visitReturnStatement(JSFMParser.ReturnStatementContext ctx);
-	/**
-	 * Visit a parse tree produced by {@link JSFMParser#returnExpression}.
-	 * @param ctx the parse tree
-	 * @return the visitor result
-	 */
-	T visitReturnExpression(JSFMParser.ReturnExpressionContext ctx);
-	/**
 	 * Visit a parse tree produced by the {@code blockStmt}
 	 * labeled alternative in {@link JSFMParser#statement}.
 	 * @param ctx the parse tree
@@ -237,6 +225,13 @@ public interface JSFMParserVisitor<T> extends ParseTreeVisitor<T> {
 	 * @return the visitor result
 	 */
 	T visitSwitchStmt(JSFMParser.SwitchStmtContext ctx);
+	/**
+	 * Visit a parse tree produced by the {@code returnStmt}
+	 * labeled alternative in {@link JSFMParser#statement}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitReturnStmt(JSFMParser.ReturnStmtContext ctx);
 	/**
 	 * Visit a parse tree produced by the {@code breakStmt}
 	 * labeled alternative in {@link JSFMParser#statement}.

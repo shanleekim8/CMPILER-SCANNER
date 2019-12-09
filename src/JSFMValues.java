@@ -13,6 +13,13 @@ public class JSFMValues {
     private boolean isFinal;
     private List<Object> arrayVal;
     private int arraySize;
+    private JSFMFunction function;
+
+
+    public JSFMValues(String type, JSFMFunction func){
+        objectType = type;
+        function = func;
+    }
 
     public JSFMValues(String type, int value, boolean f){
         objectType = type;
@@ -149,4 +156,7 @@ public class JSFMValues {
         return objectType;
     }
 
+    public JSFMFunction getFunction() {
+        return function;
+    }
 }

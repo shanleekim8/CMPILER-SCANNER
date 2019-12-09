@@ -363,30 +363,6 @@ public class JSFMParserBaseListener implements JSFMParserListener {
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void enterReturnStatement(JSFMParser.ReturnStatementContext ctx) { }
-	/**
-	 * {@inheritDoc}
-	 *
-	 * <p>The default implementation does nothing.</p>
-	 */
-	@Override public void exitReturnStatement(JSFMParser.ReturnStatementContext ctx) { }
-	/**
-	 * {@inheritDoc}
-	 *
-	 * <p>The default implementation does nothing.</p>
-	 */
-	@Override public void enterReturnExpression(JSFMParser.ReturnExpressionContext ctx) { }
-	/**
-	 * {@inheritDoc}
-	 *
-	 * <p>The default implementation does nothing.</p>
-	 */
-	@Override public void exitReturnExpression(JSFMParser.ReturnExpressionContext ctx) { }
-	/**
-	 * {@inheritDoc}
-	 *
-	 * <p>The default implementation does nothing.</p>
-	 */
 	@Override public void enterBlockStmt(JSFMParser.BlockStmtContext ctx) { }
 	/**
 	 * {@inheritDoc}
@@ -454,6 +430,18 @@ public class JSFMParserBaseListener implements JSFMParserListener {
 	 * <p>The default implementation does nothing.</p>
 	 */
 	@Override public void exitSwitchStmt(JSFMParser.SwitchStmtContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void enterReturnStmt(JSFMParser.ReturnStmtContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void exitReturnStmt(JSFMParser.ReturnStmtContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *

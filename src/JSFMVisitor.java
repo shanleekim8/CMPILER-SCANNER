@@ -1,4 +1,6 @@
+import com.sun.org.apache.xpath.internal.operations.Mult;
 import com.udojava.evalex.Expression;
+import org.antlr.v4.runtime.misc.MultiMap;
 import org.antlr.v4.runtime.tree.ErrorNode;
 import org.antlr.v4.runtime.tree.ParseTree;
 import org.antlr.v4.runtime.tree.RuleNode;
@@ -6,12 +8,12 @@ import org.antlr.v4.runtime.tree.TerminalNode;
 
 import javax.swing.*;
 import java.math.BigDecimal;
-import java.util.ArrayList;
-import java.util.Enumeration;
-import java.util.Hashtable;
+import java.util.*;
 
 public class JSFMVisitor extends JSFMParserBaseVisitor<Object> {
     static Hashtable<String, JSFMValues> symbolTable = new Hashtable<String, JSFMValues>();
+    static Hashtable<String, JSFMFunction> functionTable = new Hashtable<String, JSFMFunction>();
+    static Stack<Hashtable<String, JSFMValues>> scopeStack = new Stack<Hashtable<String, JSFMValues>>();
 
     @Override
     public Object visitCompilationUnit(JSFMParser.CompilationUnitContext ctx) {
@@ -45,11 +47,39 @@ public class JSFMVisitor extends JSFMParserBaseVisitor<Object> {
 
     @Override
     public Object visitMethodDeclaration(JSFMParser.MethodDeclarationContext ctx) {
+        String mName = ctx.IDENTIFIER().getText();
+        String rType = ctx.typeTypeOrVoid().getText();
+        JSFMParser.FormalParametersContext params = ctx.formalParameters();
+        JSFMParser.BlockContext actions = ctx.methodBody().block();
+
+        if(!symbolTable.containsKey(mName)){
+            if(rType.equals("faceless") && !actions.getText().contains("respond")){
+                JSFMFunction func = new JSFMFunction(mName, rType, params, actions);
+                functionTable.put(mName, func);
+                symbolTable.put(mName, new JSFMValues(rType, func));
+            }else if(rType.equals("faceless") && !actions.getText().contains("respond")){
+                TestScanner.outputTextArea.append("ERROR - Line " + ctx.start.getLine() + " - Functions with a return type of" +
+                        " faceless cannot have a return statement.\n");
+            }else if(!rType.equals("faceless") && !actions.getText().contains("respond")){
+                JSFMFunction func = new JSFMFunction(mName, rType, params, actions);
+                functionTable.put(mName, func);
+                symbolTable.put(mName, new JSFMValues(rType, func));
+            }else if(!rType.equals("faceless") && !actions.getText().contains("respond")){
+                TestScanner.outputTextArea.append("ERROR - Line " + ctx.start.getLine() + " - Functions with a return type of " +
+                        rType + " needs to have a return statement.\n");
+            }
+        }else{
+            TestScanner.outputTextArea.append("ERROR - Line " + ctx.start.getLine() + " - There is already a function with" +
+                    " the same name. Please check your list of functions or rename this function.\n");
+        }
+
         return null;
     }
 
     @Override
     public Object visitMethodBody(JSFMParser.MethodBodyContext ctx) {
+        this.visit(ctx.block());
+
         return null;
     }
 
@@ -504,15 +534,6 @@ public class JSFMVisitor extends JSFMParserBaseVisitor<Object> {
         return toBeReturned;
     }
 
-    @Override
-    public Object visitReturnStatement(JSFMParser.ReturnStatementContext ctx) {
-        return visitChildren(ctx);
-    }
-
-    @Override
-    public Object visitReturnExpression(JSFMParser.ReturnExpressionContext ctx) {
-        return visitChildren(ctx);
-    }
 
     @Override
     public Object visitBlockStmt(JSFMParser.BlockStmtContext ctx) { return visitChildren(ctx); }
@@ -553,7 +574,8 @@ public class JSFMVisitor extends JSFMParserBaseVisitor<Object> {
                                     expr.setVariable(var, BigDecimal.valueOf(0));
                                 }
                                 break;
-                            default: TestScanner.outputTextArea.append("ERROR - Variable " + var + " is not a variable.\n");
+                            default: TestScanner.outputTextArea.append("ERROR - Line "+ ctx.start.getLine() + " - Variable " +
+                                    var + " is not a variable.\n");
                                 error = false;
                         }
                     }
@@ -647,7 +669,8 @@ public class JSFMVisitor extends JSFMParserBaseVisitor<Object> {
                                                 expr.setVariable(var, BigDecimal.valueOf(0));
                                             }
                                             break;
-                                        default: TestScanner.outputTextArea.append("ERROR - Variable " + var + " is not a variable.\n");
+                                        default: TestScanner.outputTextArea.append("ERROR - Line "+ ctx.start.getLine() + " - Variable " +
+                                                var + " is not a variable.\n");
                                             error = false;
                                     }
                                 }
@@ -663,7 +686,7 @@ public class JSFMVisitor extends JSFMParserBaseVisitor<Object> {
                         }
                     }
                 } else {
-                    System.out.println("ERROR - Only techies and coke are allowed.");
+                    System.out.println("ERROR - Line "+ ctx.start.getLine() +" - Only techies and coke are allowed.");
                 }
 
             }
@@ -681,7 +704,7 @@ public class JSFMVisitor extends JSFMParserBaseVisitor<Object> {
                 float temp2 = Float.parseFloat(itrVal);
                 temp2 = Float.parseFloat(maxVal);
             }catch(NumberFormatException e){
-                System.out.println("ERROR - Non Numeric Value");
+                System.out.println("ERROR - Line " + ctx.start.getLine() + " - Non Numeric Value.");
                 nonNumeric = true;
             }
 
@@ -741,7 +764,8 @@ public class JSFMVisitor extends JSFMParserBaseVisitor<Object> {
                                     expr.setVariable(var, BigDecimal.valueOf(0));
                                 }
                                 break;
-                            default: TestScanner.outputTextArea.append("ERROR - Variable " + var + " is not a variable.\n");
+                            default: TestScanner.outputTextArea.append("ERROR - Line "+ ctx.start.getLine() + " - Variable " +
+                                    var + " is not a variable.\n");
                                 error = false;
                         }
                     }
@@ -802,7 +826,8 @@ public class JSFMVisitor extends JSFMParserBaseVisitor<Object> {
                                     expr.setVariable(var, BigDecimal.valueOf(0));
                                 }
                                 break;
-                            default: TestScanner.outputTextArea.append("ERROR - Variable " + var + " is not a variable.\n");
+                            default: TestScanner.outputTextArea.append("ERROR - Line "+ ctx.start.getLine() + " - Variable " +
+                                    var + " is not a variable.\n");
                                 error = false;
                         }
                     }
@@ -815,6 +840,9 @@ public class JSFMVisitor extends JSFMParserBaseVisitor<Object> {
 
     @Override
     public Object visitSwitchStmt(JSFMParser.SwitchStmtContext ctx) { return visitChildren(ctx); }
+
+    @Override
+    public Object visitReturnStmt(JSFMParser.ReturnStmtContext ctx) { return visitChildren(ctx); }
 
     @Override
     public Object visitBreakStmt(JSFMParser.BreakStmtContext ctx) { return visitChildren(ctx); }
@@ -1241,6 +1269,7 @@ public class JSFMVisitor extends JSFMParserBaseVisitor<Object> {
     public Object visitOutputStmt(JSFMParser.OutputStmtContext ctx) { return visitChildren(ctx); }
 
     @Override public Object visitInputStmt(JSFMParser.InputStmtContext ctx) { return visitChildren(ctx); }
+    
 
     @Override
     public Object visitSwitchBlockStatementGroup(JSFMParser.SwitchBlockStatementGroupContext ctx) {
@@ -1279,7 +1308,84 @@ public class JSFMVisitor extends JSFMParserBaseVisitor<Object> {
 
     @Override
     public Object visitMethodCall(JSFMParser.MethodCallContext ctx) {
-        return visitChildren(ctx);
+        String mName = ctx.IDENTIFIER().getText();
+
+        if(functionTable.containsKey(mName)){
+            JSFMFunction func = functionTable.get(mName);
+            if(ctx.expressionList() != null && func.getParameters().formalParameterList() != null){ //not void
+                if(ctx.expressionList().expression().size() == func.getParameters().formalParameterList().formalParameter().size()){
+                    JSFMParser.FormalParameterListContext list = func.getParameters().formalParameterList();
+                    Hashtable<String, JSFMValues> tempTable = new Hashtable<String, JSFMValues>();
+                    if(!scopeStack.empty()){
+                        tempTable.putAll(scopeStack.peek());
+                    }
+                    for(int i=0; i< list.formalParameter().size(); i++){
+                        JSFMParser.FormalParameterContext param = list.formalParameter(i);
+                        JSFMParser.ExpressionContext expr = ctx.expressionList().expression(i);
+                        Object temp = this.visit(expr);
+                        boolean isFinal = false;
+
+                        if(param.variableModifier()!= null){
+                            isFinal = true;
+                        }
+                        String type = "";
+                        switch(param.typeType().getText()){
+                            case "techies": type = "techies";
+                                tempTable.put(param.variableDeclaratorId().getText(), new JSFMValues(type, (int)temp, isFinal));
+                            break;
+                            case "coke": type = "coke";
+                                tempTable.put(param.variableDeclaratorId().getText(), new JSFMValues(type, (float)temp, isFinal));
+                            break;
+                            case "thread": type = "thread";
+                                tempTable.put(param.variableDeclaratorId().getText(), new JSFMValues(type, (String)temp, isFinal));
+                            break;
+                            case "kachow": type = "kachow";
+                                tempTable.put(param.variableDeclaratorId().getText(), new JSFMValues(type, (char)temp, isFinal));
+                            break;
+                            case "boolin" : type ="boolin";
+                                tempTable.put(param.variableDeclaratorId().getText(), new JSFMValues(type, (boolean)temp, isFinal));
+                            break;
+                            default: TestScanner.outputTextArea.append("ERROR - Line " + ctx.start.getLine() + " - Only "
+                            + "variable types techies, coke, thread, kachow, and boolin are allowed as parameters.\n");
+                        }
+
+                    }
+                    scopeStack.push(tempTable);
+                    return this.visit(func.getActions());
+                }else{
+                    TestScanner.outputTextArea.append("ERROR - Line " + ctx.start.getLine() + " - ");
+                    if(ctx.expressionList().expression().size() > func.getParameters().formalParameterList().formalParameter().size()){
+                        TestScanner.outputTextArea.append(" Extra parameter call.\n");
+                    }else{
+                        TestScanner.outputTextArea.append(" Missing parameter call.\n");
+                    }
+                }
+            }else if(ctx.expressionList() == null && func.getParameters().formalParameterList() != null){ //error
+                TestScanner.outputTextArea.append("ERROR - Line " + ctx.start.getLine() + " - Missing Parameter call.\n");
+            }else if(ctx.expressionList() != null && func.getParameters().formalParameterList() == null){ //error
+                TestScanner.outputTextArea.append("ERROR - Line " + ctx.start.getLine() + " - Extra Parameter call.\n");
+            }else if(ctx.expressionList() == null && func.getParameters().formalParameterList() == null){ //void
+                return this.visit(func.getActions());
+            }
+
+        }else{
+            if(symbolTable.containsKey(mName)){
+                JSFMValues temp = symbolTable.get(mName);
+                if(temp.getObjectType().equals("keyword")){
+                    TestScanner.outputTextArea.append("ERROR - Line " + ctx.start.getText() + " - " + mName + " is a keyword" +
+                            " and cannot be a function/variable.\n");
+                }else{
+                    TestScanner.outputTextArea.append("ERROR - Line " + ctx.start.getText() + " - " + mName + " is a variable." +
+                            " Please remove " + ctx.getText().replace(mName, "") + " after the variable name.\n");
+                }
+            }else{
+                TestScanner.outputTextArea.append("ERROR - Line " + ctx.start.getText() + " - There is no function declared as "
+                + mName + ". Please check your list of declared functions.\n");
+            }
+
+        }
+
+        return null;
     }
 
     @Override
@@ -1305,14 +1411,16 @@ public class JSFMVisitor extends JSFMParserBaseVisitor<Object> {
 
                     symbolTable.put(vName, temp);
                 }else{
-                    TestScanner.outputTextArea.append("ERROR - Variable " + vName + " has not been initialized. Please initialize it first.\n");
+                    TestScanner.outputTextArea.append("ERROR - Line " + ctx.start.getLine() + " - Variable " + vName +
+                            " has not been initialized. Please initialize it first.\n");
                 }
             }else{
-                TestScanner.outputTextArea.append("ERROR - Only variable types techies and coke may be incremented/decremented. " +
-                        vName + " is of " + temp.getObjectType() + " type.\n");
+                TestScanner.outputTextArea.append("ERROR - Line " + ctx.start.getLine() + " - Only variable types techies" +
+                        " and coke may be incremented/decremented. " + vName + " is of " + temp.getObjectType() + " type.\n");
             }
         }else{
-            TestScanner.outputTextArea.append("ERROR - Variable " + vName + " does not exist. Please declare and initialize it first.\n");
+            TestScanner.outputTextArea.append("ERROR - Line " + ctx.start.getLine() + " - Variable " + vName +
+                    " does not exist. Please declare and initialize it first.\n");
         }
         return visitChildren(ctx);
     }
@@ -1450,12 +1558,12 @@ public class JSFMVisitor extends JSFMParserBaseVisitor<Object> {
                                     }
                                 }
                             }else{
-                                TestScanner.outputTextArea.append("ERROR - Variable " + temp + " has not been initialized. " +
-                                        "Please initialize it first.\n");
+                                TestScanner.outputTextArea.append("ERROR - Line " + ctx.start.getLine() + " - Variable "
+                                        + temp + " has not been initialized. Please initialize it first.\n");
                             }
                         }else {
-                            TestScanner.outputTextArea.append("ERROR - Variable " + temp + " does not exist. " +
-                                    "Please declare and initialize it first.\n");
+                            TestScanner.outputTextArea.append("ERROR - Line " + ctx.start.getLine() + " - Variable "
+                                    + temp + " does not exist. Please declare and initialize it first.\n");
                         }
                     }
                 }

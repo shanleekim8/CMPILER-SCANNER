@@ -4,7 +4,7 @@ options { tokenVocab=JSFMLexer; }
 
 compilationUnit :  mainStatement EOF;
 
-mainStatement : (methodDeclaration)* MAIN block (methodDeclaration)*;
+mainStatement : (methodDeclaration)* MAIN block;
 
 variableModifier : FINAL;
 
@@ -85,7 +85,7 @@ arrayInitializer
     ;
 
 block
-    : LBRACE blockStatement* returnStatement? RBRACE
+    : LBRACE blockStatement*  RBRACE
     ;
 
 blockStatement
@@ -97,24 +97,6 @@ localVariableDeclaration
     : variableModifier? typeType variableDeclarators
     ;
 
-returnStatement :  RETURN returnExpression SEMI;
-
-returnExpression: literal
-                    | IDENTIFIER
-                    | methodCall
-                    | LPAREN typeType RPAREN returnExpression
-                    | returnExpression bop=(MUL|DIV|MOD) returnExpression
-                    | returnExpression bop=(ADD|SUB) returnExpression
-                    | returnExpression (LT LT | GT GT GT | GT GT) returnExpression
-                    | returnExpression bop=(LEQ | GEQ | GT | LT) returnExpression
-                    | returnExpression bop=(EQUAL | NEQ) returnExpression
-                    | returnExpression bop=AND returnExpression
-                    | returnExpression bop=OR returnExpression
-                    | <assoc=right> returnExpression bop=QUESTION returnExpression COLON returnExpression
-                    | <assoc=right> returnExpression
-                      bop=(ASSIGN | ADD_ASSIGN | SUB_ASSIGN | MUL_ASSIGN | DIV_ASSIGN)
-                      returnExpression;
-
 statement
     : blockLabel=block  #blockStmt
     | IF parExpression statement (ELSE statement)?  #ifElseStmt
@@ -122,6 +104,7 @@ statement
     | WHILE parExpression statement     #whileLoopStmt
     | DO statement WHILE parExpression SEMI     #doWhileLoopStmt
     | SWITCH parExpression LBRACE switchBlockStatementGroup* switchLabel* RBRACE        #switchStmt
+    | RETURN expression? SEMI #returnStmt
     | BREAK IDENTIFIER? SEMI    #breakStmt
     | expression SEMI       #exprStmt
     | identifierLabel=IDENTIFIER COLON statement    #identifierStmt

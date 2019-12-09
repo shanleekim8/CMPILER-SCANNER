@@ -297,26 +297,6 @@ public interface JSFMParserListener extends ParseTreeListener {
 	 */
 	void exitLocalVariableDeclaration(JSFMParser.LocalVariableDeclarationContext ctx);
 	/**
-	 * Enter a parse tree produced by {@link JSFMParser#returnStatement}.
-	 * @param ctx the parse tree
-	 */
-	void enterReturnStatement(JSFMParser.ReturnStatementContext ctx);
-	/**
-	 * Exit a parse tree produced by {@link JSFMParser#returnStatement}.
-	 * @param ctx the parse tree
-	 */
-	void exitReturnStatement(JSFMParser.ReturnStatementContext ctx);
-	/**
-	 * Enter a parse tree produced by {@link JSFMParser#returnExpression}.
-	 * @param ctx the parse tree
-	 */
-	void enterReturnExpression(JSFMParser.ReturnExpressionContext ctx);
-	/**
-	 * Exit a parse tree produced by {@link JSFMParser#returnExpression}.
-	 * @param ctx the parse tree
-	 */
-	void exitReturnExpression(JSFMParser.ReturnExpressionContext ctx);
-	/**
 	 * Enter a parse tree produced by the {@code blockStmt}
 	 * labeled alternative in {@link JSFMParser#statement}.
 	 * @param ctx the parse tree
@@ -388,6 +368,18 @@ public interface JSFMParserListener extends ParseTreeListener {
 	 * @param ctx the parse tree
 	 */
 	void exitSwitchStmt(JSFMParser.SwitchStmtContext ctx);
+	/**
+	 * Enter a parse tree produced by the {@code returnStmt}
+	 * labeled alternative in {@link JSFMParser#statement}.
+	 * @param ctx the parse tree
+	 */
+	void enterReturnStmt(JSFMParser.ReturnStmtContext ctx);
+	/**
+	 * Exit a parse tree produced by the {@code returnStmt}
+	 * labeled alternative in {@link JSFMParser#statement}.
+	 * @param ctx the parse tree
+	 */
+	void exitReturnStmt(JSFMParser.ReturnStmtContext ctx);
 	/**
 	 * Enter a parse tree produced by the {@code breakStmt}
 	 * labeled alternative in {@link JSFMParser#statement}.
