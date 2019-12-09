@@ -1,3 +1,5 @@
+import java.util.List;
+
 public class JSFMValues {
     private int intValue;
     private float floatValue;
@@ -9,6 +11,8 @@ public class JSFMValues {
     private boolean isArray = false;
     private boolean isEmpty;
     private boolean isFinal;
+    private List<Object> arrayVal;
+    private int arraySize;
 
     public JSFMValues(String type, int value, boolean f){
         objectType = type;

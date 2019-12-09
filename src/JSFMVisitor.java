@@ -181,21 +181,59 @@ public class JSFMVisitor extends JSFMParserBaseVisitor<Object> {
                     if(type.equalsIgnoreCase("coke") || type.equalsIgnoreCase("techies")){
                         if(!varName.contains("[]")) { //not an array
                             Expression expr = new Expression(varValue);
-                            varName = varName.replace("[]", "");
                             System.out.println(varName);
                             JSFMValues var;
-                            switch (type) {
-                                case "techies":
-                                    var = new JSFMValues(type, expr.eval().intValue(), isFinal);
-                                    toBeReturned = var;
-                                    symbolTable.put(varName, var);
-                                    break;
-                                case "coke":
-                                    var = new JSFMValues(type, expr.eval().floatValue(), isFinal);
-                                    symbolTable.put(varName, var);
-                                    toBeReturned = var;
-                                    break;
+                            boolean error = true;
+                            while(error){
+                                try{
+                                    switch (type) {
+                                        case "techies":
+                                            var = new JSFMValues(type, expr.eval().intValue(), isFinal);
+                                            toBeReturned = var;
+                                            symbolTable.put(varName, var);
+                                            error = false;
+                                            break;
+                                        case "coke":
+                                            var = new JSFMValues(type, expr.eval().floatValue(), isFinal);
+                                            symbolTable.put(varName, var);
+                                            toBeReturned = var;
+                                            error = false;
+                                            break;
+                                    }
+                                }catch(Exception e){
+                                    String v = e.getMessage().split("Unknown operator or function: ")[1];
+                                    JSFMValues temp;
+                                    if(symbolTable.containsKey(v)){
+                                        temp = symbolTable.get(v);
+                                        if(!temp.isEmpty()){
+                                            switch (temp.getObjectType()){
+                                                case "techies":
+                                                    expr.setVariable(v, BigDecimal.valueOf(temp.getIntValue()));
+                                                    break;
+                                                case "coke":
+                                                    expr.setVariable(v, BigDecimal.valueOf(temp.getFloatValue()));
+                                                    break;
+                                                case "thread":
+                                                    expr.setVariable(v, temp.getStringValue());
+                                                    break;
+                                                case "kachow":
+                                                    expr.setVariable(v, BigDecimal.valueOf((int) temp.getCharValue()));
+                                                    break;
+                                                case "boolin":
+                                                    if(temp.getBoolValue()) {
+                                                        expr.setVariable(v, BigDecimal.valueOf(1));
+                                                    }else{
+                                                        expr.setVariable(v, BigDecimal.valueOf(0));
+                                                    }
+                                                    break;
+                                                default: TestScanner.outputTextArea.append("ERROR - Variable " + v + " is not a variable.\n");
+                                                    error = false;
+                                            }
+                                        }
+                                    }
+                                }
                             }
+
                         } else {
                             JSFMValues var;
                             varName = varName.replace("[]", "");
@@ -215,33 +253,213 @@ public class JSFMVisitor extends JSFMParserBaseVisitor<Object> {
                     } else if(type.equals("boolin") || type.equals("thread") || type.equals("kachow")){
                         if(!varName.contains("[]")) { //not an array
                             JSFMValues var;
-                            varName = varName.replace("[]", "");
                             switch (type) {
                                 case "boolin":
-                                    if (varValue == "true") {
+                                    if (varValue.equals("true")) {
                                         var = new JSFMValues(type, true, isFinal);
                                         symbolTable.put(varName, var);
                                         toBeReturned = var;
-                                    } else if (varValue == "false") {
+                                    } else if (varValue.equals("false")) {
                                         var = new JSFMValues(type, false, isFinal);
                                         symbolTable.put(varName, var);
                                         toBeReturned = var;
+                                    } else{ //identifier
+                                        if(symbolTable.containsKey(varValue)){
+                                            JSFMValues temp = symbolTable.get(varValue);
+                                            if(!temp.isEmpty()){
+                                                if(temp.getObjectType().equals("boolin")){
+                                                    var = new JSFMValues(type, temp.getBoolValue(), isFinal);
+                                                    symbolTable.put(varName, var);
+                                                    toBeReturned = var;
+                                                }else{
+                                                    TestScanner.outputTextArea.append("ERROR - Line " + ctx.start.getLine() +
+                                                            " - " + varName + " only accepts boolin values. " + varValue +
+                                                            " is a " + temp.getObjectType() + "\n");
+                                                }
+                                            }else{
+                                                TestScanner.outputTextArea.append("ERROR - Line " + ctx.start.getLine()+
+                                                        " - Variable " + varValue + " has not been initialized. " +
+                                                        "Please initialize it first.\n");
+                                            }
+                                        }else{
+                                            TestScanner.outputTextArea.append("ERROR - Line " + ctx.start.getLine() +
+                                                    " - Variable " + varValue + " does not exist. Please declare and " +
+                                                    "initialize it first.\n");
+                                        }
                                     }
                                     break;
                                 case "thread":
-                                    var = new JSFMValues(type, varValue.substring(1, varValue.length() - 1), isFinal);
-                                    symbolTable.put(varName, var);
-                                    toBeReturned = var;
+                                    String str = "";
+                                    if(varValue.contains("+")){
+                                        String[] res = varValue.split("\\+");
+                                        for(int x=0; x< res.length; x++){
+                                            if(res[x].charAt(0) == '\"' && res[x].charAt(res[x].length()-1) == '\"'){
+                                                str += res[x].substring(1, res[x].length()-1);
+                                            }else{ //identifier
+                                                try{
+                                                    Float f = Float.parseFloat(res[x]);
+                                                    str += res[x];
+                                                }catch(NumberFormatException e){
+                                                    if(symbolTable.containsKey(res[x])){
+                                                        JSFMValues temp2 = symbolTable.get(res[x]);
+                                                        if(!temp2.isEmpty()){
+                                                            switch(temp2.getObjectType()){
+                                                                case "techies":
+                                                                    str += temp2.getIntValue();
+                                                                    break;
+                                                                case "coke":
+                                                                    str += temp2.getFloatValue();
+                                                                    break;
+                                                                case "thread":
+                                                                    str += temp2.getStringValue();
+                                                                    break;
+                                                                case "kachow":
+                                                                    str += temp2.getCharValue();
+                                                                    break;
+                                                                case "boolin":
+                                                                    str += temp2.getBoolValue();
+                                                                    break;
+                                                                default: TestScanner.outputTextArea.append("ERROR - " + res[x] + " is not a variable.\n");
+                                                            }
+                                                        }else{
+                                                            TestScanner.outputTextArea.append("ERROR - Variable " + res[x] + " is not initialized. " +
+                                                                    "Please initialize it first.\n");
+                                                        }
+                                                    }else{
+                                                        TestScanner.outputTextArea.append("ERROR - Variable " + res[x] + " does not exist. " +
+                                                                "Please declare and initialize it first.\n");
+                                                    }
+                                                }
+
+                                            }
+                                        }
+                                        var = new JSFMValues(type, str, isFinal);
+                                        symbolTable.put(varName, var);
+                                        toBeReturned = var;
+
+                                    }else{
+                                        if(varValue.charAt(0) == '\"' && varValue.charAt(varValue.length()-1) == '\"'){
+                                            str = varValue.substring(1, varValue.length()-1);
+                                        }else{
+                                            if(symbolTable.containsKey(varValue)){
+                                                JSFMValues temp2 = symbolTable.get(varValue);
+                                                if(!temp2.isEmpty()){
+                                                    switch(temp2.getObjectType()){
+                                                        case "techies":
+                                                            str += temp2.getIntValue();
+                                                            break;
+                                                        case "coke":
+                                                            str += temp2.getFloatValue();
+                                                            break;
+                                                        case "thread":
+                                                            str += temp2.getStringValue();
+                                                            break;
+                                                        case "kachow":
+                                                            str += temp2.getCharValue();
+                                                            break;
+                                                        case "boolin":
+                                                            str += temp2.getBoolValue();
+                                                            break;
+                                                        default: TestScanner.outputTextArea.append("ERROR - " + varValue + " is not a variable.\n");
+                                                    }
+                                                }else{
+                                                    TestScanner.outputTextArea.append("ERROR - Variable " + varValue + " is not initialized. " +
+                                                            "Please initialize it first.\n");
+                                                }
+                                            }else{
+                                                TestScanner.outputTextArea.append("ERROR - Variable " + varValue + " does not exist. " +
+                                                        "Please declare and initialize it first.\n");
+                                            }
+                                        }
+                                        var = new JSFMValues(type, str, isFinal);
+                                        symbolTable.put(varName, var);
+                                        toBeReturned = var;
+
+                                    }
+
                                     break;
                                 case "kachow":
-                                    var = new JSFMValues(type, varValue.charAt(1), isFinal);
-                                    symbolTable.put(varName, var);
-                                    toBeReturned = var;
+                                    if(varValue.length() == 3 && varValue.charAt(0) == '\'' && varValue.charAt(2) == '\''){
+                                        var = new JSFMValues(type, varValue.charAt(1), isFinal);
+                                        symbolTable.put(varName, var);
+                                        toBeReturned = var;
+                                    }else if(varValue.contains("+")){
+                                        int total = 0;
+                                        String[] res = varValue.split("\\+");
+                                        for(int x=0; x< res.length; x++){
+                                            if(res[x].length() == 3 && res[x].charAt(0) == '\'' && res[x].charAt(2) == '\''){
+                                                total = total + (int) res[x].charAt(1);
+                                            }else{
+                                                try{ // number
+                                                    int test = Integer.parseInt(res[x]);
+                                                    total += test;
+                                                }catch(NumberFormatException e){ //identifier
+                                                    if(symbolTable.containsKey(res[x])){
+                                                        JSFMValues temp = symbolTable.get(res[x]);
+                                                        if(!temp.isEmpty()){
+                                                            if(temp.getObjectType().equals("kachow")){
+                                                                total = total + (int) temp.getCharValue();
+                                                            }else if(temp.getObjectType().equals("techies")){
+                                                                total += temp.getIntValue();
+                                                            }else{
+                                                                TestScanner.outputTextArea.append("ERROR - Line " + ctx.start.getLine() +
+                                                                        " - " + varName + " only accepts kachow values. " + res[x] + " is" +
+                                                                        " a " + temp.getObjectType() + ".\n");
+                                                            }
+                                                        }else{
+                                                            TestScanner.outputTextArea.append("ERROR - Line " + ctx.start.getLine() + " - " +
+                                                                    "Variable " + res[x] + " has not been initialized. Please initialize it first.\n");
+                                                        }
+                                                    }else{
+                                                        TestScanner.outputTextArea.append("ERROR - Line " + ctx.start.getLine() + " - " +
+                                                                "Variable " + res[x] + " does not exist. Please declare and initialize " +
+                                                                "it first.\n");
+                                                    }
+                                                }
+                                            }
+                                        }
+                                        var = new JSFMValues(type, (char) total, isFinal);
+                                        symbolTable.put(varName, var);
+                                        toBeReturned = var;
+                                    }else{//identifier or number
+                                        try{ // number
+                                            int test = Integer.parseInt(varValue);
+                                            var = new JSFMValues(type, (char) test, isFinal);
+                                            symbolTable.put(varName, var);
+                                            toBeReturned = var;
+                                        }catch(NumberFormatException e){ //identifier
+                                            if(symbolTable.containsKey(varValue)){
+                                                JSFMValues temp = symbolTable.get(varValue);
+                                                if(!temp.isEmpty()){
+                                                    if(temp.getObjectType().equals("kachow")){
+                                                        var = new JSFMValues(type, temp.getCharValue(), isFinal);
+                                                        symbolTable.put(varName, var);
+                                                        toBeReturned = var;
+                                                    }else if(temp.getObjectType().equals("techies")){
+                                                        var = new JSFMValues(type, (char) temp.getIntValue(), isFinal);
+                                                        symbolTable.put(varName, var);
+                                                        toBeReturned = var;
+                                                    }else{
+                                                        TestScanner.outputTextArea.append("ERROR - Line " + ctx.start.getLine() +
+                                                                " - " + varName + " only accepts kachow values. " + varValue + " is" +
+                                                                " a " + temp.getObjectType() + ".\n");
+                                                    }
+                                                }else{
+                                                    TestScanner.outputTextArea.append("ERROR - Line " + ctx.start.getLine() + " - " +
+                                                            "Variable " + varValue + " has not been initialized. Please initialize it first.\n");
+                                                }
+                                            }else{
+                                                TestScanner.outputTextArea.append("ERROR - Line " + ctx.start.getLine() + " - " +
+                                                        "Variable " + varValue + " does not exist. Please declare and initialize " +
+                                                        "it first.\n");
+                                            }
+                                        }
+                                    }
+
                                     break;
                             }
                         } else {
                             JSFMValues var;
-                            varName = varName.replace("[]", "");
                             switch (type) {
                                 case "boolin":
                                     var = new JSFMValues(type, true, varValue, isFinal);
