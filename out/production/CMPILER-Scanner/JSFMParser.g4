@@ -117,13 +117,13 @@ returnExpression: literal
 
 statement
     : blockLabel=block  #blockStmt
-    | IF parExpression statement (ELSE statement)? #ifElseStmt
-    | FOR LPAREN forControl RPAREN statement #forLoopStmt
-    | WHILE parExpression statement #whileLoopStmt
-    | DO statement WHILE parExpression SEMI  #doWhileLoopStmt
-    | SWITCH parExpression LBRACE switchBlockStatementGroup* switchLabel* RBRACE    #switchStmt
+    | IF parExpression statement (ELSE statement)?  #ifElseStmt
+    | FOR LPAREN forControl RPAREN statement    #forLoopStmt
+    | WHILE parExpression statement     #whileLoopStmt
+    | DO statement WHILE parExpression SEMI     #doWhileLoopStmt
+    | SWITCH parExpression LBRACE switchBlockStatementGroup* switchLabel* RBRACE        #switchStmt
     | BREAK IDENTIFIER? SEMI    #breakStmt
-    | expression SEMI   #exprStmt
+    | expression SEMI       #exprStmt
     | identifierLabel=IDENTIFIER COLON statement    #identifierStmt
     | outputStatement   #outputStmt
     | inputStatement    #inputStmt

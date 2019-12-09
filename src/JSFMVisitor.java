@@ -178,52 +178,106 @@ public class JSFMVisitor extends JSFMParserBaseVisitor<Object> {
                     System.out.println(type + " " + varName + " " + varValue);
 
                     if(type.equalsIgnoreCase("coke") || type.equalsIgnoreCase("techies")){
-                        Expression expr = new Expression(varValue);
-
-                        JSFMValues var;
-                        switch(type) {
-                            case "techies":
-                                var = new JSFMValues(type, expr.eval().intValue(), isFinal);
-                                toBeReturned = var;
-                                symbolTable.put(varName, var);
-                                break;
-                            case "coke":
-                                var = new JSFMValues(type, expr.eval().floatValue(), isFinal);
-                                symbolTable.put(varName, var);
-                                toBeReturned = var;
-                                break;
+                        if(!varName.contains("[]")) { //not an array
+                            Expression expr = new Expression(varValue);
+                            varName = varName.replace("[]", "");
+                            System.out.println(varName);
+                            JSFMValues var;
+                            switch (type) {
+                                case "techies":
+                                    var = new JSFMValues(type, expr.eval().intValue(), isFinal);
+                                    toBeReturned = var;
+                                    symbolTable.put(varName, var);
+                                    break;
+                                case "coke":
+                                    var = new JSFMValues(type, expr.eval().floatValue(), isFinal);
+                                    symbolTable.put(varName, var);
+                                    toBeReturned = var;
+                                    break;
+                            }
+                        } else {
+                            JSFMValues var;
+                            varName = varName.replace("[]", "");
+                            switch (type) {
+                                case "techies":
+                                    var = new JSFMValues(type, true, varValue, isFinal);
+                                    toBeReturned = var;
+                                    symbolTable.put(varName, var);
+                                    break;
+                                case "coke":
+                                    var = new JSFMValues(type, true, varValue, isFinal);
+                                    symbolTable.put(varName, var);
+                                    toBeReturned = var;
+                                    break;
+                            }
                         }
                     } else if(type.equals("boolin") || type.equals("thread") || type.equals("kachow")){
-                        JSFMValues var;
-                        switch(type) {
-                            case "boolin":
-                                if(varValue == "true") {
-                                    var = new JSFMValues(type,true, isFinal);
+                        if(!varName.contains("[]")) { //not an array
+                            JSFMValues var;
+                            varName = varName.replace("[]", "");
+                            switch (type) {
+                                case "boolin":
+                                    if (varValue == "true") {
+                                        var = new JSFMValues(type, true, isFinal);
+                                        symbolTable.put(varName, var);
+                                        toBeReturned = var;
+                                    } else if (varValue == "false") {
+                                        var = new JSFMValues(type, false, isFinal);
+                                        symbolTable.put(varName, var);
+                                        toBeReturned = var;
+                                    }
+                                    break;
+                                case "thread":
+                                    var = new JSFMValues(type, varValue.substring(1, varValue.length() - 1), isFinal);
                                     symbolTable.put(varName, var);
                                     toBeReturned = var;
-                                }
-                                else if(varValue == "false") {
-                                    var = new JSFMValues(type,false, isFinal);
+                                    break;
+                                case "kachow":
+                                    var = new JSFMValues(type, varValue.charAt(1), isFinal);
                                     symbolTable.put(varName, var);
                                     toBeReturned = var;
-                                }
-                                break;
-                            case "thread":
-                                var = new JSFMValues(type, varValue.substring(1, varValue.length()-1), isFinal);
-                                symbolTable.put(varName, var);
-                                toBeReturned = var;
-                                break;
-                            case "kachow":
-                                var = new JSFMValues(type, varValue.charAt(1), isFinal);
-                                symbolTable.put(varName, var);
-                                toBeReturned = var;
-                                break;
+                                    break;
+                            }
+                        } else {
+                            JSFMValues var;
+                            varName = varName.replace("[]", "");
+                            switch (type) {
+                                case "boolin":
+                                    if (varValue == "true") {
+                                        var = new JSFMValues(type, true, varValue, isFinal);
+                                        symbolTable.put(varName, var);
+                                        toBeReturned = var;
+                                    } else if (varValue == "false") {
+                                        var = new JSFMValues(type, true, varValue, isFinal);
+                                        symbolTable.put(varName, var);
+                                        toBeReturned = var;
+                                    }
+                                    break;
+                                case "thread":
+                                case "kachow":
+                                    var = new JSFMValues(type, true, varValue, isFinal);
+                                    symbolTable.put(varName, var);
+                                    toBeReturned = var;
+                                    break;
+//                                    var = new JSFMValues(type, true, varValue, isFinal);
+//                                    symbolTable.put(varName, var);
+//                                    toBeReturned = var;
+//                                    break;
+                            }
                         }
                     }
                 }else{ //no value
-                    JSFMValues var = new JSFMValues(type, isFinal);
-                    symbolTable.put(varName, var);
-                    toBeReturned = var;
+                    if(!varName.contains("[]")) { // not an array
+                        varName = varName.replace("[]", "");
+                        JSFMValues var = new JSFMValues(type, isFinal);
+                        symbolTable.put(varName, var);
+                        toBeReturned = var;
+                    } else {
+                        varName = varName.replace("[]", "");
+                        JSFMValues var = new JSFMValues(true, type, isFinal);
+                        symbolTable.put(varName, var);
+                        toBeReturned = var;
+                    }
                 }
             }else{
                 TestScanner.outputTextArea.append("ERROR - Variable " + varName + " has already been declared. " +
