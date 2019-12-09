@@ -14,12 +14,10 @@ public class JSFMValues {
     private List<Object> arrayVal;
     private int arraySize;
     private JSFMFunction function;
-    private String returnType;
 
 
-    public JSFMValues(String type, String rType, JSFMFunction func){
+    public JSFMValues(String type, JSFMFunction func){
         objectType = type;
-        returnType = rType;
         function = func;
     }
 
@@ -158,9 +156,6 @@ public class JSFMValues {
         return objectType;
     }
 
-    public String getReturnType() {
-        return returnType;
-    }
     public JSFMFunction getFunction() {
         return function;
     }
