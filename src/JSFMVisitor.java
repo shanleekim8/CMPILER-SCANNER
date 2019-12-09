@@ -11,6 +11,7 @@ import java.math.BigDecimal;
 import java.util.*;
 
 public class JSFMVisitor extends JSFMParserBaseVisitor<Object> {
+    static Hashtable<String, JSFMValues> mainTable = new Hashtable<String, JSFMValues>();
     static Hashtable<String, JSFMValues> symbolTable = new Hashtable<String, JSFMValues>();
     static Hashtable<String, JSFMFunction> functionTable = new Hashtable<String, JSFMFunction>();
     static Stack<Hashtable<String, JSFMValues>> scopeStack = new Stack<Hashtable<String, JSFMValues>>();
@@ -18,6 +19,11 @@ public class JSFMVisitor extends JSFMParserBaseVisitor<Object> {
     @Override
     public Object visitCompilationUnit(JSFMParser.CompilationUnitContext ctx) {
         symbolTable.clear();
+        mainTable.clear();
+        functionTable.clear();
+        while(!scopeStack.empty()){
+            Hashtable<String, JSFMValues> temp = scopeStack.pop();
+        }
         TestScanner.outputTextArea.setText("");
         System.out.println("In compilation unit");
         return visitChildren(ctx);
@@ -56,14 +62,14 @@ public class JSFMVisitor extends JSFMParserBaseVisitor<Object> {
             if(rType.equals("faceless") && !actions.getText().contains("respond")){
                 JSFMFunction func = new JSFMFunction(mName, rType, params, actions);
                 functionTable.put(mName, func);
-                symbolTable.put(mName, new JSFMValues(rType, func));
+                symbolTable.put(mName, new JSFMValues("function", rType, func));
             }else if(rType.equals("faceless") && !actions.getText().contains("respond")){
                 TestScanner.outputTextArea.append("ERROR - Line " + ctx.start.getLine() + " - Functions with a return type of" +
                         " faceless cannot have a return statement.\n");
             }else if(!rType.equals("faceless") && !actions.getText().contains("respond")){
                 JSFMFunction func = new JSFMFunction(mName, rType, params, actions);
                 functionTable.put(mName, func);
-                symbolTable.put(mName, new JSFMValues(rType, func));
+                symbolTable.put(mName, new JSFMValues("function", rType, func));
             }else if(!rType.equals("faceless") && !actions.getText().contains("respond")){
                 TestScanner.outputTextArea.append("ERROR - Line " + ctx.start.getLine() + " - Functions with a return type of " +
                         rType + " needs to have a return statement.\n");
@@ -544,6 +550,9 @@ public class JSFMVisitor extends JSFMParserBaseVisitor<Object> {
         Expression expr = new Expression(ctx.parExpression().expression().getText());
         BigDecimal res = null;
         boolean error = true;
+
+        String s = ctx.parExpression().expression().bop.getText();
+
         while(error){
             try{
                 res = expr.eval();
@@ -842,7 +851,10 @@ public class JSFMVisitor extends JSFMParserBaseVisitor<Object> {
     public Object visitSwitchStmt(JSFMParser.SwitchStmtContext ctx) { return visitChildren(ctx); }
 
     @Override
-    public Object visitReturnStmt(JSFMParser.ReturnStmtContext ctx) { return visitChildren(ctx); }
+    public Object visitReturnStmt(JSFMParser.ReturnStmtContext ctx) {
+
+        return this.visit(ctx.expression());
+    }
 
     @Override
     public Object visitBreakStmt(JSFMParser.BreakStmtContext ctx) { return visitChildren(ctx); }
@@ -1269,7 +1281,7 @@ public class JSFMVisitor extends JSFMParserBaseVisitor<Object> {
     public Object visitOutputStmt(JSFMParser.OutputStmtContext ctx) { return visitChildren(ctx); }
 
     @Override public Object visitInputStmt(JSFMParser.InputStmtContext ctx) { return visitChildren(ctx); }
-    
+
 
     @Override
     public Object visitSwitchBlockStatementGroup(JSFMParser.SwitchBlockStatementGroupContext ctx) {
