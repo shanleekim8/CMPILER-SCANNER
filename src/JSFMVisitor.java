@@ -6,6 +6,7 @@ import org.antlr.v4.runtime.tree.TerminalNode;
 
 import javax.swing.*;
 import java.math.BigDecimal;
+import java.util.ArrayList;
 import java.util.Enumeration;
 import java.util.Hashtable;
 
@@ -243,19 +244,13 @@ public class JSFMVisitor extends JSFMParserBaseVisitor<Object> {
                             varName = varName.replace("[]", "");
                             switch (type) {
                                 case "boolin":
-                                    if (varValue == "true") {
-                                        var = new JSFMValues(type, true, varValue, isFinal);
-                                        symbolTable.put(varName, var);
-                                        toBeReturned = var;
-                                    } else if (varValue == "false") {
-                                        var = new JSFMValues(type, true, varValue, isFinal);
-                                        symbolTable.put(varName, var);
-                                        toBeReturned = var;
-                                    }
+                                    var = new JSFMValues(type, true, varValue, isFinal);
+                                    symbolTable.put(varName, var);
+                                    toBeReturned = var;
                                     break;
                                 case "thread":
                                 case "kachow":
-                                    var = new JSFMValues(type, true, varValue, isFinal);
+                                    var = new JSFMValues(type, true, varValue.replaceAll("\"", "").replaceAll("\'", ""), isFinal);
                                     symbolTable.put(varName, var);
                                     toBeReturned = var;
                                     break;
@@ -1183,22 +1178,58 @@ public class JSFMVisitor extends JSFMParserBaseVisitor<Object> {
                         if(symbolTable.containsKey(temp)){
                             JSFMValues val = symbolTable.get(temp);
                             if(!val.isEmpty()){
-                                switch (val.getObjectType()){
-                                    case "techies":
-                                        print += val.getIntValue();
-                                        break;
-                                    case "coke":
-                                        print += val.getFloatValue();
-                                        break;
-                                    case "thread":
-                                        print += val.getStringValue();
-                                        break;
-                                    case "kachow":
-                                        print += val.getCharValue();
-                                        break;
-                                    case "boolin":
-                                        print += val.getBoolValue();
-                                        break;
+                                if(!val.isArray()) { //not array
+                                    switch (val.getObjectType()) {
+                                        case "techies":
+                                            print += val.getIntValue();
+                                            break;
+                                        case "coke":
+                                            print += val.getFloatValue();
+                                            break;
+                                        case "thread":
+                                            print += val.getStringValue();
+                                            break;
+                                        case "kachow":
+                                            print += val.getCharValue();
+                                            break;
+                                        case "boolin":
+                                            print += val.getBoolValue();
+                                            break;
+                                    }
+                                } else { //array
+                                    String strArrayValues = val.getArrayValues();
+
+                                    strArrayValues = strArrayValues.replaceAll("\\{", "").replaceAll("\\}", "");
+                                    System.out.println(strArrayValues);
+                                    String[] tempArrayValues = strArrayValues.split(",");
+
+                                    switch (val.getObjectType()) {
+                                        case "techies":
+                                            for(int j = 0; j < tempArrayValues.length; j++){
+                                                print += Integer.parseInt(tempArrayValues[j]) + " ";
+                                            }
+                                            break;
+                                        case "coke":
+                                            for(int j = 0; j < tempArrayValues.length; j++){
+                                                print += Float.parseFloat(tempArrayValues[j]) + " ";
+                                            }
+                                            break;
+                                        case "thread":
+                                            for(int j = 0; j < tempArrayValues.length; j++){
+                                                print += tempArrayValues[j] + " ";
+                                            }
+                                            break;
+                                        case "kachow":
+                                            for(int j = 0; j < tempArrayValues.length; j++){
+                                                print += tempArrayValues[j].charAt(0) + " ";
+                                            }
+                                            break;
+                                        case "boolin":
+                                            for(int j = 0; j < tempArrayValues.length; j++){
+                                                print += Boolean.parseBoolean(tempArrayValues[j]) + " ";
+                                            }
+                                            break;
+                                    }
                                 }
                             }else{
                                 TestScanner.outputTextArea.append("ERROR - Variable " + temp + " has not been initialized. " +

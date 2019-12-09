@@ -83,7 +83,6 @@ public class JSFMValues {
         isEmpty = false;
     }
 
-
     public void setStringValue(String stringValue) {
         this.stringValue = stringValue;
         isEmpty = false;
@@ -109,7 +108,6 @@ public class JSFMValues {
     public char getCharValue() {
         return charValue;
     }
-
 
     public float getFloatValue() {
         return floatValue;
@@ -146,6 +144,5 @@ public class JSFMValues {
     public String getObjectType() {
         return objectType;
     }
-
 
 }
