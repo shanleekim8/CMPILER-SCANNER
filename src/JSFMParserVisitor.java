@@ -261,6 +261,20 @@ public interface JSFMParserVisitor<T> extends ParseTreeVisitor<T> {
 	 */
 	T visitOutputStmt(JSFMParser.OutputStmtContext ctx);
 	/**
+	 * Visit a parse tree produced by the {@code outputStmtErrors}
+	 * labeled alternative in {@link JSFMParser#statement}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitOutputStmtErrors(JSFMParser.OutputStmtErrorsContext ctx);
+	/**
+	 * Visit a parse tree produced by the {@code inputStmtErrors}
+	 * labeled alternative in {@link JSFMParser#statement}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitInputStmtErrors(JSFMParser.InputStmtErrorsContext ctx);
+	/**
 	 * Visit a parse tree produced by the {@code inputStmt}
 	 * labeled alternative in {@link JSFMParser#statement}.
 	 * @param ctx the parse tree
@@ -328,6 +342,20 @@ public interface JSFMParserVisitor<T> extends ParseTreeVisitor<T> {
 	 */
 	T visitExpression(JSFMParser.ExpressionContext ctx);
 	/**
+	 * Visit a parse tree produced by the {@code missingLParenMethodCall}
+	 * labeled alternative in {@link JSFMParser#methodCallErrors}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitMissingLParenMethodCall(JSFMParser.MissingLParenMethodCallContext ctx);
+	/**
+	 * Visit a parse tree produced by the {@code missingRParenMethodCall}
+	 * labeled alternative in {@link JSFMParser#methodCallErrors}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitMissingRParenMethodCall(JSFMParser.MissingRParenMethodCallContext ctx);
+	/**
 	 * Visit a parse tree produced by {@link JSFMParser#primary}.
 	 * @param ctx the parse tree
 	 * @return the visitor result
@@ -340,11 +368,74 @@ public interface JSFMParserVisitor<T> extends ParseTreeVisitor<T> {
 	 */
 	T visitInputStatement(JSFMParser.InputStatementContext ctx);
 	/**
+	 * Visit a parse tree produced by the {@code missingLParenInput}
+	 * labeled alternative in {@link JSFMParser#inputStatementErrors}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitMissingLParenInput(JSFMParser.MissingLParenInputContext ctx);
+	/**
+	 * Visit a parse tree produced by the {@code missingRParenInput}
+	 * labeled alternative in {@link JSFMParser#inputStatementErrors}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitMissingRParenInput(JSFMParser.MissingRParenInputContext ctx);
+	/**
+	 * Visit a parse tree produced by the {@code missingCommaInput}
+	 * labeled alternative in {@link JSFMParser#inputStatementErrors}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitMissingCommaInput(JSFMParser.MissingCommaInputContext ctx);
+	/**
+	 * Visit a parse tree produced by the {@code missingIdenInput}
+	 * labeled alternative in {@link JSFMParser#inputStatementErrors}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitMissingIdenInput(JSFMParser.MissingIdenInputContext ctx);
+	/**
+	 * Visit a parse tree produced by the {@code missingStrLitInput}
+	 * labeled alternative in {@link JSFMParser#inputStatementErrors}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitMissingStrLitInput(JSFMParser.MissingStrLitInputContext ctx);
+	/**
+	 * Visit a parse tree produced by the {@code missingSemiInput}
+	 * labeled alternative in {@link JSFMParser#inputStatementErrors}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitMissingSemiInput(JSFMParser.MissingSemiInputContext ctx);
+	/**
 	 * Visit a parse tree produced by {@link JSFMParser#outputStatement}.
 	 * @param ctx the parse tree
 	 * @return the visitor result
 	 */
 	T visitOutputStatement(JSFMParser.OutputStatementContext ctx);
+	/**
+	 * Visit a parse tree produced by the {@code missingLParenOutput}
+	 * labeled alternative in {@link JSFMParser#outputStatementErrors}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitMissingLParenOutput(JSFMParser.MissingLParenOutputContext ctx);
+	/**
+	 * Visit a parse tree produced by the {@code missingRParenOutput}
+	 * labeled alternative in {@link JSFMParser#outputStatementErrors}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitMissingRParenOutput(JSFMParser.MissingRParenOutputContext ctx);
+	/**
+	 * Visit a parse tree produced by the {@code missingSemiOutput}
+	 * labeled alternative in {@link JSFMParser#outputStatementErrors}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitMissingSemiOutput(JSFMParser.MissingSemiOutputContext ctx);
 	/**
 	 * Visit a parse tree produced by {@link JSFMParser#primitiveType}.
 	 * @param ctx the parse tree

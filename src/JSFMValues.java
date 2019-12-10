@@ -1,3 +1,4 @@
+import java.util.ArrayList;
 import java.util.List;
 
 public class JSFMValues {
@@ -11,7 +12,11 @@ public class JSFMValues {
     private boolean isArray = false;
     private boolean isEmpty;
     private boolean isFinal;
-    private List<Object> arrayVal;
+    private ArrayList<Integer> intArray;
+    private ArrayList<Float> floatArray;
+    private ArrayList<Boolean> boolArray;
+    private ArrayList<Character> charArray;
+    private ArrayList<String> strArray;
     private int arraySize;
     private JSFMFunction function;
 
@@ -63,6 +68,36 @@ public class JSFMValues {
         arrayValues = values;
         isEmpty = false;
         isFinal = f;
+
+        String[] res = arrayValues.substring(1, values.length()-1).split(",");
+        int i;
+        switch(type){
+            case "techies": intArray = new ArrayList<Integer>();
+            for(i=0; i< res.length;i++){
+                intArray.add(Integer.parseInt(res[i]));
+            }
+            break;
+            case "coke": floatArray = new ArrayList<Float>();
+            for(i=0; i<res.length;i++){
+                floatArray.add(Float.parseFloat(res[i]));
+            }
+            break;
+            case "thread": strArray = new ArrayList<String>();
+            for(i=0; i<res.length; i++){
+                strArray.add(res[i]);
+            }
+            break;
+            case "kachow": charArray = new ArrayList<Character>();
+            for(i=0; i<res.length; i++){
+                charArray.add(res[i].charAt(1));
+            }
+            break;
+            case "boolin": boolArray = new ArrayList<Boolean>();
+            for(i=0; i<res.length; i++){
+                boolArray.add(Boolean.parseBoolean(res[i]));
+            }
+            break;
+        }
     }
 
     public JSFMValues(boolean array, String type, boolean f){
@@ -78,6 +113,41 @@ public class JSFMValues {
         isFinal = f;
     }
 
+     public void add(String i){
+        switch(objectType){
+            case "techies":
+                intArray.add(Integer.parseInt(i));
+                break;
+            case "float":
+                floatArray.add(Float.parseFloat(i));
+                break;
+            case "thread":
+                strArray.add(i);
+                break;
+            case "boolin":
+                boolArray.add(Boolean.parseBoolean(i));
+                break;
+            case "kachow":
+                charArray.add(i.charAt(1));
+                break;
+        }
+     }
+
+     public Object get(int i){
+         switch(objectType){
+             case "techies":
+                 return intArray.get(i);
+             case "float":
+                 return floatArray.get(i);
+             case "thread":
+                 return strArray.get(i);
+             case "boolin":
+                 return boolArray.get(i);
+             case "kachow":
+                 return charArray.get(i);
+         }
+         return null;
+     }
 
     public void setCharValue(char charValue) {
         this.charValue = charValue;

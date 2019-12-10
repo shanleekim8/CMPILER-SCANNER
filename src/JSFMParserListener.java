@@ -429,6 +429,30 @@ public interface JSFMParserListener extends ParseTreeListener {
 	 */
 	void exitOutputStmt(JSFMParser.OutputStmtContext ctx);
 	/**
+	 * Enter a parse tree produced by the {@code outputStmtErrors}
+	 * labeled alternative in {@link JSFMParser#statement}.
+	 * @param ctx the parse tree
+	 */
+	void enterOutputStmtErrors(JSFMParser.OutputStmtErrorsContext ctx);
+	/**
+	 * Exit a parse tree produced by the {@code outputStmtErrors}
+	 * labeled alternative in {@link JSFMParser#statement}.
+	 * @param ctx the parse tree
+	 */
+	void exitOutputStmtErrors(JSFMParser.OutputStmtErrorsContext ctx);
+	/**
+	 * Enter a parse tree produced by the {@code inputStmtErrors}
+	 * labeled alternative in {@link JSFMParser#statement}.
+	 * @param ctx the parse tree
+	 */
+	void enterInputStmtErrors(JSFMParser.InputStmtErrorsContext ctx);
+	/**
+	 * Exit a parse tree produced by the {@code inputStmtErrors}
+	 * labeled alternative in {@link JSFMParser#statement}.
+	 * @param ctx the parse tree
+	 */
+	void exitInputStmtErrors(JSFMParser.InputStmtErrorsContext ctx);
+	/**
 	 * Enter a parse tree produced by the {@code inputStmt}
 	 * labeled alternative in {@link JSFMParser#statement}.
 	 * @param ctx the parse tree
@@ -541,6 +565,30 @@ public interface JSFMParserListener extends ParseTreeListener {
 	 */
 	void exitExpression(JSFMParser.ExpressionContext ctx);
 	/**
+	 * Enter a parse tree produced by the {@code missingLParenMethodCall}
+	 * labeled alternative in {@link JSFMParser#methodCallErrors}.
+	 * @param ctx the parse tree
+	 */
+	void enterMissingLParenMethodCall(JSFMParser.MissingLParenMethodCallContext ctx);
+	/**
+	 * Exit a parse tree produced by the {@code missingLParenMethodCall}
+	 * labeled alternative in {@link JSFMParser#methodCallErrors}.
+	 * @param ctx the parse tree
+	 */
+	void exitMissingLParenMethodCall(JSFMParser.MissingLParenMethodCallContext ctx);
+	/**
+	 * Enter a parse tree produced by the {@code missingRParenMethodCall}
+	 * labeled alternative in {@link JSFMParser#methodCallErrors}.
+	 * @param ctx the parse tree
+	 */
+	void enterMissingRParenMethodCall(JSFMParser.MissingRParenMethodCallContext ctx);
+	/**
+	 * Exit a parse tree produced by the {@code missingRParenMethodCall}
+	 * labeled alternative in {@link JSFMParser#methodCallErrors}.
+	 * @param ctx the parse tree
+	 */
+	void exitMissingRParenMethodCall(JSFMParser.MissingRParenMethodCallContext ctx);
+	/**
 	 * Enter a parse tree produced by {@link JSFMParser#primary}.
 	 * @param ctx the parse tree
 	 */
@@ -561,6 +609,78 @@ public interface JSFMParserListener extends ParseTreeListener {
 	 */
 	void exitInputStatement(JSFMParser.InputStatementContext ctx);
 	/**
+	 * Enter a parse tree produced by the {@code missingLParenInput}
+	 * labeled alternative in {@link JSFMParser#inputStatementErrors}.
+	 * @param ctx the parse tree
+	 */
+	void enterMissingLParenInput(JSFMParser.MissingLParenInputContext ctx);
+	/**
+	 * Exit a parse tree produced by the {@code missingLParenInput}
+	 * labeled alternative in {@link JSFMParser#inputStatementErrors}.
+	 * @param ctx the parse tree
+	 */
+	void exitMissingLParenInput(JSFMParser.MissingLParenInputContext ctx);
+	/**
+	 * Enter a parse tree produced by the {@code missingRParenInput}
+	 * labeled alternative in {@link JSFMParser#inputStatementErrors}.
+	 * @param ctx the parse tree
+	 */
+	void enterMissingRParenInput(JSFMParser.MissingRParenInputContext ctx);
+	/**
+	 * Exit a parse tree produced by the {@code missingRParenInput}
+	 * labeled alternative in {@link JSFMParser#inputStatementErrors}.
+	 * @param ctx the parse tree
+	 */
+	void exitMissingRParenInput(JSFMParser.MissingRParenInputContext ctx);
+	/**
+	 * Enter a parse tree produced by the {@code missingCommaInput}
+	 * labeled alternative in {@link JSFMParser#inputStatementErrors}.
+	 * @param ctx the parse tree
+	 */
+	void enterMissingCommaInput(JSFMParser.MissingCommaInputContext ctx);
+	/**
+	 * Exit a parse tree produced by the {@code missingCommaInput}
+	 * labeled alternative in {@link JSFMParser#inputStatementErrors}.
+	 * @param ctx the parse tree
+	 */
+	void exitMissingCommaInput(JSFMParser.MissingCommaInputContext ctx);
+	/**
+	 * Enter a parse tree produced by the {@code missingIdenInput}
+	 * labeled alternative in {@link JSFMParser#inputStatementErrors}.
+	 * @param ctx the parse tree
+	 */
+	void enterMissingIdenInput(JSFMParser.MissingIdenInputContext ctx);
+	/**
+	 * Exit a parse tree produced by the {@code missingIdenInput}
+	 * labeled alternative in {@link JSFMParser#inputStatementErrors}.
+	 * @param ctx the parse tree
+	 */
+	void exitMissingIdenInput(JSFMParser.MissingIdenInputContext ctx);
+	/**
+	 * Enter a parse tree produced by the {@code missingStrLitInput}
+	 * labeled alternative in {@link JSFMParser#inputStatementErrors}.
+	 * @param ctx the parse tree
+	 */
+	void enterMissingStrLitInput(JSFMParser.MissingStrLitInputContext ctx);
+	/**
+	 * Exit a parse tree produced by the {@code missingStrLitInput}
+	 * labeled alternative in {@link JSFMParser#inputStatementErrors}.
+	 * @param ctx the parse tree
+	 */
+	void exitMissingStrLitInput(JSFMParser.MissingStrLitInputContext ctx);
+	/**
+	 * Enter a parse tree produced by the {@code missingSemiInput}
+	 * labeled alternative in {@link JSFMParser#inputStatementErrors}.
+	 * @param ctx the parse tree
+	 */
+	void enterMissingSemiInput(JSFMParser.MissingSemiInputContext ctx);
+	/**
+	 * Exit a parse tree produced by the {@code missingSemiInput}
+	 * labeled alternative in {@link JSFMParser#inputStatementErrors}.
+	 * @param ctx the parse tree
+	 */
+	void exitMissingSemiInput(JSFMParser.MissingSemiInputContext ctx);
+	/**
 	 * Enter a parse tree produced by {@link JSFMParser#outputStatement}.
 	 * @param ctx the parse tree
 	 */
@@ -570,6 +690,42 @@ public interface JSFMParserListener extends ParseTreeListener {
 	 * @param ctx the parse tree
 	 */
 	void exitOutputStatement(JSFMParser.OutputStatementContext ctx);
+	/**
+	 * Enter a parse tree produced by the {@code missingLParenOutput}
+	 * labeled alternative in {@link JSFMParser#outputStatementErrors}.
+	 * @param ctx the parse tree
+	 */
+	void enterMissingLParenOutput(JSFMParser.MissingLParenOutputContext ctx);
+	/**
+	 * Exit a parse tree produced by the {@code missingLParenOutput}
+	 * labeled alternative in {@link JSFMParser#outputStatementErrors}.
+	 * @param ctx the parse tree
+	 */
+	void exitMissingLParenOutput(JSFMParser.MissingLParenOutputContext ctx);
+	/**
+	 * Enter a parse tree produced by the {@code missingRParenOutput}
+	 * labeled alternative in {@link JSFMParser#outputStatementErrors}.
+	 * @param ctx the parse tree
+	 */
+	void enterMissingRParenOutput(JSFMParser.MissingRParenOutputContext ctx);
+	/**
+	 * Exit a parse tree produced by the {@code missingRParenOutput}
+	 * labeled alternative in {@link JSFMParser#outputStatementErrors}.
+	 * @param ctx the parse tree
+	 */
+	void exitMissingRParenOutput(JSFMParser.MissingRParenOutputContext ctx);
+	/**
+	 * Enter a parse tree produced by the {@code missingSemiOutput}
+	 * labeled alternative in {@link JSFMParser#outputStatementErrors}.
+	 * @param ctx the parse tree
+	 */
+	void enterMissingSemiOutput(JSFMParser.MissingSemiOutputContext ctx);
+	/**
+	 * Exit a parse tree produced by the {@code missingSemiOutput}
+	 * labeled alternative in {@link JSFMParser#outputStatementErrors}.
+	 * @param ctx the parse tree
+	 */
+	void exitMissingSemiOutput(JSFMParser.MissingSemiOutputContext ctx);
 	/**
 	 * Enter a parse tree produced by {@link JSFMParser#primitiveType}.
 	 * @param ctx the parse tree

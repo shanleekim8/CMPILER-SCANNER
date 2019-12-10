@@ -57,10 +57,10 @@ public class JSFMVisitor extends JSFMParserBaseVisitor<Object> {
                 JSFMFunction func = new JSFMFunction(mName, rType, params, actions);
                 functionTable.put(mName, func);
                 symbolTable.put(mName, new JSFMValues(rType, func));
-            }else if(rType.equals("faceless") && !actions.getText().contains("respond")){
+            }else if(rType.equals("faceless") && actions.getText().contains("respond")){
                 TestScanner.outputTextArea.append("ERROR - Line " + ctx.start.getLine() + " - Functions with a return type of" +
                         " faceless cannot have a return statement.\n");
-            }else if(!rType.equals("faceless") && !actions.getText().contains("respond")){
+            }else if(!rType.equals("faceless") && actions.getText().contains("respond")){
                 JSFMFunction func = new JSFMFunction(mName, rType, params, actions);
                 functionTable.put(mName, func);
                 symbolTable.put(mName, new JSFMValues(rType, func));
@@ -135,17 +135,33 @@ public class JSFMVisitor extends JSFMParserBaseVisitor<Object> {
 
     @Override
     public Object visitLiteral(JSFMParser.LiteralContext ctx) {
-        return null;
+        if(ctx.STRING_LITERAL()!= null){
+            System.out.println("in str literal" + ctx.STRING_LITERAL().getText());
+
+            return ctx.STRING_LITERAL().getText().substring(1, ctx.STRING_LITERAL().getText().length()-1);
+        }else if(ctx.BOOL_LITERAL() != null){
+            if(ctx.BOOL_LITERAL().getText().equals("true") || ctx.BOOL_LITERAL().getText().equals("1")){
+                return true;
+            }else{
+                return false;
+            }
+        }else if(ctx.NULL_LITERAL() != null){
+            return null;
+        }else if(ctx.CHAR_LITERAL() != null){
+            return ctx.CHAR_LITERAL().getText().charAt(1);
+        }
+
+        return visitChildren(ctx);
     }
 
     @Override
     public Object visitIntegerLiteral(JSFMParser.IntegerLiteralContext ctx) {
-        return null;
+        return Integer.parseInt(ctx.getText());
     }
 
     @Override
     public Object visitFloatLiteral(JSFMParser.FloatLiteralContext ctx) {
-        return null;
+        return Float.parseFloat(ctx.getText());
     }
 
     @Override
@@ -180,6 +196,7 @@ public class JSFMVisitor extends JSFMParserBaseVisitor<Object> {
 
     @Override
     public Object visitBlock(JSFMParser.BlockContext ctx) {
+        System.out.println("IN BLOCK");
         return visitChildren(ctx);
     }
 
@@ -215,6 +232,7 @@ public class JSFMVisitor extends JSFMParserBaseVisitor<Object> {
                             JSFMValues var;
                             boolean error = true;
                             while(error){
+
                                 try{
                                     switch (type) {
                                         case "techies":
@@ -230,36 +248,48 @@ public class JSFMVisitor extends JSFMParserBaseVisitor<Object> {
                                             error = false;
                                             break;
                                     }
-                                }catch(Exception e){
-                                    String v = e.getMessage().split("Unknown operator or function: ")[1];
-                                    JSFMValues temp;
-                                    if(symbolTable.containsKey(v)){
-                                        temp = symbolTable.get(v);
-                                        if(!temp.isEmpty()){
-                                            switch (temp.getObjectType()){
-                                                case "techies":
-                                                    expr.setVariable(v, BigDecimal.valueOf(temp.getIntValue()));
-                                                    break;
-                                                case "coke":
-                                                    expr.setVariable(v, BigDecimal.valueOf(temp.getFloatValue()));
-                                                    break;
-                                                case "thread":
-                                                    expr.setVariable(v, temp.getStringValue());
-                                                    break;
-                                                case "kachow":
-                                                    expr.setVariable(v, BigDecimal.valueOf((int) temp.getCharValue()));
-                                                    break;
-                                                case "boolin":
-                                                    if(temp.getBoolValue()) {
-                                                        expr.setVariable(v, BigDecimal.valueOf(1));
-                                                    }else{
-                                                        expr.setVariable(v, BigDecimal.valueOf(0));
-                                                    }
-                                                    break;
-                                                default: TestScanner.outputTextArea.append("ERROR - Variable " + v + " is not a variable.\n");
-                                                    error = false;
+                                }catch(Exception e) {
+                                    if (e.getMessage().contains("Unknown operator or function")) {
+                                        String v = e.getMessage().split("Unknown operator or function: ")[1];
+                                        JSFMValues temp;
+                                        if (symbolTable.containsKey(v)) {
+                                            temp = symbolTable.get(v);
+                                            if (!temp.isEmpty()) {
+                                                switch (temp.getObjectType()) {
+                                                    case "techies":
+                                                        expr.setVariable(v, BigDecimal.valueOf(temp.getIntValue()));
+                                                        break;
+                                                    case "coke":
+                                                        expr.setVariable(v, BigDecimal.valueOf(temp.getFloatValue()));
+                                                        break;
+                                                    case "thread":
+                                                        expr.setVariable(v, temp.getStringValue());
+                                                        break;
+                                                    case "kachow":
+                                                        expr.setVariable(v, BigDecimal.valueOf((int) temp.getCharValue()));
+                                                        break;
+                                                    case "boolin":
+                                                        if (temp.getBoolValue()) {
+                                                            expr.setVariable(v, BigDecimal.valueOf(1));
+                                                        } else {
+                                                            expr.setVariable(v, BigDecimal.valueOf(0));
+                                                        }
+                                                        break;
+                                                    default:
+                                                        TestScanner.outputTextArea.append("ERROR - Line " + ctx.start.getLine() + " - Variable " + v + " is not a variable.\n");
+                                                        error = false;
+                                                }
                                             }
                                         }
+                                    }else if(e.getMessage().contains("Unknown operator [")){
+                                        int pos = Integer.parseInt(e.getMessage().split("at character position ")[1]);
+                                        JSFMValues temp = symbolTable.get(Character.toString(varValue.charAt(pos-2)));
+                                     //   System.out.println(varValue);
+                                      //  System.out.println(varValue.substring(pos-2, pos+2));
+                                     //   System.out.println(temp.get(Integer.parseInt(Character.toString(varValue.charAt(pos)))).toString());
+                                      varValue = varValue.replace(varValue.substring(pos-2, pos+2)
+                                              , temp.get(Integer.parseInt(Character.toString(varValue.charAt(pos)))).toString());
+                                        expr = new Expression(varValue);
                                     }
                                 }
                             }
@@ -349,14 +379,14 @@ public class JSFMVisitor extends JSFMParserBaseVisitor<Object> {
                                                                 case "boolin":
                                                                     str += temp2.getBoolValue();
                                                                     break;
-                                                                default: TestScanner.outputTextArea.append("ERROR - " + res[x] + " is not a variable.\n");
+                                                                default: TestScanner.outputTextArea.append("ERROR - Line " + ctx.start.getLine() + " - " + res[x] + " is not a variable.\n");
                                                             }
                                                         }else{
-                                                            TestScanner.outputTextArea.append("ERROR - Variable " + res[x] + " is not initialized. " +
+                                                            TestScanner.outputTextArea.append("ERROR - Line " + ctx.start.getLine() + " - Variable " + res[x] + " is not initialized. " +
                                                                     "Please initialize it first.\n");
                                                         }
                                                     }else{
-                                                        TestScanner.outputTextArea.append("ERROR - Variable " + res[x] + " does not exist. " +
+                                                        TestScanner.outputTextArea.append("ERROR - Line " + ctx.start.getLine() + " - Variable " + res[x] + " does not exist. " +
                                                                 "Please declare and initialize it first.\n");
                                                     }
                                                 }
@@ -390,14 +420,14 @@ public class JSFMVisitor extends JSFMParserBaseVisitor<Object> {
                                                         case "boolin":
                                                             str += temp2.getBoolValue();
                                                             break;
-                                                        default: TestScanner.outputTextArea.append("ERROR - " + varValue + " is not a variable.\n");
+                                                        default: TestScanner.outputTextArea.append("ERROR - Line " + ctx.start.getLine() + " - " + varValue + " is not a variable.\n");
                                                     }
                                                 }else{
-                                                    TestScanner.outputTextArea.append("ERROR - Variable " + varValue + " is not initialized. " +
+                                                    TestScanner.outputTextArea.append("ERROR - Line " + ctx.start.getLine() + " - Variable " + varValue + " is not initialized. " +
                                                             "Please initialize it first.\n");
                                                 }
                                             }else{
-                                                TestScanner.outputTextArea.append("ERROR - Variable " + varValue + " does not exist. " +
+                                                TestScanner.outputTextArea.append("ERROR - Line " + ctx.start.getLine() + " - Variable " + varValue + " does not exist. " +
                                                         "Please declare and initialize it first.\n");
                                             }
                                         }
@@ -489,6 +519,7 @@ public class JSFMVisitor extends JSFMParserBaseVisitor<Object> {
                                     break;
                             }
                         } else {
+                            varName = varName.substring(0, varName.length()-2);
                             JSFMValues var;
                             switch (type) {
                                 case "boolin":
@@ -498,6 +529,7 @@ public class JSFMVisitor extends JSFMParserBaseVisitor<Object> {
                                     break;
                                 case "thread":
                                 case "kachow":
+                                    System.out.println(varName + " " + varValue);
                                     var = new JSFMValues(type, true, varValue.replaceAll("\"", "").replaceAll("\'", ""), isFinal);
                                     symbolTable.put(varName, var);
                                     toBeReturned = var;
@@ -523,7 +555,7 @@ public class JSFMVisitor extends JSFMParserBaseVisitor<Object> {
                     }
                 }
             }else{
-                TestScanner.outputTextArea.append("ERROR - Variable " + varName + " has already been declared. " +
+                TestScanner.outputTextArea.append("ERROR - Line " + ctx.start.getLine() + " - Variable " + varName + " has already been declared. " +
                         "Please check your declared variables or make this into an assignment statement.\n");
             }
 
@@ -842,7 +874,10 @@ public class JSFMVisitor extends JSFMParserBaseVisitor<Object> {
     public Object visitSwitchStmt(JSFMParser.SwitchStmtContext ctx) { return visitChildren(ctx); }
 
     @Override
-    public Object visitReturnStmt(JSFMParser.ReturnStmtContext ctx) { return visitChildren(ctx); }
+    public Object visitReturnStmt(JSFMParser.ReturnStmtContext ctx) {
+        System.out.println("IN RETURN STMT");
+        return this.visit(ctx.expression());
+    }
 
     @Override
     public Object visitBreakStmt(JSFMParser.BreakStmtContext ctx) { return visitChildren(ctx); }
@@ -892,7 +927,7 @@ public class JSFMVisitor extends JSFMParserBaseVisitor<Object> {
                                                     expr.setVariable(var, BigDecimal.valueOf(0));
                                                 }
                                                 break;
-                                            default: TestScanner.outputTextArea.append("ERROR - Variable " + var + " is not a variable.\n");
+                                            default: TestScanner.outputTextArea.append("ERROR - Line " + ctx.start.getLine() + " - Variable " + var + " is not a variable.\n");
                                             error = false;
                                         }
                                     }
@@ -921,10 +956,10 @@ public class JSFMVisitor extends JSFMParserBaseVisitor<Object> {
                                         }else if(temp.getObjectType().equals("coke")){
                                             temp.setFloatValue(temp.getFloatValue() + res.floatValue());
                                         }else if(temp.getObjectType().equals("boolin")){
-                                            TestScanner.outputTextArea.append("ERROR - Variable type boolin cannot use the += operator.\n");
+                                            TestScanner.outputTextArea.append("ERROR - Line " + ctx.start.getLine() + " - Variable type boolin cannot use the += operator.\n");
                                         }
                                     }else{
-                                        TestScanner.outputTextArea.append("ERROR - Variable " + vName + " is not initialized. " +
+                                        TestScanner.outputTextArea.append("ERROR - Line " + ctx.start.getLine() + " - Variable " + vName + " is not initialized. " +
                                                 "Please initialize it first.\n");
                                     }
 
@@ -936,10 +971,10 @@ public class JSFMVisitor extends JSFMParserBaseVisitor<Object> {
                                         }else if(temp.getObjectType().equals("coke")){
                                             temp.setFloatValue(temp.getFloatValue() - res.floatValue());
                                         }else if(temp.getObjectType().equals("boolin")){
-                                            TestScanner.outputTextArea.append("ERROR - Variable type boolin cannot use the -= operator.\n");
+                                            TestScanner.outputTextArea.append("ERROR - Line " + ctx.start.getLine() + " - Variable type boolin cannot use the -= operator.\n");
                                         }
                                     }else{
-                                        TestScanner.outputTextArea.append("ERROR - Variable " + vName + " is not initialized. " +
+                                        TestScanner.outputTextArea.append("ERROR - Line " + ctx.start.getLine() + " - Variable " + vName + " is not initialized. " +
                                                 "Please initialize it first.\n");
                                     }
                                     break;
@@ -950,10 +985,10 @@ public class JSFMVisitor extends JSFMParserBaseVisitor<Object> {
                                         }else if(temp.getObjectType().equals("coke")){
                                             temp.setFloatValue(temp.getFloatValue() * res.floatValue());
                                         }else if(temp.getObjectType().equals("boolin")){
-                                            TestScanner.outputTextArea.append("ERROR - Variable type boolin cannot use the *= operator.\n");
+                                            TestScanner.outputTextArea.append("ERROR - Line " + ctx.start.getLine() + " - Variable type boolin cannot use the *= operator.\n");
                                         }
                                     }else{
-                                        TestScanner.outputTextArea.append("ERROR - Variable " + vName + " is not initialized. " +
+                                        TestScanner.outputTextArea.append("ERROR - Line " + ctx.start.getLine() + " - Variable " + vName + " is not initialized. " +
                                                 "Please initialize it first.\n");
                                     }
                                     break;
@@ -964,10 +999,10 @@ public class JSFMVisitor extends JSFMParserBaseVisitor<Object> {
                                         }else if(temp.getObjectType().equals("coke")){
                                             temp.setFloatValue(temp.getFloatValue() / res.floatValue());
                                         }else if(temp.getObjectType().equals("boolin")){
-                                            TestScanner.outputTextArea.append("ERROR - Variable type boolin cannot use the /= operator.\n");
+                                            TestScanner.outputTextArea.append("ERROR - Line " + ctx.start.getLine() + " - Variable type boolin cannot use the /= operator.\n");
                                         }
                                     }else{
-                                        TestScanner.outputTextArea.append("ERROR - Variable " + vName + " is not initialized. " +
+                                        TestScanner.outputTextArea.append("ERROR - Line " + ctx.start.getLine() + " - Variable " + vName + " is not initialized. " +
                                                 "Please initialize it first.\n");
                                     }
                                     break;
@@ -986,7 +1021,7 @@ public class JSFMVisitor extends JSFMParserBaseVisitor<Object> {
                                     if(!temp.isEmpty()){
                                         temp.setCharValue((char)((int)temp.getCharValue() + (int)val.charAt(1)));
                                     }else{
-                                        TestScanner.outputTextArea.append("ERROR - Variable " + vName + " is not initialized. " +
+                                        TestScanner.outputTextArea.append("ERROR - Line " + ctx.start.getLine() + " - Variable " + vName + " is not initialized. " +
                                                 "Please initialize it first.\n");
                                     }
                                     break;
@@ -994,14 +1029,14 @@ public class JSFMVisitor extends JSFMParserBaseVisitor<Object> {
                                     if(!temp.isEmpty()){
                                         temp.setCharValue((char)((int)temp.getCharValue() - (int)val.charAt(1)));
                                     }else{
-                                        TestScanner.outputTextArea.append("ERROR - Variable " + vName + " is not initialized. " +
+                                        TestScanner.outputTextArea.append("ERROR - Line " + ctx.start.getLine() + " - Variable " + vName + " is not initialized. " +
                                             "Please initialize it first.\n");
                                     }                                    break;
                                 case "*=":
                                     if(!temp.isEmpty()){
                                         temp.setCharValue((char)((int)temp.getCharValue() * (int)val.charAt(1)));
                                     }else{
-                                        TestScanner.outputTextArea.append("ERROR - Variable " + vName + " is not initialized. " +
+                                        TestScanner.outputTextArea.append("ERROR - Line " + ctx.start.getLine() + " - Variable " + vName + " is not initialized. " +
                                                 "Please initialize it first.\n");
                                     }
                                     break;
@@ -1009,7 +1044,7 @@ public class JSFMVisitor extends JSFMParserBaseVisitor<Object> {
                                     if(!temp.isEmpty()){
                                         temp.setCharValue((char)((int)temp.getCharValue() / (int)val.charAt(1)));
                                     }else{
-                                        TestScanner.outputTextArea.append("ERROR - Variable " + vName + " is not initialized. " +
+                                        TestScanner.outputTextArea.append("ERROR - Line " + ctx.start.getLine() + " - Variable " + vName + " is not initialized. " +
                                                 "Please initialize it first.\n");
                                     }
                                     break;
@@ -1027,7 +1062,7 @@ public class JSFMVisitor extends JSFMParserBaseVisitor<Object> {
                                         if(!temp.isEmpty()){
                                             temp.setCharValue((char)((int)temp.getCharValue() + test));
                                         }else{
-                                            TestScanner.outputTextArea.append("ERROR - Variable " + vName + " is not initialized. " +
+                                            TestScanner.outputTextArea.append("ERROR - Line " + ctx.start.getLine() + " - Variable " + vName + " is not initialized. " +
                                                     "Please initialize it first.\n");
                                         }
                                         break;
@@ -1035,14 +1070,14 @@ public class JSFMVisitor extends JSFMParserBaseVisitor<Object> {
                                         if(!temp.isEmpty()){
                                             temp.setCharValue((char)((int)temp.getCharValue() - test));
                                         }else{
-                                            TestScanner.outputTextArea.append("ERROR - Variable " + vName + " is not initialized. " +
+                                            TestScanner.outputTextArea.append("ERROR - Line " + ctx.start.getLine() + " - Variable " + vName + " is not initialized. " +
                                                     "Please initialize it first.\n");
                                         }                                    break;
                                     case "*=":
                                         if(!temp.isEmpty()){
                                             temp.setCharValue((char)((int)temp.getCharValue() * test));
                                         }else{
-                                            TestScanner.outputTextArea.append("ERROR - Variable " + vName + " is not initialized. " +
+                                            TestScanner.outputTextArea.append("ERROR - Line " + ctx.start.getLine() + " - Variable " + vName + " is not initialized. " +
                                                     "Please initialize it first.\n");
                                         }
                                         break;
@@ -1050,7 +1085,7 @@ public class JSFMVisitor extends JSFMParserBaseVisitor<Object> {
                                         if(!temp.isEmpty()){
                                             temp.setCharValue((char)((int)temp.getCharValue() / test));
                                         }else{
-                                            TestScanner.outputTextArea.append("ERROR - Variable " + vName + " is not initialized. " +
+                                            TestScanner.outputTextArea.append("ERROR - Line " + ctx.start.getLine() + " - Variable " + vName + " is not initialized. " +
                                                     "Please initialize it first.\n");
                                         }
                                         break;
@@ -1066,7 +1101,7 @@ public class JSFMVisitor extends JSFMParserBaseVisitor<Object> {
                                                 }else if(temp2.getObjectType().equals("techies")){
                                                     temp.setCharValue((char) temp2.getIntValue());
                                                 }else{
-                                                    TestScanner.outputTextArea.append("ERROR - Cannot assign variable type "
+                                                    TestScanner.outputTextArea.append("ERROR - Line " + ctx.start.getLine() + " - Cannot assign variable type "
                                                             + temp2.getObjectType() + " to kachow.\n");
                                                 }
                                                 break;
@@ -1077,11 +1112,11 @@ public class JSFMVisitor extends JSFMParserBaseVisitor<Object> {
                                                     }else if(temp2.getObjectType().equals("techies")){
                                                         temp.setCharValue((char)((int) temp.getCharValue() + temp2.getIntValue()));
                                                     }else{
-                                                        TestScanner.outputTextArea.append("ERROR - Cannot add variable type "
+                                                        TestScanner.outputTextArea.append("ERROR - Line " + ctx.start.getLine() + " - Cannot add variable type "
                                                                 + temp2.getObjectType() + " to kachow.\n");
                                                     }
                                                 }else{
-                                                    TestScanner.outputTextArea.append("ERROR - Variable " + vName + " is not initialized. " +
+                                                    TestScanner.outputTextArea.append("ERROR - Line " + ctx.start.getLine() + " - Variable " + vName + " is not initialized. " +
                                                             "Please initialize it first.\n");
                                                 }
                                                 break;
@@ -1092,11 +1127,11 @@ public class JSFMVisitor extends JSFMParserBaseVisitor<Object> {
                                                     }else if(temp2.getObjectType().equals("techies")){
                                                         temp.setCharValue((char)((int) temp.getCharValue() - temp2.getIntValue()));
                                                     }else{
-                                                        TestScanner.outputTextArea.append("ERROR - Cannot subtract variable type "
+                                                        TestScanner.outputTextArea.append("ERROR - Line " + ctx.start.getLine() + " - Cannot subtract variable type "
                                                                 + temp2.getObjectType() + " from kachow.\n");
                                                     }
                                                 }else{
-                                                    TestScanner.outputTextArea.append("ERROR - Variable " + vName + " is not initialized. " +
+                                                    TestScanner.outputTextArea.append("ERROR - Line " + ctx.start.getLine() + " - Variable " + vName + " is not initialized. " +
                                                             "Please initialize it first.\n");
                                                 }
                                                 break;
@@ -1107,11 +1142,11 @@ public class JSFMVisitor extends JSFMParserBaseVisitor<Object> {
                                                     }else if(temp2.getObjectType().equals("techies")){
                                                         temp.setCharValue((char)((int) temp.getCharValue() * temp2.getIntValue()));
                                                     }else{
-                                                        TestScanner.outputTextArea.append("ERROR - Cannot multiply variable type "
+                                                        TestScanner.outputTextArea.append("ERROR - Line " + ctx.start.getLine() + " - Cannot multiply variable type "
                                                                 + temp2.getObjectType() + " to kachow.\n");
                                                     }
                                                 }else{
-                                                    TestScanner.outputTextArea.append("ERROR - Variable " + vName + " is not initialized. " +
+                                                    TestScanner.outputTextArea.append("ERROR - Line " + ctx.start.getLine() + " - Variable " + vName + " is not initialized. " +
                                                             "Please initialize it first.\n");
                                                 }
                                                 break;
@@ -1122,21 +1157,21 @@ public class JSFMVisitor extends JSFMParserBaseVisitor<Object> {
                                                     }else if(temp2.getObjectType().equals("techies")){
                                                         temp.setCharValue((char)((int) temp.getCharValue() / temp2.getIntValue()));
                                                     }else{
-                                                        TestScanner.outputTextArea.append("ERROR - Cannot divide variable type "
+                                                        TestScanner.outputTextArea.append("ERROR - Line " + ctx.start.getLine() + " - Cannot divide variable type "
                                                                 + temp2.getObjectType() + " with kachow.\n");
                                                     }
                                                 }else{
-                                                    TestScanner.outputTextArea.append("ERROR - Variable " + vName + " is not initialized. " +
+                                                    TestScanner.outputTextArea.append("ERROR - Line " + ctx.start.getLine() + " - Variable " + vName + " is not initialized. " +
                                                             "Please initialize it first.\n");
                                                 }
                                                 break;
                                         }
                                     }else{
-                                        TestScanner.outputTextArea.append("ERROR - Variable " + val + " is not initialized. " +
+                                        TestScanner.outputTextArea.append("ERROR - Line " + ctx.start.getLine() + " - Variable " + val + " is not initialized. " +
                                                 "Please initialize it first.\n");
                                     }
                                 }else{
-                                    TestScanner.outputTextArea.append("ERROR - Variable " + val + " does not exist. " +
+                                    TestScanner.outputTextArea.append("ERROR - Line " + ctx.start.getLine() + " - Variable " + val + " does not exist. " +
                                             "Please declare and initialize it first.\n");
                                 }
                             }
@@ -1179,14 +1214,14 @@ public class JSFMVisitor extends JSFMParserBaseVisitor<Object> {
                                                     case "boolin":
                                                         str += temp2.getBoolValue();
                                                         break;
-                                                    default: TestScanner.outputTextArea.append("ERROR - " + res[i] + " is not a variable.\n");
+                                                    default: TestScanner.outputTextArea.append("ERROR - Line " + ctx.start.getLine() + " - " + res[i] + " is not a variable.\n");
                                                 }
                                             }else{
-                                                TestScanner.outputTextArea.append("ERROR - Variable " + res[i] + " is not initialized. " +
+                                                TestScanner.outputTextArea.append("ERROR - Line " + ctx.start.getLine() + " - Variable " + res[i] + " is not initialized. " +
                                                         "Please initialize it first.\n");
                                             }
                                         }else{
-                                            TestScanner.outputTextArea.append("ERROR - Variable " + res[i] + " does not exist. " +
+                                            TestScanner.outputTextArea.append("ERROR - Line " + ctx.start.getLine() + " - Variable " + res[i] + " does not exist. " +
                                                     "Please declare and initialize it first.\n");
                                         }
                                     }
@@ -1200,7 +1235,7 @@ public class JSFMVisitor extends JSFMParserBaseVisitor<Object> {
                                 temp.setStringValue(temp.getStringValue().concat(str));
                                 symbolTable.put(vName, temp);
                             }else{
-                                TestScanner.outputTextArea.append("ERROR - Cannot use the " + assign + " operator on thread values.\n");
+                                TestScanner.outputTextArea.append("ERROR - Line " + ctx.start.getLine() + " - Cannot use the " + assign + " operator on thread values.\n");
                             }
                         }else{
                             if(val.charAt(0) == '\"' && val.charAt(val.length()-1) == '\"'){
@@ -1225,14 +1260,14 @@ public class JSFMVisitor extends JSFMParserBaseVisitor<Object> {
                                             case "boolin":
                                                 str += temp2.getBoolValue();
                                                 break;
-                                            default: TestScanner.outputTextArea.append("ERROR - " + val + " is not a variable.\n");
+                                            default: TestScanner.outputTextArea.append("ERROR - Line " + ctx.start.getLine() + " - " + val + " is not a variable.\n");
                                         }
                                     }else{
-                                        TestScanner.outputTextArea.append("ERROR - Variable " + val + " is not initialized. " +
+                                        TestScanner.outputTextArea.append("ERROR - Line " + ctx.start.getLine() + " - Variable " + val + " is not initialized. " +
                                                 "Please initialize it first.\n");
                                     }
                                 }else{
-                                    TestScanner.outputTextArea.append("ERROR - Variable " + val + " does not exist. " +
+                                    TestScanner.outputTextArea.append("ERROR - Line " + ctx.start.getLine() + " - Variable " + val + " does not exist. " +
                                             "Please declare and initialize it first.\n");
                                 }
                             }
@@ -1244,7 +1279,7 @@ public class JSFMVisitor extends JSFMParserBaseVisitor<Object> {
                                 temp.setStringValue(temp.getStringValue().concat(str));
                                 symbolTable.put(vName, temp);
                             }else{
-                                TestScanner.outputTextArea.append("ERROR - Cannot use the " + assign + " operator on thread values.\n");
+                                TestScanner.outputTextArea.append("ERROR - Line " + ctx.start.getLine() + " - Cannot use the " + assign + " operator on thread values.\n");
                             }
 
                         }
@@ -1252,7 +1287,7 @@ public class JSFMVisitor extends JSFMParserBaseVisitor<Object> {
 
                 }
             }else{
-                TestScanner.outputTextArea.append("ERROR - Variable " + vName + " does not exist. " +
+                TestScanner.outputTextArea.append("ERROR - Line " + ctx.start.getLine() + " - Variable " + vName + " does not exist. " +
                         "Please declare and initialize it first.\n");
             }
             Expression expr  = new Expression(ctx.expression().expression(1).getText());
@@ -1308,49 +1343,107 @@ public class JSFMVisitor extends JSFMParserBaseVisitor<Object> {
 
     @Override
     public Object visitMethodCall(JSFMParser.MethodCallContext ctx) {
+        System.out.println("INSIDE METHOD CALL");
         String mName = ctx.IDENTIFIER().getText();
 
         if(functionTable.containsKey(mName)){
             JSFMFunction func = functionTable.get(mName);
             if(ctx.expressionList() != null && func.getParameters().formalParameterList() != null){ //not void
+                System.out.println("1");
                 if(ctx.expressionList().expression().size() == func.getParameters().formalParameterList().formalParameter().size()){
+                    System.out.println("2" + ctx.expressionList().expression().size() + func.getParameters().formalParameterList().formalParameter().size());
                     JSFMParser.FormalParameterListContext list = func.getParameters().formalParameterList();
                     Hashtable<String, JSFMValues> tempTable = new Hashtable<String, JSFMValues>();
-                    if(!scopeStack.empty()){
-                        tempTable.putAll(scopeStack.peek());
-                    }
+
                     for(int i=0; i< list.formalParameter().size(); i++){
                         JSFMParser.FormalParameterContext param = list.formalParameter(i);
                         JSFMParser.ExpressionContext expr = ctx.expressionList().expression(i);
-                        Object temp = this.visit(expr);
+
+                        Object temp = expr.getText();
+                        String value = temp.toString();
+                        boolean boo = false;
+                        try{
+                            Float f = Float.parseFloat(temp.toString());
+                        }catch(NumberFormatException e){
+                            if(temp.toString().charAt(0) == '\"' && temp.toString().charAt(temp.toString().length()-1) == '\"'){//String
+                                value = temp.toString().substring(1, temp.toString().length()-1);
+                            }else if(temp.toString().equals("false")){
+                                boo = false;
+                            }else if(temp.toString().equals("true")){
+                                boo = true;
+                            }else{
+                                if(symbolTable.containsKey(temp.toString())){
+                                    JSFMValues tem = symbolTable.get(temp.toString());
+                                    if(!tem.isEmpty()){
+                                        switch (tem.getObjectType()){
+                                            case "techies":
+                                                value = Integer.toString(tem.getIntValue());
+                                                break;
+                                            case "float":
+                                                value = Float.toString(tem.getFloatValue());
+                                                break;
+                                            case "thread":
+                                                value = tem.getStringValue();
+                                                break;
+                                            case "boolin":
+                                                boo = tem.getBoolValue();
+                                                break;
+                                            case "kachow":
+                                                value = Character.toString(tem.getCharValue());
+                                                break;
+                                            default: TestScanner.outputTextArea.append("ERROR - Line " + ctx.start.getLine() + " - "  +
+                                                    temp.toString() + " is not a variable.\n");
+                                        }
+                                    }else{
+                                        TestScanner.outputTextArea.append("ERROR - Line " + ctx.start.getLine() + " - Variable " +
+                                                temp.toString() + " has not been initialized. Please initialize it first.\n");
+                                    }
+                                }else{
+                                    TestScanner.outputTextArea.append("ERROR - Line " + ctx.start.getLine() + " - Variable " +
+                                            temp.toString() + " does not exist. Please declare and initialize it first.\n");
+                                }
+                            }
+                        }
+                        System.out.println("TEMP " + temp.toString());
                         boolean isFinal = false;
 
                         if(param.variableModifier()!= null){
                             isFinal = true;
                         }
+
                         String type = "";
                         switch(param.typeType().getText()){
                             case "techies": type = "techies";
-                                tempTable.put(param.variableDeclaratorId().getText(), new JSFMValues(type, (int)temp, isFinal));
+                            System.out.println("3" + param.variableDeclaratorId().getText());
+                                System.out.println("312" + param.variableDeclaratorId().getText());
+                                //   tempTable.put(param.variableDeclaratorId().getText(), new JSFMValues(type, (int)temp, isFinal));
+                                JSFMValues n = new JSFMValues(type, Integer.parseInt(value), isFinal);
+                                symbolTable.put(param.variableDeclaratorId().getText(), n);
                             break;
                             case "coke": type = "coke";
-                                tempTable.put(param.variableDeclaratorId().getText(), new JSFMValues(type, (float)temp, isFinal));
+                                System.out.println("34");
+                              //  tempTable.put(param.variableDeclaratorId().getText(), new JSFMValues(type, (float)temp, isFinal));
+                                symbolTable.put(param.variableDeclaratorId().getText(), new JSFMValues(type, Float.parseFloat(value), isFinal));
                             break;
                             case "thread": type = "thread";
-                                tempTable.put(param.variableDeclaratorId().getText(), new JSFMValues(type, (String)temp, isFinal));
+                                System.out.println("35");
+                              //  tempTable.put(param.variableDeclaratorId().getText(), new JSFMValues(type, (String)temp, isFinal));
+                                symbolTable.put(param.variableDeclaratorId().getText(), new JSFMValues(type, value, isFinal));
                             break;
                             case "kachow": type = "kachow";
-                                tempTable.put(param.variableDeclaratorId().getText(), new JSFMValues(type, (char)temp, isFinal));
+                              //  tempTable.put(param.variableDeclaratorId().getText(), new JSFMValues(type, (char)temp, isFinal));
+                                symbolTable.put(param.variableDeclaratorId().getText(), new JSFMValues(type, value.charAt(0), isFinal));
                             break;
                             case "boolin" : type ="boolin";
-                                tempTable.put(param.variableDeclaratorId().getText(), new JSFMValues(type, (boolean)temp, isFinal));
+                              //  tempTable.put(param.variableDeclaratorId().getText(), new JSFMValues(type, (boolean)temp, isFinal));
+                                symbolTable.put(param.variableDeclaratorId().getText(), new JSFMValues(type, boo, isFinal));
                             break;
                             default: TestScanner.outputTextArea.append("ERROR - Line " + ctx.start.getLine() + " - Only "
                             + "variable types techies, coke, thread, kachow, and boolin are allowed as parameters.\n");
                         }
-
+                        System.out.println("HELLO?");
                     }
-                    scopeStack.push(tempTable);
+                    System.out.println("BYE METHOD CALL");
                     return this.visit(func.getActions());
                 }else{
                     TestScanner.outputTextArea.append("ERROR - Line " + ctx.start.getLine() + " - ");
@@ -1431,6 +1524,22 @@ public class JSFMVisitor extends JSFMParserBaseVisitor<Object> {
     }
 
     @Override
+    public Object visitMissingLParenMethodCall(JSFMParser.MissingLParenMethodCallContext ctx) {
+        TestScanner.outputTextArea.append("ERROR - Line " + ctx.start.getLine() + " - Missing '(' after "
+                + ctx.IDENTIFIER().getText() + ".\n");
+        return visitChildren(ctx); }
+
+    @Override
+    public Object visitMissingRParenMethodCall(JSFMParser.MissingRParenMethodCallContext ctx) {
+        TestScanner.outputTextArea.append("ERROR - Line " + ctx.start.getLine() + " - Missing ')' after ");
+        if(ctx.expressionList()!= null){
+            TestScanner.outputTextArea.append(ctx.expressionList().getText() + ".\n");
+        }else{
+            TestScanner.outputTextArea.append("'('.\n");
+        }
+        return visitChildren(ctx); }
+
+    @Override
     public Object visitPrimary(JSFMParser.PrimaryContext ctx) {
         return visitChildren(ctx);
     }
@@ -1481,13 +1590,58 @@ public class JSFMVisitor extends JSFMParserBaseVisitor<Object> {
     }
 
     @Override
+    public Object visitMissingLParenInput(JSFMParser.MissingLParenInputContext ctx) {
+        TestScanner.outputTextArea.append("ERROR - Line " + ctx.start.getLine() + " - Missing '(' after 'inputf'.\n");
+        return visitChildren(ctx); }
+
+    @Override
+    public Object visitMissingRParenInput(JSFMParser.MissingRParenInputContext ctx) {
+        TestScanner.outputTextArea.append("ERROR - Line " + ctx.start.getLine() + " - Missing ')' after "
+                + ctx.IDENTIFIER().getText() + ".\n");
+        return visitChildren(ctx); }
+
+    @Override
+    public Object visitMissingCommaInput(JSFMParser.MissingCommaInputContext ctx) {
+        TestScanner.outputTextArea.append("ERROR - Line " + ctx.start.getLine() + " - Missing ',' after "
+                + ctx.STRING_LITERAL().getText() + ".\n");
+        return visitChildren(ctx); }
+
+    @Override
+    public Object visitMissingIdenInput(JSFMParser.MissingIdenInputContext ctx) {
+        TestScanner.outputTextArea.append("ERROR - Line " + ctx.start.getLine() + " - Missing identifier after ','.\n");
+        return visitChildren(ctx); }
+
+    @Override
+    public Object visitMissingStrLitInput(JSFMParser.MissingStrLitInputContext ctx) {
+        TestScanner.outputTextArea.append("ERROR - Line " + ctx.start.getLine() + " - Missing string literal after '('.\n");
+        return visitChildren(ctx); }
+
+    @Override
+    public Object visitMissingSemiInput(JSFMParser.MissingSemiInputContext ctx) {
+        TestScanner.outputTextArea.append("ERROR - Line " + ctx.start.getLine() + " - Missing ';' after ')'.\n");
+        return visitChildren(ctx);
+    }
+
+    @Override
     public Object visitOutputStatement(JSFMParser.OutputStatementContext ctx) {
         System.out.println("IN OUTPUT STATEMENT");
         String print = "";
+        int methodCallSize = 0;
+        int methodIndex = 0;
+        if(ctx.methodCall() != null){
+            methodCallSize = ctx.methodCall().size();
+        }
 
+        System.out.println(ctx.children.toString());
         for(int i=0; i<ctx.children.size(); i++){
             String temp = ctx.children.get(i).toString();
-            if(!temp.equals("outputf") && !temp.equals("(")&& !temp.equals(")") && !temp.equals("+") && !temp.equals(";")){
+            System.out.println(temp);
+            if(methodIndex < methodCallSize && temp.equals(ctx.methodCall(methodIndex).toString())){
+                System.out.println(this.visit(ctx.methodCall(methodIndex)));
+                print += visit(ctx.methodCall(methodIndex));
+                methodIndex++;
+            }else if(!temp.equals("outputf") && !temp.equals("(")&& !temp.equals(")") && !temp.equals("+") && !temp.equals(";")
+            && !temp.equals("[") && !temp.equals("]")){
                 try{
                     float test = Float.parseFloat(temp);
                     if(test % 1 == 0){ //int
@@ -1523,39 +1677,10 @@ public class JSFMVisitor extends JSFMParserBaseVisitor<Object> {
                                             break;
                                     }
                                 } else { //array
-                                    String strArrayValues = val.getArrayValues();
-
-                                    strArrayValues = strArrayValues.replaceAll("\\{", "").replaceAll("\\}", "");
-                                    System.out.println(strArrayValues);
-                                    String[] tempArrayValues = strArrayValues.split(",");
-
-                                    switch (val.getObjectType()) {
-                                        case "techies":
-                                            for(int j = 0; j < tempArrayValues.length; j++){
-                                                print += Integer.parseInt(tempArrayValues[j]) + " ";
-                                            }
-                                            break;
-                                        case "coke":
-                                            for(int j = 0; j < tempArrayValues.length; j++){
-                                                print += Float.parseFloat(tempArrayValues[j]) + " ";
-                                            }
-                                            break;
-                                        case "thread":
-                                            for(int j = 0; j < tempArrayValues.length; j++){
-                                                print += tempArrayValues[j] + " ";
-                                            }
-                                            break;
-                                        case "kachow":
-                                            for(int j = 0; j < tempArrayValues.length; j++){
-                                                print += tempArrayValues[j].charAt(0) + " ";
-                                            }
-                                            break;
-                                        case "boolin":
-                                            for(int j = 0; j < tempArrayValues.length; j++){
-                                                print += Boolean.parseBoolean(tempArrayValues[j]) + " ";
-                                            }
-                                            break;
-                                    }
+                                    int index = Integer.parseInt(ctx.children.get(i+2).toString());
+                                    String value = val.get(index).toString();
+                                    i+=2;
+                                    print += value;
                                 }
                             }else{
                                 TestScanner.outputTextArea.append("ERROR - Line " + ctx.start.getLine() + " - Variable "
@@ -1573,6 +1698,22 @@ public class JSFMVisitor extends JSFMParserBaseVisitor<Object> {
         TestScanner.outputTextArea.append(print.replace("\\n", System.lineSeparator()));
         return print;
     }
+
+    @Override
+    public Object visitMissingLParenOutput(JSFMParser.MissingLParenOutputContext ctx) {
+        TestScanner.outputTextArea.append("ERROR - Line " + ctx.start.getLine() + " - Missing '(' after 'outputf'.\n");
+        return visitChildren(ctx);
+    }
+
+    @Override
+    public Object visitMissingRParenOutput(JSFMParser.MissingRParenOutputContext ctx) {
+        TestScanner.outputTextArea.append("ERROR - Line " + ctx.start.getLine() + " - Missing ')' before ';'.\n");
+        return visitChildren(ctx); }
+
+    @Override
+    public Object visitMissingSemiOutput(JSFMParser.MissingSemiOutputContext ctx) {
+        TestScanner.outputTextArea.append("ERROR - Line " + ctx.start.getLine() + " - Missing ';' after ')'.\n");
+        return visitChildren(ctx); }
 
     @Override
     public Object visitPrimitiveType(JSFMParser.PrimitiveTypeContext ctx) {

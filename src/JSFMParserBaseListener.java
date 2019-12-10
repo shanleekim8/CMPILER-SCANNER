@@ -495,6 +495,30 @@ public class JSFMParserBaseListener implements JSFMParserListener {
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
+	@Override public void enterOutputStmtErrors(JSFMParser.OutputStmtErrorsContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void exitOutputStmtErrors(JSFMParser.OutputStmtErrorsContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void enterInputStmtErrors(JSFMParser.InputStmtErrorsContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void exitInputStmtErrors(JSFMParser.InputStmtErrorsContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
 	@Override public void enterInputStmt(JSFMParser.InputStmtContext ctx) { }
 	/**
 	 * {@inheritDoc}
@@ -627,6 +651,30 @@ public class JSFMParserBaseListener implements JSFMParserListener {
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
+	@Override public void enterMissingLParenMethodCall(JSFMParser.MissingLParenMethodCallContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void exitMissingLParenMethodCall(JSFMParser.MissingLParenMethodCallContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void enterMissingRParenMethodCall(JSFMParser.MissingRParenMethodCallContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void exitMissingRParenMethodCall(JSFMParser.MissingRParenMethodCallContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
 	@Override public void enterPrimary(JSFMParser.PrimaryContext ctx) { }
 	/**
 	 * {@inheritDoc}
@@ -651,6 +699,78 @@ public class JSFMParserBaseListener implements JSFMParserListener {
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
+	@Override public void enterMissingLParenInput(JSFMParser.MissingLParenInputContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void exitMissingLParenInput(JSFMParser.MissingLParenInputContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void enterMissingRParenInput(JSFMParser.MissingRParenInputContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void exitMissingRParenInput(JSFMParser.MissingRParenInputContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void enterMissingCommaInput(JSFMParser.MissingCommaInputContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void exitMissingCommaInput(JSFMParser.MissingCommaInputContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void enterMissingIdenInput(JSFMParser.MissingIdenInputContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void exitMissingIdenInput(JSFMParser.MissingIdenInputContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void enterMissingStrLitInput(JSFMParser.MissingStrLitInputContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void exitMissingStrLitInput(JSFMParser.MissingStrLitInputContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void enterMissingSemiInput(JSFMParser.MissingSemiInputContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void exitMissingSemiInput(JSFMParser.MissingSemiInputContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
 	@Override public void enterOutputStatement(JSFMParser.OutputStatementContext ctx) { }
 	/**
 	 * {@inheritDoc}
@@ -658,6 +778,42 @@ public class JSFMParserBaseListener implements JSFMParserListener {
 	 * <p>The default implementation does nothing.</p>
 	 */
 	@Override public void exitOutputStatement(JSFMParser.OutputStatementContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void enterMissingLParenOutput(JSFMParser.MissingLParenOutputContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void exitMissingLParenOutput(JSFMParser.MissingLParenOutputContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void enterMissingRParenOutput(JSFMParser.MissingRParenOutputContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void exitMissingRParenOutput(JSFMParser.MissingRParenOutputContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void enterMissingSemiOutput(JSFMParser.MissingSemiOutputContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void exitMissingSemiOutput(JSFMParser.MissingSemiOutputContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *

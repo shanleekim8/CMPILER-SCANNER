@@ -109,6 +109,8 @@ statement
     | expression SEMI       #exprStmt
     | identifierLabel=IDENTIFIER COLON statement    #identifierStmt
     | outputStatement   #outputStmt
+    | outputStatementErrors #outputStmtErrors
+    | inputStatementErrors  #inputStmtErrors
     | inputStatement    #inputStmt
     ;
 
@@ -139,6 +141,7 @@ expression
       )
     | expression LBRACK expression RBRACK
     | methodCall
+    | methodCallErrors
     | LPAREN typeType RPAREN expression
     | BANG expression
     | expression bop=(MUL|DIV|MOD) expression
@@ -154,6 +157,10 @@ expression
       bop=(ASSIGN | ADD_ASSIGN | SUB_ASSIGN | MUL_ASSIGN | DIV_ASSIGN)
       expression;
 
+methodCallErrors: IDENTIFIER expressionList? RPAREN #missingLParenMethodCall
+                  |IDENTIFIER LPAREN expressionList? #missingRParenMethodCall
+                  ;
+
 primary
     : LPAREN expression RPAREN
     | literal
@@ -164,7 +171,31 @@ primary
 inputStatement  : INPUT LPAREN STRING_LITERAL
                 COMMA IDENTIFIER RPAREN SEMI;
 
-outputStatement : OUTPUT LPAREN (IDENTIFIER | FLOAT_LITERAL | DECIMAL_LITERAL | STRING_LITERAL | CHAR_LITERAL | BOOL_LITERAL)
-                ((ADD) (IDENTIFIER | FLOAT_LITERAL | DECIMAL_LITERAL | STRING_LITERAL | CHAR_LITERAL | BOOL_LITERAL))* RPAREN SEMI;
+inputStatementErrors: INPUT STRING_LITERAL COMMA IDENTIFIER RPAREN SEMI #missingLParenInput
+                    | INPUT LPAREN STRING_LITERAL COMMA IDENTIFIER SEMI #missingRParenInput
+                    | INPUT LPAREN STRING_LITERAL IDENTIFIER RPAREN SEMI #missingCommaInput
+                    | INPUT LPAREN STRING_LITERAL COMMA RPAREN SEMI #missingIdenInput
+                    | INPUT LPAREN COMMA IDENTIFIER RPAREN SEMI #missingStrLitInput
+                    | INPUT LPAREN STRING_LITERAL COMMA IDENTIFIER RPAREN #missingSemiInput
+                    ;
+
+outputStatement : OUTPUT LPAREN (IDENTIFIER | FLOAT_LITERAL | DECIMAL_LITERAL | STRING_LITERAL | CHAR_LITERAL | BOOL_LITERAL
+                | IDENTIFIER LBRACK (DECIMAL_LITERAL | IDENTIFIER) RBRACK| (methodCall | methodCallErrors))
+                ((ADD) (IDENTIFIER | FLOAT_LITERAL | DECIMAL_LITERAL | STRING_LITERAL | CHAR_LITERAL | BOOL_LITERAL
+                | IDENTIFIER LBRACK (DECIMAL_LITERAL | IDENTIFIER) RBRACK| (methodCall | methodCallErrors)))* RPAREN SEMI;
+
+outputStatementErrors: OUTPUT  (IDENTIFIER | FLOAT_LITERAL | DECIMAL_LITERAL | STRING_LITERAL | CHAR_LITERAL | BOOL_LITERAL
+                       | IDENTIFIER LBRACK (DECIMAL_LITERAL | IDENTIFIER) RBRACK| (methodCall | methodCallErrors))
+                       ((ADD) (IDENTIFIER | FLOAT_LITERAL | DECIMAL_LITERAL | STRING_LITERAL | CHAR_LITERAL | BOOL_LITERAL
+                       | IDENTIFIER LBRACK (DECIMAL_LITERAL | IDENTIFIER) RBRACK| (methodCall | methodCallErrors)))* RPAREN SEMI #missingLParenOutput
+                       |OUTPUT LPAREN (IDENTIFIER | FLOAT_LITERAL | DECIMAL_LITERAL | STRING_LITERAL | CHAR_LITERAL | BOOL_LITERAL
+                       | IDENTIFIER LBRACK (DECIMAL_LITERAL | IDENTIFIER) RBRACK| (methodCall | methodCallErrors))
+                       ((ADD) (IDENTIFIER | FLOAT_LITERAL | DECIMAL_LITERAL | STRING_LITERAL | CHAR_LITERAL | BOOL_LITERAL
+                       | IDENTIFIER LBRACK (DECIMAL_LITERAL | IDENTIFIER) RBRACK| (methodCall | methodCallErrors)))* SEMI #missingRParenOutput
+                       |OUTPUT LPAREN (IDENTIFIER | FLOAT_LITERAL | DECIMAL_LITERAL | STRING_LITERAL | CHAR_LITERAL | BOOL_LITERAL
+                       | IDENTIFIER LBRACK (DECIMAL_LITERAL | IDENTIFIER) RBRACK| (methodCall | methodCallErrors))
+                       ((ADD) (IDENTIFIER | FLOAT_LITERAL | DECIMAL_LITERAL | STRING_LITERAL | CHAR_LITERAL | BOOL_LITERAL
+                       | IDENTIFIER LBRACK (DECIMAL_LITERAL | IDENTIFIER) RBRACK| (methodCall | methodCallErrors)))* RPAREN #missingSemiOutput
+                       ;
 
 primitiveType : BOOLEAN | CHAR | INT | FLOAT;
